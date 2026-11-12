@@ -1,0 +1,32 @@
+name: Auto-Update News Feed
+
+on:
+  schedule:
+    # Uruchamia się o 7:30, 11:30 i 15:30 czasu polskiego (UTC+1/+2)
+    - cron: '30 6,10,14 * * *'
+  workflow_dispatch: # Pozwala odpalić skrypt ręcznie przyciskiem "Run workflow" na GitHubie
+
+permissions:
+  contents: write
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Pobierz najnowsze newsy (Sekurak, Niebezpiecznik, E.Leclerc)
+        run: python scripts/fetch_news.py
+
+      - name: Zapisz zmiany w repozytorium
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "Andrew-Hub Bot"
+          git add data/news.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: aktualizacja prasówki [skip ci]" && git push)
