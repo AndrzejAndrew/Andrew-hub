@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Hub // Portal Gier & Info</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Pastelowe światła w tle (Ambient Glow) -->
+  <div class="ambient-light light-cyan"></div>
+  <div class="ambient-light light-purple"></div>
+  <div class="ambient-light light-pink"></div>
+
+  <div class="app-layout" id="app-layout">
+    <!-- Pasek boczny (Nawigacja) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">⚡</div>
+        <div class="brand-text">
+          <h1>NEXUS<span>HUB</span></h1>
+          <small>v1.0 // Command Center</small>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-filter="all">⊞ Wszystkie moduły</button>
+        <button class="nav-btn" data-filter="strategy">⚙️ Strategia & Idle</button>
+        <button class="nav-btn" data-filter="arcade">🎲 Szybka przerwa</button>
+        <button class="nav-btn" data-filter="news">📡 Prasówka & Alerty</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card" id="user-card">
+          <div class="avatar" id="user-avatar">?</div>
+          <div class="user-meta">
+            <strong id="user-name">Tryb Gościa</strong>
+            <span id="user-role">Tylko publiczne moduły</span>
+          </div>
+        </div>
+        <button class="btn-auth" id="btn-auth">Zaloguj się</button>
+      </div>
+    </aside>
+
+    <!-- Główny obszar roboczy -->
+    <main class="main-area">
+      <!-- Górny pasek statusu -->
+      <header class="topbar" id="topbar">
+        <div class="welcome-box">
+          <h2 id="view-title">Dashboard</h2>
+          <p>Wybierz grę na przerwę lub przejrzyj najnowsze raporty.</p>
+        </div>
+        <div class="topbar-widgets">
+          <div class="pill-badge"><span class="dot-live"></span> System Online</div>
+          <div class="pill-badge" id="clock-widget">--:--</div>
+        </div>
+      </header>
+
+      <!-- WIDOK 1: Siatka Bento Grid -->
+      <section class="bento-grid" id="bento-dashboard">
+        
+        <!-- Kafelek 2x2: Schematic Factory (Główny projekt) -->
+        <article class="bento-item span-2x2 card-featured" data-category="strategy">
+          <div class="card-glow"></div>
+          <div class="card-top">
+            <span class="tag tag-mint">Główny Projekt</span>
+            <span class="tag tag-outline">Pełny Ekran</span>
+          </div>
+          <div class="card-body">
+            <h3>Schematic Factory</h3>
+            <p>Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn-launch" onclick="launchGame('Schematic Factory', 'https://twoja-fabryka.pages.dev', 'fullscreen')">
+              Uruchom Fabrykę →
+            </button>
+          </div>
+        </article>
+
+        <!-- Kafelek 1x2: Prasówka Security (Niebezpiecznik / Sekurak) -->
+        <article class="bento-item span-1x2 card-feed" data-category="news">
+          <div class="card-top">
+            <span class="tag tag-cyan">Security & IT</span>
+            <span class="feed-status">Auto-Sync</span>
+          </div>
+          <h3>Prasówka Bezpieczeństwa</h3>
+          <ul class="news-list" id="security-feed">
+            <li>
+              <span class="source-badge sec">Sekurak</span>
+              <a href="#" target="_blank">Nowa podatność w popularnych routerach biurowych – sprawdź wersję firmware</a>
+              <time>Dzisiaj, 08:15</time>
+            </li>
+            <li>
+              <span class="source-badge nieb">Niebezpiecznik</span>
+              <a href="#" target="_blank">Uwaga na fałszywe faktury w wiadomościach e-mail – analiza kampanii</a>
+              <time>Dzisiaj, 07:40</time>
+            </li>
+            <li>
+              <span class="source-badge sec">Sekurak</span>
+              <a href="#" target="_blank">Przegląd zmian w zabezpieczeniach przeglądarek Chromium</a>
+              <time>Wczoraj</time>
+            </li>
+          </ul>
+        </article>
+
+        <!-- Kafelek 1x1: Towarowa 35 -->
+        <article class="bento-item span-1x1" data-category="strategy">
+          <div class="card-top">
+            <span class="tag tag-purple">Ekonomia</span>
+            <span class="tag tag-outline">Pełny Ekran</span>
+          </div>
+          <div class="card-body">
+            <h3>Towarowa 35</h3>
+            <p>Zarządzanie firmą i powierzchnią biurową.</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn-launch-sm" onclick="launchGame('Towarowa 35', './games/towarowa35/index.html', 'fullscreen')">Graj</button>
+          </div>
+        </article>
+
+        <!-- Kafelek 1x1: Evolve Idle -->
+        <article class="bento-item span-1x1" data-category="strategy">
+          <div class="card-top">
+            <span class="tag tag-purple">Idle / Ewolucja</span>
+            <span class="tag tag-outline">Pełny Ekran</span>
+          </div>
+          <div class="card-body">
+            <h3>Evolve</h3>
+            <p>Rozwijaj cywilizację od pojedynczej komórki.</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn-launch-sm" onclick="launchGame('Evolve', 'https://twoje-evolve.netlify.app', 'fullscreen')">Graj</button>
+          </div>
+        </article>
+
+        <!-- Kafelek 2x1: Monitoring Mediów (Strefa Zalogowanych) -->
+        <article class="bento-item span-2x1 card-locked" id="private-feed-card" data-category="news">
+          <div class="card-top">
+            <span class="tag tag-pink">Monitoring Mediów // E.Leclerc</span>
+            <span class="lock-status" id="lock-indicator">🔒 Wymagane logowanie</span>
+          </div>
+          <div class="card-body" id="leclerc-feed-content">
+            <p class="locked-placeholder">Zaloguj się na swoje konto, aby odblokować automatyczny raport wzmianek z polskich mediów oraz tablice wyników zespołu.</p>
+          </div>
+        </article>
+
+        <!-- Kafelek 1x1: Statki (Zostaje menu boczne) -->
+        <article class="bento-item span-1x1" data-category="arcade">
+          <div class="card-top">
+            <span class="tag tag-mint">Klasyk</span>
+            <span class="tag tag-outline">Widok z Menu</span>
+          </div>
+          <div class="card-body">
+            <h3>Statki</h3>
+            <p>Szybka bitwa morska na 5 minut przerwy.</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn-launch-sm" onclick="launchGame('Statki', './games/statki/index.html', 'sidebar')">Graj</button>
+          </div>
+        </article>
+
+        <!-- Kafelek 1x1: Quiz & Papier-Kamień-Nożyce -->
+        <article class="bento-item span-1x1" data-category="arcade">
+          <div class="card-top">
+            <span class="tag tag-mint">Integracja</span>
+            <span class="tag tag-outline">Widok z Menu</span>
+          </div>
+          <div class="card-body">
+            <h3>Quiz & PKN</h3>
+            <p>Szybkie pojedynki i zagadki z zapisem do rankingu.</p>
+          </div>
+          <div class="card-actions">
+            <button class="btn-launch-sm" onclick="launchGame('Quiz Zespołowy', './games/quiz/index.html', 'sidebar')">Graj</button>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- WIDOK 2: Kontener uruchomionej gry -->
+      <section class="game-runner hidden" id="game-runner">
+        <!-- Pływający przycisk powrotu (dla gier fullscreen jak Evolve / Factory) -->
+        <button class="floating-return-btn" id="floating-return-btn" onclick="closeGame()">
+          ← Wróć do Huba
+        </button>
+
+        <!-- Górny pasek dla małych gier (tryb 'sidebar', np. Statki) -->
+        <div class="runner-bar" id="runner-bar">
+          <span id="active-game-title">Nazwa Gry</span>
+          <div class="runner-controls">
+            <button class="btn-ghost" onclick="toggleFullscreenMode()">⛶ Pełny ekran</button>
+            <button class="btn-close-game" onclick="closeGame()">✕ Zamknij grę</button>
+          </div>
+        </div>
+
+        <iframe id="game-iframe" src="about:blank" allowfullscreen></iframe>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
