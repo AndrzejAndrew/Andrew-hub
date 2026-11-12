@@ -1,0 +1,465 @@
+:root {
+  --bg-dark: #090b10;
+  --bg-panel: rgba(20, 24, 36, 0.65);
+  --bg-panel-hover: rgba(28, 34, 50, 0.8);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(165, 243, 252, 0.35);
+
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+
+  /* Pastelowe neony */
+  --pastel-cyan: #a5f3fc;
+  --pastel-purple: #d8b4fe;
+  --pastel-pink: #f9a8d4;
+  --pastel-mint: #6ee7b7;
+
+  --radius-lg: 20px;
+  --radius-md: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Pastelowe rozjaśnienia w tle */
+.ambient-light {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(130px);
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+.light-cyan {
+  width: 450px; height: 450px;
+  background: var(--pastel-cyan);
+  top: -120px; left: 15%;
+}
+.light-purple {
+  width: 500px; height: 500px;
+  background: var(--pastel-purple);
+  bottom: -150px; right: 5%;
+}
+.light-pink {
+  width: 350px; height: 350px;
+  background: var(--pastel-pink);
+  top: 40%; left: 50%;
+  opacity: 0.14;
+}
+
+/* Główny układ */
+.app-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* Pasek boczny */
+.sidebar {
+  background: rgba(13, 16, 25, 0.75);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-glass);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.brand-logo {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--pastel-cyan), var(--pastel-purple));
+  color: #090b10;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+.brand-text h1 {
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+.brand-text h1 span {
+  color: var(--pastel-cyan);
+  font-weight: 300;
+}
+.brand-text small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.nav-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border-color: var(--border-glass);
+}
+.nav-btn.active {
+  border-left: 3px solid var(--pastel-cyan);
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--border-glass);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  display: grid;
+  place-items: center;
+  color: var(--pastel-purple);
+  font-weight: 600;
+}
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+.user-meta span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.btn-auth {
+  background: rgba(216, 180, 254, 0.12);
+  border: 1px solid rgba(216, 180, 254, 0.3);
+  color: var(--pastel-purple);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+.btn-auth:hover {
+  background: rgba(216, 180, 254, 0.22);
+}
+
+/* Główna sekcja i Topbar */
+.main-area {
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.welcome-box h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+.welcome-box p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.topbar-widgets {
+  display: flex;
+  gap: 12px;
+}
+.pill-badge {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glass);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dot-live {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--pastel-mint);
+  box-shadow: 0 0 10px var(--pastel-mint);
+}
+
+/* Siatka BENTO GRID */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 210px;
+  gap: 20px;
+}
+
+.bento-item {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+.bento-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-glow);
+  background: var(--bg-panel-hover);
+}
+
+/* Rozmiary kafelków Bento */
+.span-2x2 { grid-column: span 2; grid-row: span 2; }
+.span-2x1 { grid-column: span 2; grid-row: span 1; }
+.span-1x2 { grid-column: span 1; grid-row: span 2; }
+.span-1x1 { grid-column: span 1; grid-row: span 1; }
+
+/* Wnętrze kart */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.tag {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.tag-mint { background: rgba(110, 231, 183, 0.15); color: var(--pastel-mint); }
+.tag-cyan { background: rgba(165, 243, 252, 0.15); color: var(--pastel-cyan); }
+.tag-purple { background: rgba(216, 180, 254, 0.15); color: var(--pastel-purple); }
+.tag-pink { background: rgba(249, 168, 212, 0.15); color: var(--pastel-pink); }
+.tag-outline { border: 1px solid var(--border-glass); color: var(--text-muted); }
+
+.card-body h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+.span-2x2 .card-body h3 {
+  font-size: 1.75rem;
+}
+.card-body p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.btn-launch {
+  background: linear-gradient(135deg, var(--pastel-cyan), var(--pastel-mint));
+  color: #090b10;
+  border: none;
+  padding: 12px 22px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-launch-sm {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-main);
+  border: 1px solid var(--border-glass);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.2s;
+}
+.btn-launch-sm:hover {
+  background: var(--pastel-cyan);
+  color: #090b10;
+}
+
+/* Lista newsów wewnątrz kafelka 1x2 */
+.news-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+  overflow-y: auto;
+}
+.news-list li {
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.news-list a {
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+.news-list a:hover { color: var(--pastel-cyan); }
+.news-list time { font-size: 0.72rem; color: var(--text-muted); }
+.source-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.source-badge.sec { background: rgba(165, 243, 252, 0.15); color: var(--pastel-cyan); }
+.source-badge.nieb { background: rgba(249, 168, 212, 0.15); color: var(--pastel-pink); }
+
+/* Widok Uruchomionej Gry (Sidebar vs Fullscreen) */
+.hidden { display: none !important; }
+
+.game-runner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #05070b;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  min-height: 75vh;
+  position: relative;
+}
+.runner-bar {
+  background: rgba(15, 19, 30, 0.95);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-glass);
+}
+.runner-controls { display: flex; gap: 10px; }
+.btn-ghost, .btn-close-game {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-main);
+  border: 1px solid var(--border-glass);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-close-game:hover { background: rgba(249, 168, 212, 0.2); color: var(--pastel-pink); }
+
+#game-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+/* Tryb Pełnoekranowy (Dla Evolve i Schematic Factory - ukrywa menu Huba) */
+.app-layout.fullscreen-mode {
+  grid-template-columns: 1fr;
+}
+.app-layout.fullscreen-mode .sidebar,
+.app-layout.fullscreen-mode .topbar,
+.app-layout.fullscreen-mode .runner-bar {
+  display: none;
+}
+.app-layout.fullscreen-mode .main-area {
+  padding: 0;
+}
+.app-layout.fullscreen-mode .game-runner {
+  border-radius: 0;
+  border: none;
+  height: 100vh;
+}
+
+/* Pływający przycisk powrotu w trybie Fullscreen */
+.floating-return-btn {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  background: rgba(9, 11, 16, 0.75);
+  backdrop-filter: blur(10px);
+  color: var(--pastel-cyan);
+  border: 1px solid var(--border-glow);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.floating-return-btn:hover {
+  opacity: 1;
+  transform: scale(1.04);
+}
+.app-layout.fullscreen-mode .floating-return-btn {
+  display: block;
+}
+
+/* Responsywność (Laptopy / Tablety / Komórki) */
+@media (max-width: 1150px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-glass);
+    padding: 16px;
+  }
+  .nav-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .nav-btn { white-space: nowrap; }
+  .main-area { padding: 18px; }
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  .span-2x2, .span-2x1, .span-1x2, .span-1x1 {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
