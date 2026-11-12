@@ -4,7 +4,110 @@ const gameRunner = document.getElementById('game-runner');
 const gameIframe = document.getElementById('game-iframe');
 const activeGameTitle = document.getElementById('active-game-title');
 
-// 1. Uruchamianie gry w trybie 'fullscreen' (bez menu) lub 'sidebar' (z menu)
+let newsDataCache = null;
+let isLoggedIn = false;
+
+// 1. Inicjalizacja portalu (wczytanie gier i newsów z JSON)
+async function initHub() {
+  await Promise.all([loadGames(), loadNews()]);
+  attachSpotlightEffect();
+}
+
+// 2. Dynamiczne renderowanie kafelków gier z data/games.json
+async function loadGames() {
+  try {
+    const res = await fetch('./data/games.json');
+    if (!res.ok) return;
+    const games = await res.json();
+
+    // Usuwamy stare statyczne kafelki gier (zostawiamy tylko kafelki z newsami)
+    document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
+
+    const securityCard = document.querySelector('.card-feed');
+
+    games.forEach((game, index) => {
+      const article = document.createElement('article');
+      article.className = `bento-item ${game.span} ${game.featured ? 'card-featured' : ''}`;
+      article.dataset.category = game.category;
+      article.dataset.type = 'game';
+
+      const modeLabel = game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu';
+      const btnHtml = game.featured
+        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}')">Uruchom ${game.title} →</button>`
+        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}')">Graj</button>`;
+
+      article.innerHTML = `
+        <div class="card-top">
+          <span class="tag tag-${game.tagColor}">${game.tag}</span>
+          <span class="tag tag-outline">${modeLabel}</span>
+        </div>
+        <div class="card-body">
+          <h3>${game.title}</h3>
+          <p>${game.description}</p>
+        </div>
+        <div class="card-actions">${btnHtml}</div>
+      `;
+
+      // Pierwszy kafelek (Fabryka) wstawiamy przed prasówką, resztę po niej
+      if (index === 0 && securityCard) {
+        dashboard.insertBefore(article, securityCard);
+      } else {
+        dashboard.appendChild(article);
+      }
+    });
+  } catch (err) {
+    console.warn('Używam domyślnych kafelków z HTML:', err);
+  }
+}
+
+// 3. Ładowanie prawdziwych newsów z data/news.json
+async function loadNews() {
+  try {
+    const res = await fetch('./data/news.json?t=' + Date.now());
+    if (!res.ok) return;
+    newsDataCache = await res.json();
+
+    const secFeed = document.getElementById('security-feed');
+    if (secFeed && newsDataCache.security?.length) {
+      secFeed.innerHTML = newsDataCache.security.map(item => `
+        <li>
+          <span class="source-badge ${item.badge}">${item.source}</span>
+          <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+          <time>${item.date}</time>
+        </li>
+      `).join('');
+    }
+    renderLeclercFeed();
+  } catch (err) {
+    console.warn('Brak pliku data/news.json – czekam na pierwszy run skryptu:', err);
+  }
+}
+
+function renderLeclercFeed() {
+  const leclercContent = document.getElementById('leclerc-feed-content');
+  if (!isLoggedIn) {
+    leclercContent.innerHTML = `<p class="locked-placeholder">Zaloguj się na swoje konto, aby odblokować automatyczny raport wzmianek z polskich mediów oraz tablice wyników zespołu.</p>`;
+    return;
+  }
+
+  if (newsDataCache && newsDataCache.leclerc?.length) {
+    leclercContent.innerHTML = `
+      <ul class="news-list">
+        ${newsDataCache.leclerc.map(item => `
+          <li>
+            <span class="source-badge ${item.badge}">${item.source}</span>
+            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+            <time>${item.date}</time>
+          </li>
+        `).join('')}
+      </ul>
+    `;
+  } else {
+    leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json. Uruchom akcję na GitHubie.</p>`;
+  }
+}
+
+// 4. Uruchamianie i zamykanie gier
 function launchGame(title, url, mode = 'sidebar') {
   dashboard.classList.add('hidden');
   gameRunner.classList.remove('hidden');
@@ -18,7 +121,6 @@ function launchGame(title, url, mode = 'sidebar') {
   }
 }
 
-// 2. Powrót do Huba
 function closeGame() {
   gameIframe.src = 'about:blank';
   gameRunner.classList.add('hidden');
@@ -26,12 +128,11 @@ function closeGame() {
   appLayout.classList.remove('fullscreen-mode');
 }
 
-// 3. Ręczne przełączenie pełnego ekranu w małych grach
 function toggleFullscreenMode() {
   appLayout.classList.toggle('fullscreen-mode');
 }
 
-// 4. Filtrowanie kafelków Bento po kategoriach
+// 5. Filtrowanie kafelków
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -50,64 +151,37 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
-// 5. Symulacja logowania (docelowo podepniemy tu Supabase Auth)
-let isLoggedIn = false;
+// 6. Przełącznik logowania (tymczasowy przed podpięciem Supabase)
 const btnAuth = document.getElementById('btn-auth');
-const userName = document.getElementById('user-name');
-const userRole = document.getElementById('user-role');
-const userAvatar = document.getElementById('user-avatar');
-const lockIndicator = document.getElementById('lock-indicator');
-const leclercContent = document.getElementById('leclerc-feed-content');
-
 btnAuth.addEventListener('click', () => {
   isLoggedIn = !isLoggedIn;
-  if (isLoggedIn) {
-    userName.textContent = 'Andrzej';
-    userRole.textContent = 'Administrator // Zespół IT';
-    userAvatar.textContent = 'A';
-    btnAuth.textContent = 'Wyloguj';
-    lockIndicator.textContent = '🔓 Odblokowano';
-    leclercContent.innerHTML = `
-      <ul class="news-list">
-        <li>
-          <span class="source-badge sec">Wiadomości Handlowe</span>
-          <a href="#" target="_blank">E.Leclerc rozwija systemy samoobsługowe i modernizuje infrastrukturę IT w sklepach</a>
-          <time>Dzisiaj, 09:10</time>
-        </li>
-        <li>
-          <span class="source-badge nieb">Portal Spożywczy</span>
-          <a href="#" target="_blank">Nowe promocje i wyniki sieci E.Leclerc w Polsce – podsumowanie miesiąca</a>
-          <time>Wczoraj</time>
-        </li>
-      </ul>
-    `;
-  } else {
-    userName.textContent = 'Tryb Gościa';
-    userRole.textContent = 'Tylko publiczne moduły';
-    userAvatar.textContent = '?';
-    btnAuth.textContent = 'Zaloguj się';
-    lockIndicator.textContent = '🔒 Wymagane logowanie';
-    leclercContent.innerHTML = `<p class="locked-placeholder">Zaloguj się na swoje konto, aby odblokować automatyczny raport wzmianek z polskich mediów oraz tablice wyników zespołu.</p>`;
-  }
+  document.getElementById('user-name').textContent = isLoggedIn ? 'Andrzej' : 'Tryb Gościa';
+  document.getElementById('user-role').textContent = isLoggedIn ? 'Administrator // Zespół IT' : 'Tylko publiczne moduły';
+  document.getElementById('user-avatar').textContent = isLoggedIn ? 'A' : '?';
+  btnAuth.textContent = isLoggedIn ? 'Wyloguj' : 'Zaloguj się';
+  document.getElementById('lock-indicator').textContent = isLoggedIn ? '🔓 Odblokowano' : '🔒 Wymagane logowanie';
+  renderLeclercFeed();
 });
 
-// 6. Zegar w pasku górnym
+// 7. Reflektor myszy na kafelkach
+function attachSpotlightEffect() {
+  document.querySelectorAll('.bento-item').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+      card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    });
+  });
+}
+
+// 8. Zegar
 function updateClock() {
-  const now = new Date();
-  document.getElementById('clock-widget').textContent = now.toLocaleTimeString('pl-PL', {
+  document.getElementById('clock-widget').textContent = new Date().toLocaleTimeString('pl-PL', {
     hour: '2-digit',
     minute: '2-digit'
   });
 }
 setInterval(updateClock, 1000);
 updateClock();
-// 7. Efekt reflektora (Spotlight) podążającego za kursorem na kafelkach Bento
-document.querySelectorAll('.bento-item').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    card.style.setProperty('--mouse-x', `${x}px`);
-    card.style.setProperty('--mouse-y', `${y}px`);
-  });
-});
+
+initHub();
