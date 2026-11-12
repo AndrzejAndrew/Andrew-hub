@@ -1,0 +1,62 @@
+[
+  {
+    "id": "schematic-factory",
+    "title": "Schematic Factory",
+    "description": "Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.",
+    "category": "strategy",
+    "tag": "Główny Projekt",
+    "tagColor": "mint",
+    "span": "span-2x2",
+    "mode": "fullscreen",
+    "url": "https://twoja-fabryka.pages.dev",
+    "featured": true
+  },
+  {
+    "id": "towarowa-35",
+    "title": "Towarowa 35",
+    "description": "Zarządzanie firmą i powierzchnią biurową.",
+    "category": "strategy",
+    "tag": "Ekonomia",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "fullscreen",
+    "url": "./games/towarowa35/index.html",
+    "featured": false
+  },
+  {
+    "id": "evolve",
+    "title": "Evolve",
+    "description": "Rozwijaj cywilizację od pojedynczej komórki.",
+    "category": "strategy",
+    "tag": "Idle / Ewolucja",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "fullscreen",
+    "url": "https://twoje-evolve.netlify.app",
+    "featured": false
+  },
+  {
+    "id": "statki",
+    "title": "Statki",
+    "description": "Szybka bitwa morska na 5 minut przerwy.",
+    "category": "arcade",
+    "tag": "Klasyk",
+    "tagColor": "mint",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/statki/index.html",
+    "featured": false
+  },
+  {
+    "id": "quiz",
+    "title": "Quiz & PKN",
+    "description": "Szybkie pojedynki i zagadki z zapisem do rankingu.",
+    "category": "arcade",
+    "tag": "Integracja",
+    "tagColor": "mint",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/quiz/index.html",
+    "featured": false
+  }
+]
