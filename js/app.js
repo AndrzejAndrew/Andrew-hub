@@ -151,11 +151,18 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
+// =========================================================
 // 6. AUTORYZACJA SUPABASE (Prawdziwe Logowanie i Rejestracja)
+// =========================================================
 
+// Używamy zmiennej globalnej przypisanej do window, by uniknąć błędu re-deklaracji
 const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Jeśli supabase zdefiniowano gdzieś wyżej, nie nadpisujemy, a jeśli nie – tworzymy klienta
+if (!window.dbClient) {
+    window.dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
 const authModal = document.getElementById('auth-modal');
 const btnSubmitAuth = document.getElementById('btn-submit-auth');
@@ -172,7 +179,7 @@ let isRegisterMode = false;
 // Otwieranie / zamykanie modala
 btnAuth.addEventListener('click', async () => {
   if (isLoggedIn) {
-    await supabase.auth.signOut(); // Wylogowanie
+    await window.dbClient.auth.signOut(); // Wylogowanie
   } else {
     authModal.classList.remove('hidden'); // Pokazanie modala
   }
@@ -207,7 +214,7 @@ btnSubmitAuth.addEventListener('click', async () => {
 
   if (isRegisterMode) {
     // REJESTRACJA
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await window.dbClient.auth.signUp({ email, password });
     if (error) {
       showAuthMsg('Błąd: ' + error.message, false);
     } else {
@@ -217,7 +224,7 @@ btnSubmitAuth.addEventListener('click', async () => {
     }
   } else {
     // LOGOWANIE
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await window.dbClient.auth.signInWithPassword({ email, password });
     if (error) {
       showAuthMsg('Błąd logowania. Sprawdź dane lub zapytaj admina o akceptację konta.', false);
     } else {
@@ -236,7 +243,7 @@ function showAuthMsg(msg, isSuccess) {
 }
 
 // Nasłuchuj zmian sesji (odpala się od razu przy wejściu na stronę)
-supabase.auth.onAuthStateChange((event, session) => {
+window.dbClient.auth.onAuthStateChange((event, session) => {
   isLoggedIn = !!session;
   
   if (isLoggedIn) {
@@ -260,7 +267,9 @@ supabase.auth.onAuthStateChange((event, session) => {
   renderLeclercFeed();
 });
 
+// =========================================================
 // 7. Reflektor myszy na kafelkach
+// =========================================================
 function attachSpotlightEffect() {
   document.querySelectorAll('.bento-item').forEach(card => {
     card.addEventListener('mousemove', e => {
@@ -271,7 +280,9 @@ function attachSpotlightEffect() {
   });
 }
 
+// =========================================================
 // 8. Zegar
+// =========================================================
 function updateClock() {
   document.getElementById('clock-widget').textContent = new Date().toLocaleTimeString('pl-PL', {
     hour: '2-digit',
