@@ -151,15 +151,112 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
-// 6. Przełącznik logowania (tymczasowy przed podpięciem Supabase)
+// 6. AUTORYZACJA SUPABASE (Prawdziwe Logowanie i Rejestracja)
+
+const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const authModal = document.getElementById('auth-modal');
+const btnSubmitAuth = document.getElementById('btn-submit-auth');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const authError = document.getElementById('auth-error');
+const switchMode = document.getElementById('switch-to-register');
+const modalTitle = document.getElementById('modal-title');
+const switchText = document.getElementById('switch-text');
 const btnAuth = document.getElementById('btn-auth');
-btnAuth.addEventListener('click', () => {
-  isLoggedIn = !isLoggedIn;
-  document.getElementById('user-name').textContent = isLoggedIn ? 'Andrzej' : 'Tryb Gościa';
-  document.getElementById('user-role').textContent = isLoggedIn ? 'Administrator // Zespół IT' : 'Tylko publiczne moduły';
-  document.getElementById('user-avatar').textContent = isLoggedIn ? 'A' : '?';
-  btnAuth.textContent = isLoggedIn ? 'Wyloguj' : 'Zaloguj się';
-  document.getElementById('lock-indicator').textContent = isLoggedIn ? '🔓 Odblokowano' : '🔒 Wymagane logowanie';
+
+let isRegisterMode = false;
+
+// Otwieranie / zamykanie modala
+btnAuth.addEventListener('click', async () => {
+  if (isLoggedIn) {
+    await supabase.auth.signOut(); // Wylogowanie
+  } else {
+    authModal.classList.remove('hidden'); // Pokazanie modala
+  }
+});
+
+document.getElementById('close-modal').addEventListener('click', () => {
+  authModal.classList.add('hidden');
+});
+
+// Przełączanie między Logowaniem a Rejestracją
+switchMode.addEventListener('click', (e) => {
+  e.preventDefault();
+  isRegisterMode = !isRegisterMode;
+  modalTitle.textContent = isRegisterMode ? 'Rejestracja w Nexusie' : 'Logowanie do Nexusa';
+  btnSubmitAuth.textContent = isRegisterMode ? 'Załóż konto' : 'Zaloguj się';
+  switchText.textContent = isRegisterMode ? 'Masz już konto?' : 'Nie masz konta?';
+  switchMode.textContent = isRegisterMode ? 'Zaloguj się' : 'Zarejestruj się';
+  authError.classList.add('hidden');
+});
+
+// Obsługa formularza
+btnSubmitAuth.addEventListener('click', async () => {
+  const email = authEmail.value;
+  const password = authPassword.value;
+  
+  if (!email || !password) {
+    showAuthMsg('Wypełnij oba pola.', false);
+    return;
+  }
+  
+  btnSubmitAuth.textContent = "Przetwarzanie...";
+
+  if (isRegisterMode) {
+    // REJESTRACJA
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      showAuthMsg('Błąd: ' + error.message, false);
+    } else {
+      showAuthMsg('Konto założone! Poczekaj na weryfikację i akceptację administratora.', true);
+      authEmail.value = '';
+      authPassword.value = '';
+    }
+  } else {
+    // LOGOWANIE
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      showAuthMsg('Błąd logowania. Sprawdź dane lub zapytaj admina o akceptację konta.', false);
+    } else {
+      authModal.classList.add('hidden');
+      authEmail.value = '';
+      authPassword.value = '';
+    }
+  }
+  btnSubmitAuth.textContent = isRegisterMode ? 'Załóż konto' : 'Zaloguj się';
+});
+
+function showAuthMsg(msg, isSuccess) {
+  authError.textContent = msg;
+  authError.className = `error-msg ${isSuccess ? 'success-msg' : ''}`;
+  authError.classList.remove('hidden');
+}
+
+// Nasłuchuj zmian sesji (odpala się od razu przy wejściu na stronę)
+supabase.auth.onAuthStateChange((event, session) => {
+  isLoggedIn = !!session;
+  
+  if (isLoggedIn) {
+    const email = session.user.email;
+    const name = email.split('@')[0];
+    
+    document.getElementById('user-name').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    document.getElementById('user-role').textContent = 'Zweryfikowany członek IT';
+    document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+    btnAuth.textContent = 'Wyloguj';
+    document.getElementById('lock-indicator').textContent = '🔓 Odblokowano';
+  } else {
+    document.getElementById('user-name').textContent = 'Tryb Gościa';
+    document.getElementById('user-role').textContent = 'Tylko publiczne moduły';
+    document.getElementById('user-avatar').textContent = '?';
+    btnAuth.textContent = 'Zaloguj się';
+    document.getElementById('lock-indicator').textContent = '🔒 Wymagane logowanie';
+  }
+  
+  // Po zmianie statusu odświeżamy kafelki wymagające logowania (Leclerc)
   renderLeclercFeed();
 });
 
