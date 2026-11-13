@@ -29,4 +29,4 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Andrew-Hub Bot"
           git add data/news.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: aktualizacja prasówki [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: aktualizacja prasówki" && git push)
