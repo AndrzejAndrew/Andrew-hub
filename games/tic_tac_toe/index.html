@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kółko i Krzyżyk - Nexus Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Style zgodne ze starym Towarowa35, dopasowane do ciemnego tła Huba */
+    body {
+      background-color: #0b0d14; color: #f8fafc; font-family: 'Inter', sans-serif;
+      margin: 0; padding: 20px; display: flex; justify-content: center;
+    }
+    .ttt-wrapper { max-width: 680px; width: 100%; text-align: center; }
+    .ttt-head h1 { margin-bottom: 4px; color: #fff; }
+    .ttt-meta { color: #9ca3af; margin-bottom: 24px; }
+    
+    .menu-section, .game-section { display: none; }
+    .active-section { display: block; }
+    
+    .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px;
+      border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 8px; transition: 0.2s;
+    }
+    .btn:hover { background: rgba(56,189,248,0.2); border-color: rgba(56,189,248,0.5); }
+    
+    .input-code {
+      padding: 10px; border-radius: 6px; border: 1px solid #333; background: #1a1a24;
+      color: #fff; font-size: 1rem; width: 120px; text-align: center;
+    }
+
+    .ttt-board-container { position: relative; display: inline-block; margin-top: 20px;}
+    .ttt-board {
+      display: grid; grid-template-columns: repeat(3, 100px); grid-auto-rows: 100px; gap: 6px;
+    }
+    .ttt-cell {
+      display: flex; align-items: center; justify-content: center; font-size: 64px;
+      background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px; cursor: pointer; user-select: none; transition: 0.2s; color: #fff;
+    }
+    .ttt-cell:hover:not(.disabled) { background: rgba(255,255,255,0.1); border-color: rgba(56,189,248,0.5); }
+    .ttt-cell.disabled { cursor: not-allowed; opacity: 0.6; }
+    .ttt-cell-win { background: rgba(52,211,153,0.2) !important; border-color: #34d399 !important; color: #34d399;}
+    
+    .status-panel { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #333;}
+    .code-display { font-size: 1.2rem; font-weight: bold; color: #7dd3fc; letter-spacing: 2px;}
+  </style>
+</head>
+<body>
+
+<div class="ttt-wrapper">
+  <div class="ttt-head">
+    <h1>Kółko i krzyżyk</h1>
+    <p class="ttt-meta" id="player-greeting">Łączenie z bazą bazy danych...</p>
+  </div>
+
+  <!-- MENU GŁÓWNE -->
+  <div id="menu-section" class="menu-section active-section">
+    <h2>Nowa gra</h2>
+    <button class="btn" onclick="startHotSeat()">👥 Tryb Hot-Seat (1 komputer)</button>
+    <button class="btn" onclick="createOnlineRoom()">🌍 Utwórz pokój online</button>
+    
+    <h2 style="margin-top: 30px;">Dołącz do istniejącej gry</h2>
+    <div>
+      <input type="text" id="join-code" class="input-code" maxlength="6" placeholder="KOD">
+      <button class="btn" onclick="joinOnlineRoom()">Dołącz</button>
+    </div>
+  </div>
+
+  <!-- SEKCJA GRY -->
+  <div id="game-section" class="game-section">
+    <div id="online-info" style="display:none; margin-bottom: 15px;">
+      Kod pokoju (wyślij znajomemu): <span id="room-code-display" class="code-display"></span>
+    </div>
+    
+    <div class="status-panel">
+      <h3 id="game-status" style="margin:0 0 10px 0;">Oczekiwanie na gracza...</h3>
+      <div style="font-size: 0.9rem; color: #aaa;">
+        Gracz X: <span id="player-x-name">Czeka...</span> | Gracz O: <span id="player-o-name">Czeka...</span>
+      </div>
+    </div>
+
+    <div class="ttt-board-container">
+      <div id="board" class="ttt-board"></div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button class="btn" onclick="returnToMenu()">Wróć do menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // INICJALIZACJA BAZY
+  const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp'; // KLUCZ ANON PUBLIC
+  
+  let dbClient;
+  if (window.parent.dbClient) {
+      dbClient = window.parent.dbClient; // Pobiera instancję z głównego Huba jeśli działa w iframe
+  } else {
+      dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+
+  let currentUser = null;
+  let currentRoomId = null;
+  let gameMode = null; // 'hotseat' lub 'online'
+  let mySymbol = null; // 'X' lub 'O' w trybie online
+  let subscription = null;
+  let localBoard = '_________';
+  let localTurn = 'X';
+  let localStatus = 'playing'; // 'playing', 'finished'
+
+  // Sprawdzanie logowania (wymagane do trybu online)
+  async function checkAuth() {
+    const { data: { session } } = await dbClient.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      document.getElementById('player-greeting').textContent = 'Zalogowano jako: ' + currentUser.email.split('@')[0];
+    } else {
+      document.getElementById('player-greeting').textContent = 'Tryb gościa. Zaloguj się w Hubie, aby grać online.';
+    }
+  }
+  checkAuth();
+
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('game-status');
+  const menuSection = document.getElementById('menu-section');
+  const gameSection = document.getElementById('game-section');
+
+  // TRYB HOT-SEAT (Tylko lokalnie, bez bazy)
+  function startHotSeat() {
+    gameMode = 'hotseat';
+    localBoard = '_________';
+    localTurn = 'X';
+    localStatus = 'playing';
+    
+    document.getElementById('online-info').style.display = 'none';
+    document.getElementById('player-x-name').textContent = 'Gracz 1';
+    document.getElementById('player-o-name').textContent = 'Gracz 2';
+    
+    menuSection.classList.remove('active-section');
+    gameSection.classList.add('active-section');
+    
+    renderBoard();
+  }
+
+  // TWORZENIE GRY ONLINE
+  async function createOnlineRoom() {
+    if (!currentUser) return alert('Musisz być zalogowany, aby stworzyć pokój online!');
+    const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+    
+    const { data, error } = await dbClient
+      .from('tic_tac_toe')
+      .insert([{ room_code: code, player_x: currentUser.id }])
+      .select()
+      .single();
+
+    if (error) return alert('Błąd tworzenia pokoju: ' + error.message);
+    
+    setupOnlineGame(data.id, code, 'X');
+  }
+
+  // DOŁĄCZANIE DO GRY ONLINE
+  async function joinOnlineRoom() {
+    if (!currentUser) return alert('Musisz być zalogowany!');
+    const code = document.getElementById('join-code').value.toUpperCase();
+    if (!code) return;
+
+    const { data: room, error: searchError } = await dbClient
+      .from('tic_tac_toe').select('*').eq('room_code', code).single();
+
+    if (searchError || !room) return alert('Nie znaleziono takiego pokoju.');
+    if (room.status !== 'waiting' && room.player_x !== currentUser.id && room.player_o !== currentUser.id) {
+        return alert('Gra w tym pokoju już trwa!');
+    }
+
+    let symbol = 'O';
+    if (room.player_x === currentUser.id) {
+        symbol = 'X'; // Właściciel wraca
+    } else if (!room.player_o) {
+      // Dołączenie jako O
+      await dbClient.from('tic_tac_toe')
+        .update({ player_o: currentUser.id, status: 'playing' })
+        .eq('id', room.id);
+    } else if (room.player_o === currentUser.id) {
+        symbol = 'O'; // Gracz O wraca
+    }
+
+    setupOnlineGame(room.id, code, symbol);
+  }
+
+  function setupOnlineGame(roomId, code, symbol) {
+    gameMode = 'online';
+    currentRoomId = roomId;
+    mySymbol = symbol;
+    
+    document.getElementById('online-info').style.display = 'block';
+    document.getElementById('room-code-display').textContent = code;
+    
+    menuSection.classList.remove('active-section');
+    gameSection.classList.add('active-section');
+
+    subscribeToGame();
+  }
+
+  // NASŁUCHIWANIE BAZY (REALTIME SUPABASE)
+  function subscribeToGame() {
+    if (subscription) dbClient.removeChannel(subscription);
+
+    subscription = dbClient.channel('game-updates')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tic_tac_toe', filter: `id=eq.${currentRoomId}` }, 
+        payload => { updateOnlineState(payload.new); }
+      )
+      .subscribe();
+
+    // Pobierz stan początkowy
+    dbClient.from('tic_tac_toe').select('*').eq('id', currentRoomId).single()
+      .then(({data}) => updateOnlineState(data));
+  }
+
+  function updateOnlineState(dbState) {
+    localBoard = dbState.board;
+    localTurn = dbState.turn;
+    localStatus = dbState.status;
+
+    document.getElementById('player-x-name').textContent = dbState.player_x ? 'Zalogowany (X)' : 'Czeka...';
+    document.getElementById('player-o-name').textContent = dbState.player_o ? 'Zalogowany (O)' : 'Czeka...';
+
+    renderBoard();
+  }
+
+  // RYSOWANIE PLANSZY I RUCHY
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    const brd = localBoard.split('');
+    const winCells = checkWin(localBoard);
+
+    if (localStatus === 'finished') {
+      statusEl.textContent = winCells ? `Koniec gry! Wygrywa: ${localTurn === 'X' ? 'O' : 'X'}` : 'Koniec gry! Remis.';
+      statusEl.style.color = winCells ? '#34d399' : '#9ca3af';
+    } else if (gameMode === 'online' && localStatus === 'waiting') {
+      statusEl.textContent = 'Oczekiwanie na drugiego gracza...';
+      statusEl.style.color = '#7dd3fc';
+    } else {
+      statusEl.textContent = `Tura gracza: ${localTurn}`;
+      statusEl.style.color = '#fff';
+    }
+
+    brd.forEach((val, idx) => {
+      const cell = document.createElement('div');
+      cell.className = 'ttt-cell';
+      cell.textContent = val === '_' ? '' : val;
+
+      // Logika blokowania pól
+      let canClick = false;
+      if (val === '_' && localStatus === 'playing') {
+        if (gameMode === 'hotseat') canClick = true;
+        if (gameMode === 'online' && mySymbol === localTurn) canClick = true;
+      }
+
+      if (!canClick) cell.classList.add('disabled');
+      if (winCells && winCells.includes(idx)) cell.classList.add('ttt-cell-win');
+
+      cell.addEventListener('click', () => { if(canClick) makeMove(idx); });
+      boardEl.appendChild(cell);
+    });
+  }
+
+  async function makeMove(idx) {
+    const brdArr = localBoard.split('');
+    brdArr[idx] = localTurn;
+    const newBoard = brdArr.join('');
+    const winCells = checkWin(newBoard);
+    
+    let newStatus = 'playing';
+    let newTurn = localTurn === 'X' ? 'O' : 'X';
+    let winner = null;
+
+    if (winCells) {
+      newStatus = 'finished';
+      winner = localTurn;
+    } else if (!newBoard.includes('_')) {
+      newStatus = 'finished';
+      winner = 'draw';
+    }
+
+    if (gameMode === 'hotseat') {
+      localBoard = newBoard;
+      localTurn = newTurn;
+      localStatus = newStatus;
+      renderBoard();
+    } else if (gameMode === 'online') {
+      localTurn = newTurn; // blokada przed dublowaniem w UI
+      renderBoard();
+      await dbClient.from('tic_tac_toe')
+        .update({ board: newBoard, turn: newTurn, status: newStatus, winner: winner })
+        .eq('id', currentRoomId);
+    }
+  }
+
+  // SPRAWDZANIE ZWYCIĘZCY
+  function checkWin(boardStr) {
+    const p = [ [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6] ];
+    for (let c of p) {
+      if (boardStr[c[0]] !== '_' && boardStr[c[0]] === boardStr[c[1]] && boardStr[c[1]] === boardStr[c[2]]) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  function returnToMenu() {
+    if(subscription) dbClient.removeChannel(subscription);
+    gameSection.classList.remove('active-section');
+    menuSection.classList.add('active-section');
+  }
+</script>
+
+</body>
+</html>
