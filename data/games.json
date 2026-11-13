@@ -1,5 +1,17 @@
 [
   {
+    "id": "tictactoe",
+    "title": "Kółko i Krzyżyk (Multiplayer)",
+    "description": "Zagraj z kolegą przy jednym biurku lub połączcie się w biurze wpisując kod pokoju. Na żywo, przez Supabase.",
+    "category": "arcade",
+    "tag": "Multiplayer",
+    "tagColor": "pink",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/tic_tac_toe/index.html",
+    "featured": false
+  }
+  {
     "id": "schematic-factory",
     "title": "Schematic Factory",
     "description": "Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.",
