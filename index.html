@@ -196,7 +196,36 @@
       </section>
     </main>
   </div>
+<!-- SUPABASE JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- MODAL LOGOWANIA / REJESTRACJI -->
+  <div id="auth-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-modal" class="btn-close-modal">✕</button>
+      <div class="brand-logo" style="margin: 0 auto 16px; width: 48px; height: 48px;">⚡</div>
+      <h3 id="modal-title" style="text-align: center; margin-bottom: 20px;">Logowanie do Nexusa</h3>
+      
+      <div class="input-group">
+        <label>Adres e-mail</label>
+        <input type="email" id="auth-email" placeholder="nick@twojafirma.pl">
+      </div>
+      <div class="input-group">
+        <label>Hasło</label>
+        <input type="password" id="auth-password" placeholder="••••••••">
+      </div>
+      
+      <p id="auth-error" class="error-msg hidden"></p>
+      
+      <button id="btn-submit-auth" class="btn-launch" style="width: 100%;">Zaloguj się</button>
+      
+      <p class="auth-switch">
+        <span id="switch-text">Nie masz konta?</span> 
+        <a href="#" id="switch-to-register">Zarejestruj się</a>
+      </p>
+    </div>
+  </div>
   <script src="js/app.js"></script>
+  
 </body>
 </html>
