@@ -1,6 +1,14 @@
 {
-  "updated_at": "13.11.2026 11:45",
+  "updated_at": "13.11.2026 20:57",
   "security": [
+    {
+      "title": "Autopay zhackowane. Możliwy wyciek danych finansowych. [Aktualizacja]",
+      "link": "https://sekurak.pl/autopay-zhackowane-mozliwy-wyciek-danych-finansowych/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "13.11.2026, 17:23",
+      "timestamp": 1794590599.0
+    },
     {
       "title": "Trwa globalna awaria Outlooka / Microsoftu 365",
       "link": "https://sekurak.pl/trwa-globalna-awaria-outlooka-microsoftu-365/",
@@ -24,14 +32,6 @@
       "badge": "sec",
       "date": "09.11.2026, 09:54",
       "timestamp": 1794218071.0
-    },
-    {
-      "title": "Nadchodzący model OpenAI – GPT 6 Cyber starł na miazgę jądro Linux, a dokładniej…",
-      "link": "https://sekurak.pl/nadchodzacy-model-openai-gpt-6-cyber-starl-na-miazge-jadro-linux-a-dokladniej/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "06.11.2026, 20:38",
-      "timestamp": 1793997531.0
     }
   ],
   "leclerc": [
