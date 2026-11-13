@@ -1,17 +1,5 @@
 [
   {
-    "id": "tictactoe",
-    "title": "Kółko i Krzyżyk (Multiplayer)",
-    "description": "Zagraj z kolegą przy jednym biurku lub połączcie się w biurze wpisując kod pokoju. Na żywo, przez Supabase.",
-    "category": "arcade",
-    "tag": "Multiplayer",
-    "tagColor": "pink",
-    "span": "span-1x1",
-    "mode": "sidebar",
-    "url": "./games/tic_tac_toe/index.html",
-    "featured": false
-  }
-  {
     "id": "schematic-factory",
     "title": "Schematic Factory",
     "description": "Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.",
@@ -20,7 +8,7 @@
     "tagColor": "mint",
     "span": "span-2x2",
     "mode": "fullscreen",
-    "url": "https://twoja-fabryka.pages.dev",
+    "url": "https://fabryka.andrzejandrewendrju.workers.dev",
     "featured": true
   },
   {
@@ -32,7 +20,7 @@
     "tagColor": "purple",
     "span": "span-1x1",
     "mode": "fullscreen",
-    "url": "./games/towarowa35/index.html",
+    "url": "https://towarowa35.great-site.net",
     "featured": false
   },
   {
@@ -44,7 +32,7 @@
     "tagColor": "purple",
     "span": "span-1x1",
     "mode": "fullscreen",
-    "url": "https://twoje-evolve.netlify.app",
+    "url": "https://elaborate-liger-3689d4.netlify.app",
     "featured": false
   },
   {
@@ -69,6 +57,18 @@
     "span": "span-1x1",
     "mode": "sidebar",
     "url": "./games/quiz/index.html",
+    "featured": false
+  },
+  {
+    "id": "tictactoe",
+    "title": "Kółko i Krzyżyk (Multiplayer)",
+    "description": "Zagraj z kolegą przy jednym biurku lub połączcie się w biurze wpisując kod pokoju. Na żywo, przez Supabase.",
+    "category": "arcade",
+    "tag": "Multiplayer",
+    "tagColor": "pink",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/tic_tac_toe/index.html",
     "featured": false
   }
 ]
