@@ -2,9 +2,9 @@ name: Auto-Update News Feed
 
 on:
   schedule:
-    # Uruchamia się o 7:30, 11:30 i 15:30 czasu polskiego (UTC+1/+2)
+    # Uruchamia się o 7:30, 11:30 i 15:30 czasu polskiego
     - cron: '30 6,10,14 * * *'
-  workflow_dispatch: # Pozwala odpalić skrypt ręcznie przyciskiem "Run workflow" na GitHubie
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,8 +17,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Skonfiguruj Pythona
-        - uses: actions/checkout@v5
-        - uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Pobierz najnowsze newsy (Sekurak, Niebezpiecznik, E.Leclerc)
         run: python scripts/fetch_news.py
