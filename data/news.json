@@ -1,6 +1,14 @@
 {
-  "updated_at": "12.11.2026 21:30",
+  "updated_at": "13.11.2026 11:45",
   "security": [
+    {
+      "title": "Trwa globalna awaria Outlooka / Microsoftu 365",
+      "link": "https://sekurak.pl/trwa-globalna-awaria-outlooka-microsoftu-365/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "13.11.2026, 07:51",
+      "timestamp": 1794556290.0
+    },
     {
       "title": "Zaryzykowaliśmy podwójną stawkę – i już wiemy, że nie ma powrotu do starego formatu! Sprawdźcie, dlaczego Kraków pod koniec października był nasz",
       "link": "https://sekurak.pl/relacja-mshp-2026/",
@@ -24,14 +32,6 @@
       "badge": "sec",
       "date": "06.11.2026, 20:38",
       "timestamp": 1793997531.0
-    },
-    {
-      "title": "Black Week Early Access. Zgarnij absolutnie NAJLEPSZE zniżki od sekuraka!",
-      "link": "https://sekurak.pl/black-week-early-access-zgarnij-absolutnie-najlepsze-znizki-od-sekuraka/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "06.11.2026, 14:15",
-      "timestamp": 1793974545.0
     }
   ],
   "leclerc": [
@@ -52,12 +52,20 @@
       "timestamp": 1794331800.0
     },
     {
-      "title": "E.Leclerc Polska stawia na AI. Tomasz Adamczyk nowym szefem operacji",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQaVNZV3BSX2Y5S2dyaF9UOGJ5RVJnRFBUNl9GUXZ4Zi10U1FzV3FfSU1TbW52b0M5OW8wYnNaNnd2YlRZajJSNlduM2lqSFprQy1mX21Rdm9RMDFZQi1DbHNlc3g0RHdGU3A4UVpCQTRMWWZTZXFiTktzTU0wamhWM1UxRi1hSmxYOE9tZU0yVE96VTkxVWhqVmlQSm5faTJIWU14djNHa2l2UTdjTkYzNjN0Snh5cFBpck9adw?oc=5",
+      "title": "E.Leclerc uszczelnia systemy IT. Sieć odłącza systemy chłodnicze od otwartego internetu",
+      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQZkh1WmYxTVl5VHdRenA5NnhUMTdrZ2RWaEpyQ0pWbFN0TGx1dzdHMnZWc0J2OTVDZlFlU0MzTDN5ZzlLTlRoemhBMjdHUExFdU5FM2xRVWEwUzJpeEU2WnVFUnpFY2I4cVJlZEhRektnWFNQYUQ4QWFrVVYtcUlqbWZ5dHlmNTVjVFhHS2FyRl9EblZPTlFCVmdIUG85QlRZX1BHXzJVNXN4NW1RcUcwT3ZKbW8wOTlNVUM3Q2tKdVhPc2xGWlQ0c1RuOGdvbUJvamdzbXI0MDNzN2pBdXNmOVYybw?oc=5",
       "source": "Wiadomości Handlowe",
       "badge": "sec",
-      "date": "04.11.2026, 21:53",
-      "timestamp": 1793829226.0
+      "date": "09.11.2026, 14:28",
+      "timestamp": 1794234480.0
+    },
+    {
+      "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
+      "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNMzlPelgxdzA1alJ3QWN2LV9qU3VwVDB2ZW1Rb0FUdHFhM2pBdkNxaU5JLWlYRnhJdUUyRTVoRzVIZkRXYzg0Y3NicG01VEdHZUNmU1ZxQzNmNnFiQWRYRDcxalNnMEtOVHhZWEFEUDVPdGtiUGl1UGJhQWRQbndiMU96elJWY3hwT0ttVk1ValNEOThsNkkyQkhXeUl4QlJNQ3N0ODdqbXhMUWtYMktMZS1FeVdfZmt3S3Rsa1dLNkl5UUxwbzUwYXlPVHFncktvOUE?oc=5",
+      "source": "Portal spożywczy",
+      "badge": "sec",
+      "date": "09.11.2026, 14:22",
+      "timestamp": 1794234120.0
     },
     {
       "title": "E.Leclerc zmienia sieć w Polsce. Duży sklep zakończy działalność już niebawem",
@@ -74,14 +82,6 @@
       "badge": "sec",
       "date": "25.06.2026, 07:00",
       "timestamp": 1782370800.0
-    },
-    {
-      "title": "Strefa Motoru w CH E.Leclerc Zana 19",
-      "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE03TVA5blljUzVwcmtMOWFJMFZJeW0yNmd2RldJRlZPTk9TX2J2YlpvZjBWY1BLbF9tMXBGa1ZkbzRNOElrd2o0c3c1S05VTllZQ0hYX00xUjM0dW5tMjVFTW1NUldDLUNMenREZ2FaaGlXVzg?oc=5",
-      "source": "Motor Lublin",
-      "badge": "sec",
-      "date": "20.05.2026, 07:00",
-      "timestamp": 1779260400.0
     }
   ]
 }
