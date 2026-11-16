@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz - Lobby</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #05060a; color: #f8fafc; font-family: 'Inter', sans-serif;
+      margin: 0; padding: 30px 20px; display: flex; justify-content: center;
+    }
+    .quiz-wrapper { max-width: 700px; width: 100%; }
+    h1 { color: #fff; font-size: 2.2rem; margin-bottom: 5px; text-align: center; }
+    .meta-text { color: #8b95a5; font-size: 0.9rem; text-align: center; margin-bottom: 25px; }
+
+    .panel {
+      background: rgba(10,12,18,0.8); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 25px; margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .view-section { display: none; animation: fadeIn 0.3s ease; }
+    .active-view { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px 20px;
+      border-radius: 10px; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: 0.2s;
+    }
+    .btn:hover { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(180deg, rgba(52,211,153,0.2), rgba(52,211,153,0.05)); border-color: rgba(52,211,153,0.4); color: #34d399; width: 100%; padding: 14px; font-size: 1.1rem;}
+    
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; font-size: 0.85rem; color: #8b95a5; margin-bottom: 5px; }
+    .input-control {
+      width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.4); color: #fff; font-size: 1rem; outline: none; box-sizing: border-box;
+    }
+    .input-control:focus { border-color: #7dd3fc; }
+    
+    .flex-row { display: flex; gap: 15px; }
+    .flex-row > div { flex: 1; }
+
+    /* Lista graczy w Lobby */
+    .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+    .player-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px; border-radius: 8px; text-align: center; color: #7dd3fc; font-weight: 600;
+    }
+
+    .code-display { font-size: 2rem; color: #34d399; letter-spacing: 4px; text-align: center; margin: 10px 0; font-weight: bold; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="quiz-wrapper">
+  <h1>Wielki Quiz</h1>
+  <p class="meta-text" id="status-text">Łączenie z bazą...</p>
+
+  <!-- WIDOK 1: MENU GŁÓWNE -->
+  <div id="view-menu" class="view-section active-view">
+    <div class="flex-row">
+      <!-- Tworzenie gry (Host) -->
+      <div class="panel">
+        <h2 style="margin-top:0; color:#34d399;">Utwórz Pokój (Host)</h2>
+        <div class="flex-row">
+          <div class="input-group">
+            <label>Liczba rund</label>
+            <input type="number" id="set-rounds" class="input-control" value="3" min="1" max="10">
+          </div>
+          <div class="input-group">
+            <label>Pytań na rundę</label>
+            <input type="number" id="set-questions" class="input-control" value="5" min="1" max="20">
+          </div>
+        </div>
+        <div class="flex-row">
+          <div class="input-group">
+            <label>Czas wyboru kat. (sek)</label>
+            <input type="number" id="set-votetime" class="input-control" value="10" min="5" max="30">
+          </div>
+          <div class="input-group">
+            <label>Czas na odp. (sek)</label>
+            <input type="number" id="set-anstime" class="input-control" value="15" min="5" max="60">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="createRoom()">Utwórz grę</button>
+      </div>
+
+      <!-- Dołączanie (Gracz) -->
+      <div class="panel">
+        <h2 style="margin-top:0; color:#7dd3fc;">Dołącz do Gry</h2>
+        <div class="input-group">
+          <label>Twój Nick</label>
+          <input type="text" id="join-nick" class="input-control" placeholder="Wpisz swój nick">
+        </div>
+        <div class="input-group">
+          <label>Kod Pokoju</label>
+          <input type="text" id="join-code" class="input-control" placeholder="np. ABCD1" style="text-transform: uppercase;">
+        </div>
+        <button class="btn btn-primary" onclick="joinRoom()" style="background: linear-gradient(180deg, rgba(56,189,248,0.2), rgba(56,189,248,0.05)); border-color: rgba(56,189,248,0.4); color:#7dd3fc;">Dołącz</button>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 10px;">
+      <button class="btn" onclick="toggleProposeModal()">💡 Zaproponuj własne pytanie do bazy</button>
+    </div>
+  </div>
+
+  <!-- WIDOK 2: LOBBY POKOJU -->
+  <div id="view-lobby" class="view-section panel">
+    <h2 style="text-align:center; margin-top:0;">Oczekujący gracze</h2>
+    <div class="code-display" id="lobby-code">----</div>
+    <p style="text-align:center; color:#8b95a5;">Zaproś zespół podając powyższy kod</p>
+    
+    <div class="players-grid" id="players-list">
+      <!-- Karty graczy -->
+    </div>
+
+    <div id="host-controls" class="hidden" style="margin-top: 30px;">
+      <button class="btn btn-primary" onclick="startGame()">▶ Rozpocznij Quiz</button>
+    </div>
+  </div>
+
+  <!-- WIDOK 3: FORMULARZ ZGŁASZANIA PYTAŃ (Ukryty) -->
+  <div id="view-propose" class="view-section panel">
+    <h2 style="margin-top:0; color:#f9a8d4;">Zaproponuj Pytanie</h2>
+    <p style="font-size:0.85rem; color:#8b95a5;">Twoje pytanie trafi do weryfikacji. Zaznacz poprawną odpowiedź kropką.</p>
+    
+    <div class="input-group">
+      <label>Kategoria (np. IT, Biuro, Wiedza Ogólna)</label>
+      <input type="text" id="prop-cat" class="input-control">
+    </div>
+    <div class="input-group">
+      <label>Treść pytania</label>
+      <input type="text" id="prop-q" class="input-control">
+    </div>
+    
+    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+      <input type="radio" name="prop-correct" value="0" checked>
+      <input type="text" id="prop-a0" class="input-control" placeholder="Odpowiedź A">
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+      <input type="radio" name="prop-correct" value="1">
+      <input type="text" id="prop-a1" class="input-control" placeholder="Odpowiedź B">
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+      <input type="radio" name="prop-correct" value="2">
+      <input type="text" id="prop-a2" class="input-control" placeholder="Odpowiedź C">
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+      <input type="radio" name="prop-correct" value="3">
+      <input type="text" id="prop-a3" class="input-control" placeholder="Odpowiedź D">
+    </div>
+
+    <div class="flex-row">
+      <button class="btn" onclick="toggleProposeModal()">Anuluj</button>
+      <button class="btn" style="background:rgba(249,168,212,0.2); color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyszlij do akceptacji</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
+  
+  let dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let currentUser = null;
+  let currentRoomId = null;
+  let isHost = false;
+  let subscription = null;
+
+  async function init() {
+    const { data: { session } } = await dbClient.auth.getSession();
+    if (!session) {
+      document.getElementById('status-text').textContent = 'Musisz być zalogowany w Hubie, aby zagrać w Quiz!';
+      document.getElementById('view-menu').classList.add('hidden');
+      return;
+    }
+    currentUser = session.user;
+    let autoNick = currentUser.email.split('@')[0];
+    document.getElementById('join-nick').value = autoNick.charAt(0).toUpperCase() + autoNick.slice(1);
+    document.getElementById('status-text').textContent = 'Zalogowano. Wybierz akcję.';
+  }
+  init();
+
+  function switchView(viewId) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+    document.getElementById(viewId).classList.add('active-view');
+  }
+
+  // TWORZENIE POKOJU (HOST)
+  async function createRoom() {
+    const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const settings = {
+      rounds: parseInt(document.getElementById('set-rounds').value),
+      q_per_round: parseInt(document.getElementById('set-questions').value),
+      vote_time: parseInt(document.getElementById('set-votetime').value),
+      ans_time: parseInt(document.getElementById('set-anstime').value),
+      mode: 'ffa'
+    };
+
+    const { data: room, error } = await dbClient.from('quiz_rooms')
+      .insert([{ room_code: code, host_id: currentUser.id, settings: settings }])
+      .select().single();
+
+    if (error) return alert('Błąd: ' + error.message);
+    
+    isHost = true;
+    document.getElementById('host-controls').classList.remove('hidden');
+    
+    // Host od razu dołącza jako gracz
+    await addPlayerToRoom(room.id, document.getElementById('join-nick').value);
+    enterLobby(room.id, code);
+  }
+
+  // DOŁĄCZANIE (GRACZ)
+  async function joinRoom() {
+    const code = document.getElementById('join-code').value.toUpperCase();
+    const nick = document.getElementById('join-nick').value;
+    if (!code || !nick) return alert('Podaj kod i nick!');
+
+    const { data: room, error } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
+    if (error || !room) return alert('Nie znaleziono pokoju o tym kodzie.');
+    if (room.status !== 'lobby') return alert('Gra już trwa!');
+
+    await addPlayerToRoom(room.id, nick);
+    enterLobby(room.id, code);
+  }
+
+  async function addPlayerToRoom(roomId, nickname) {
+    await dbClient.from('quiz_players').insert([{ room_id: roomId, user_id: currentUser.id, nickname: nickname }]);
+  }
+
+  // WIDOK LOBBY I REALTIME
+  function enterLobby(roomId, code) {
+    currentRoomId = roomId;
+    document.getElementById('lobby-code').textContent = code;
+    switchView('view-lobby');
+    fetchPlayers();
+
+    // Nasłuchiwanie nowych graczy
+    if(subscription) dbClient.removeChannel(subscription);
+    subscription = dbClient.channel('lobby-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, 
+        () => fetchPlayers()
+      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` },
+        (payload) => {
+          if (payload.new.status === 'voting' && !isHost) {
+            alert('Host wystartował grę! Przechodzimy do Etapu 3 (wkrótce).');
+            // Tutaj w przyszłości odpalimy switchView('view-game')
+          }
+        }
+      )
+      .subscribe();
+  }
+
+  async function fetchPlayers() {
+    const { data } = await dbClient.from('quiz_players').select('nickname').eq('room_id', currentRoomId);
+    const list = document.getElementById('players-list');
+    list.innerHTML = '';
+    if(data) {
+      data.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'player-card';
+        div.textContent = p.nickname;
+        list.appendChild(div);
+      });
+    }
+  }
+
+  // START GRY PRZEZ HOSTA (przygotowanie pod Etap 3)
+  async function startGame() {
+    await dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
+    alert('Rozpoczynamy! Przechodzimy do Etapu 3 (Głosowanie na kategorię).');
+  }
+
+  // ZGŁASZANIE WŁASNYCH PYTAŃ
+  function toggleProposeModal() {
+    const propView = document.getElementById('view-propose');
+    if (propView.classList.contains('active-view')) {
+      switchView('view-menu');
+    } else {
+      switchView('view-propose');
+    }
+  }
+
+  async function submitProposal() {
+    const cat = document.getElementById('prop-cat').value;
+    const q = document.getElementById('prop-q').value;
+    const a0 = document.getElementById('prop-a0').value;
+    const a1 = document.getElementById('prop-a1').value;
+    const a2 = document.getElementById('prop-a2').value;
+    const a3 = document.getElementById('prop-a3').value;
+    const correctIdx = parseInt(document.querySelector('input[name="prop-correct"]:checked').value);
+
+    if(!cat || !q || !a0 || !a1 || !a2 || !a3) return alert('Wypełnij wszystkie pola!');
+
+    const { error } = await dbClient.from('quiz_questions').insert([{
+      category: cat,
+      question: q,
+      answers: [a0, a1, a2, a3],
+      correct_index: correctIdx,
+      author_id: currentUser.id,
+      author_name: document.getElementById('join-nick').value,
+      is_verified: false // Czeka na Twoją weryfikację
+    }]);
+
+    if (error) {
+      alert('Błąd: ' + error.message);
+    } else {
+      alert('Pytanie wysłane do weryfikacji! Dziękujemy.');
+      document.querySelectorAll('#view-propose input[type="text"]').forEach(el => el.value = '');
+      toggleProposeModal();
+    }
+  }
+</script>
+
+</body>
+</html>
