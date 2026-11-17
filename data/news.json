@@ -1,6 +1,14 @@
 {
-  "updated_at": "16.11.2026 16:17",
+  "updated_at": "17.11.2026 16:23",
   "security": [
+    {
+      "title": "Deepfake’ami podszywali się pod prezesów / prawników. Ukradli $129 milionów (!)",
+      "link": "https://sekurak.pl/deepfakeami-podszywali-sie-pod-prezesow-prawnikow-ukradli-129-milionow/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "16.11.2026, 20:17",
+      "timestamp": 1794860269.0
+    },
     {
       "title": "Wiadomo co było przyczyną ostatnich giga problemów z niedostępnością Outlooka. Nieszczęśliwy zbieg kilku problemów jednocześnie",
       "link": "https://sekurak.pl/wiadomo-co-bylo-przyczyna-ostatnich-giga-problemow-z-niedostepnoscia-outlooka-nieszczesliwy-zbieg-kilku-problemow-jednoczesnie/",
@@ -24,17 +32,25 @@
       "badge": "sec",
       "date": "15.11.2026, 23:58",
       "timestamp": 1794787098.0
-    },
-    {
-      "title": "Cisco Catalyst SD-WAN na celowniku grupy APT. Cyberprzestępcy używają luki CVE-2026-20127 do przejmowania urządzeń",
-      "link": "https://sekurak.pl/cisco-catalyst-sd-wan-na-celowniku-grupy-apt-cyberprzestepcy-uzywaja-luki-cve-2026-20127-do-przejmowania-urzadzen/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "15.11.2026, 23:55",
-      "timestamp": 1794786922.0
     }
   ],
   "leclerc": [
+    {
+      "title": "Święta coraz bliżej! W E.Leclerc w Radomiu ruszyła świąteczna aleja. Jest też Sklep Świętego Mikołaja",
+      "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxQTndpdmEyamlYV25nbzZyY2h4S1E4RUFEQU1xRE1JUFdQS25pLTY3YkxHbTJ5OFQyVUt1eGJwN2ZHR0dlTzUzLUVHZnJJUWVaNU1fT05JY2RZaHc1N1VtakRRcVlnYzN2LTJUQ1QyWDNQZ2RZX0pZZC01YktCM2wwajA3bU5mSnFlUDA2SUVQUXpzZ2FJRU82cllsRXUyNkUxamFqUVl6VEVtcVdoVDhEX1dmaWZxWmRKVTJJRE12M0FiWHdrRXJmelA2TFhzMkg3SjlIYnI5Q1daR0t5bGc?oc=5",
+      "source": "Radom Nasze Miasto",
+      "badge": "sec",
+      "date": "17.11.2026, 14:49",
+      "timestamp": 1794926993.0
+    },
+    {
+      "title": "Gdzie oglądać mecz E.Leclerc Radomka Radom - Grupa Azoty Chemik Police? Transmisja TV i online (12.11.2026)",
+      "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOMXdtWHljeEJIV2FsMXlhWGxnenVrOWxINllfWEE1NjR6b3pGc25zNkZKVEtUZVlyUHI0UTQtNlJYdUMxdDkxVDk2V0ZQblpaNGRzYWpUSE1HQkR2bll3UFBoM2RZNnN1SXJMR3JuMmN1S2Y5TnZaeHdDWk1uN01RLUNWanJBRTdjUENZaEsxb1JucDVPYkZLM0g1NVIxN1VvVVZLaTJybndxcGQtYnB3YXdnaHFvZEFIS09SLVVQUzNsaE1pTkJvRw?oc=5",
+      "source": "Mecze24.pl",
+      "badge": "sec",
+      "date": "12.11.2026, 10:06",
+      "timestamp": 1794477966.0
+    },
     {
       "title": "E.Leclerc i inne sieci padły ofiarą cyberataku. Francja wskazała sprawców",
       "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxObmpTVndnOWdYU09WVm1UNW1ycThRRF9mTDVxZ3lNRWY5aWJSa0lyQWtjWHZrdHA3MHlNb1JlX2NlZEtOS1dIanJoS1puZnF3OWFyU3VERTQ4WlZsdEVsRnpsempzTE15QmFCSzdqM1VyNVg2dzcwR1AtRVRNbHZuUlkzTnJhb293ZFpzUVBKcXlIRGtvcTdoenhTd196Tm1IanNRSEJ6LWJGZjF4SHFhWlh5OUdmMG1pbVZYRFBnZlVkZXRucDI4SHRkRThQQQ?oc=5",
@@ -58,22 +74,6 @@
       "badge": "sec",
       "date": "04.09.2026, 07:00",
       "timestamp": 1788505200.0
-    },
-    {
-      "title": "Hipermarkety z \"czytelniami\". Walka z zakazem handlu nie ustaje",
-      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNZWJIaDZnN2VNRnpvS1RrazRCb2FBZWVXYzNHdUdCZmU3VXlQOWpuUXB5YmZxazljUWNtd1pHV1ZKQkw5X2RLakNUbjl0d2FFaDlIUVZZLXQ4MXR1cWFWUTNvYmZCdWJHVjZxOFF5a3dxak1hZGRxMW9pemdMS3hPWVlHanVjSlU0eVNMdlNNeEUzR3ctb1RkeXFBUQ?oc=5",
-      "source": "Business Insider Polska",
-      "badge": "sec",
-      "date": "25.06.2026, 07:00",
-      "timestamp": 1782370800.0
-    },
-    {
-      "title": "Otworzyli E.Leclerc w każdą niedzielę dzięki sprytnemu trikowi. Ministerstwo ostro reaguje",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPQTFrY0hjMG9FdUtmWWdKZmg4Q1BoNVl1TGZQN3Jqc1lHdktRVlc2QVBvdkZXNkwwd2ExaF9Td2Y1cGp3TGtndXRkYmhwMUE0cVgtTm41OVpRNHRlZjhoQWJ1OUx0OFd1T3NGX0Jodmg0RGxfVlQ3SnVjN1RMV0ZJNFJnZC1LR3ZDUmxaMG1WQ2ozNlZ3bHFnNEh4YzhPU1dkaTVVUldKcnI1WW9IWmlOQW0xYU5EekJuWXc?oc=5",
-      "source": "Gazeta Prawna",
-      "badge": "sec",
-      "date": "16.06.2026, 07:00",
-      "timestamp": 1781593200.0
     },
     {
       "title": "Strefa Motoru w CH E.Leclerc Zana 19",
