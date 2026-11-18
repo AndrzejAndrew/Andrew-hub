@@ -49,7 +49,6 @@
     .code-display { font-size: 2rem; color: #34d399; letter-spacing: 4px; text-align: center; margin: 10px 0; font-weight: bold; }
     .hidden { display: none !important; }
 
-    /* ODLICZANIE & PASKI CZASU */
     .countdown-container { display: flex; justify-content: center; align-items: center; height: 40vh; }
     #countdown-text { font-size: 8rem; color: #34d399; margin: 0; text-shadow: 0 0 40px rgba(52,211,153,0.5); animation: pulse 1s infinite; }
     @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
@@ -60,17 +59,17 @@
     .cat-btn { padding: 20px; font-size: 1.2rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: 0.2s;}
     .cat-btn:hover { background: rgba(125,211,252,0.1); border-color: #7dd3fc; }
     
-    /* GŁÓWNA GRA - PYTANIA */
     .question-box { text-align: center; font-size: 1.5rem; margin: 20px 0 30px; font-weight: 600; line-height: 1.4; }
     .ans-btn { 
       padding: 15px; font-size: 1.1rem; border-radius: 12px; background: rgba(255,255,255,0.05); 
       border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: 0.2s;
     }
     .ans-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); transform: scale(1.02); }
-    .ans-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+    .ans-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+    
     .ans-selected { border-color: #7dd3fc !important; background: rgba(125,211,252,0.1) !important; color: #7dd3fc; }
-    .ans-correct { border-color: #34d399 !important; background: rgba(52,211,153,0.2) !important; color: #34d399 !important; }
-    .ans-wrong { border-color: #f43f5e !important; background: rgba(244,63,94,0.2) !important; color: #f43f5e !important; }
+    .ans-correct { border-color: #34d399 !important; background: rgba(52,211,153,0.3) !important; color: #34d399 !important; font-weight: bold; }
+    .ans-wrong { border-color: #f43f5e !important; background: rgba(244,63,94,0.3) !important; color: #f43f5e !important; text-decoration: line-through;}
     
     .leaderboard-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .leaderboard-row:last-child { border-bottom: none; }
@@ -86,16 +85,31 @@
   <!-- WIDOK 1: MENU GŁÓWNE -->
   <div id="view-menu" class="view-section active-view">
     <div class="flex-row">
+      <!-- HOST -->
       <div class="panel">
         <h2 style="margin-top:0; color:#34d399;">Utwórz Pokój (Host)</h2>
         <div class="flex-row">
-          <div class="input-group"><label>Liczba pytań</label><input type="number" id="set-questions" class="input-control" value="5"></div>
-          <div class="input-group"><label>Czas głosowania (sek)</label><input type="number" id="set-votetime" class="input-control" value="10"></div>
+          <div class="input-group">
+            <label>Suma pytań w grze</label>
+            <input type="number" id="set-total-q" class="input-control" value="10" min="1" max="50">
+          </div>
+          <div class="input-group">
+            <label>Pytań z rzędu na jedną kategorię</label>
+            <input type="number" id="set-cat-q" class="input-control" value="2" min="1" max="10">
+          </div>
         </div>
-        <div class="input-group"><label>Czas na odp. (sek)</label><input type="number" id="set-anstime" class="input-control" value="15"></div>
+        <div class="flex-row">
+          <div class="input-group"><label>Czas głosowania (sek)</label><input type="number" id="set-votetime" class="input-control" value="10"></div>
+          <div class="input-group"><label>Czas na odp. (sek)</label><input type="number" id="set-anstime" class="input-control" value="15"></div>
+        </div>
+        <div class="input-group" style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
+           <input type="checkbox" id="set-random-cat" style="width:20px; height:20px;">
+           <label style="margin:0;">Losuj kategorie (pomiń ręczne głosowanie)</label>
+        </div>
         <button class="btn btn-primary" onclick="createRoom()">Utwórz grę</button>
       </div>
 
+      <!-- GRACZ -->
       <div class="panel">
         <h2 style="margin-top:0; color:#7dd3fc;">Dołącz do Gry</h2>
         <div class="input-group"><label>Twój Nick</label><input type="text" id="join-nick" class="input-control"></div>
@@ -123,7 +137,7 @@
 
   <!-- WIDOK 4: GŁOSOWANIE NA KATEGORIĘ -->
   <div id="view-voting" class="view-section panel">
-    <h2 style="text-align:center; margin-top:0; color:#d8b4fe;">Wybierz kategorię (Pytanie <span id="q-counter">1</span>)</h2>
+    <h2 style="text-align:center; margin-top:0; color:#d8b4fe;">Wybierz kategorię dla bloku pytań</h2>
     <div class="progress-container"><div id="vote-progress" class="progress-bar"></div></div>
     <div id="category-buttons" class="flex-column"></div>
     <p id="vote-status" class="meta-text" style="margin-top: 20px; font-size:1.1rem; color:#7dd3fc;">Oddane głosy: 0 / 0</p>
@@ -132,6 +146,8 @@
   <!-- WIDOK 5: PYTANIE -->
   <div id="view-question" class="view-section panel">
     <h3 style="color:#d8b4fe; text-align:center; margin-top:0;" id="q-category-label">Kategoria</h3>
+    <p style="text-align:center; color:#8b95a5; margin:0;" id="q-counter">Pytanie 1 / 10</p>
+    
     <div class="progress-container"><div id="ans-progress" class="progress-bar"></div></div>
     
     <div class="question-box" id="q-text">Ładowanie pytania...</div>
@@ -145,7 +161,7 @@
 
   <!-- WIDOK 6: WYNIKI (LEADERBOARD) -->
   <div id="view-leaderboard" class="view-section panel">
-    <h2 style="text-align:center; margin-top:0; color:#fbbf24;">Wyniki</h2>
+    <h2 style="text-align:center; margin-top:0; color:#fbbf24;">Tablica Wyników</h2>
     <div id="leaderboard-list" style="margin: 20px 0;"></div>
     
     <div id="host-next-controls" class="hidden">
@@ -169,6 +185,7 @@
   </div>
 
 </div>
+
 <script>
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
@@ -177,10 +194,11 @@
   let currentUser = null, currentRoomId = null, isHost = false, roomChannel = null;
   
   let roomSettings = {}, roomState = {}, playersData = [];
-  let totalPlayers = 0, currentQuestionIndex = 0;
+  let totalPlayers = 0;
   
+  // Zmienne rundy
   let hasVoted = false, hostVoteTally = {};
-  let currentQuestion = null; 
+  let currentQuestion = null;
   let shuffledAnswers = [];   
   let questionStartTime = 0;
 
@@ -206,41 +224,36 @@
   async function createRoom() {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
     roomSettings = {
-      q_per_round: parseInt(document.getElementById('set-questions').value),
+      total_questions: parseInt(document.getElementById('set-total-q').value),
+      q_per_category: parseInt(document.getElementById('set-cat-q').value),
       vote_time: parseInt(document.getElementById('set-votetime').value),
-      ans_time: parseInt(document.getElementById('set-anstime').value)
+      ans_time: parseInt(document.getElementById('set-anstime').value),
+      random_mode: document.getElementById('set-random-cat').checked
     };
     
     const { data: room, error: roomError } = await dbClient.from('quiz_rooms')
-      .insert([{ room_code: code, host_id: currentUser.id, settings: roomSettings }])
+      .insert([{ room_code: code, host_id: currentUser.id, settings: roomSettings, state: { q_index: 0, asked_questions: [] } }])
       .select().single();
       
-    if (roomError) return alert('Błąd bazy podczas tworzenia pokoju: ' + roomError.message);
+    if (roomError) return alert('Błąd bazy: ' + roomError.message);
     
     isHost = true;
     document.getElementById('host-controls').classList.remove('hidden');
     
-    const { error: playerError } = await dbClient.from('quiz_players')
-      .insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
-      
-    if (playerError) return alert('Błąd bazy podczas zapisu hosta: ' + playerError.message);
+    const { error: playerError } = await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+    if (playerError) return alert('Błąd gracza: ' + playerError.message);
     
     enterLobby(room.id, code);
   }
 
   async function joinRoom() {
     const code = document.getElementById('join-code').value.toUpperCase();
-    
-    const { data: room, error: roomError } = await dbClient.from('quiz_rooms')
-      .select('*').eq('room_code', code).single();
-      
+    const { data: room, error: roomError } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
     if (roomError || !room) return alert('Nie znaleziono pokoju o tym kodzie.');
     if (room.status !== 'lobby') return alert('Gra w tym pokoju już trwa!');
     
-    const { error: playerError } = await dbClient.from('quiz_players')
-      .insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
-      
-    if (playerError) return alert('Błąd bazy podczas dołączania gracza: ' + playerError.message);
+    const { error: playerError } = await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+    if (playerError) return alert('Błąd gracza: ' + playerError.message);
     
     enterLobby(room.id, code);
   }
@@ -276,8 +289,7 @@
   async function fetchPlayers() {
     const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId);
     if(data) {
-      playersData = data;
-      totalPlayers = data.length;
+      playersData = data; totalPlayers = data.length;
       document.getElementById('players-list').innerHTML = data.map(p => `<div class="player-card">${p.nickname}</div>`).join('');
     }
   }
@@ -290,27 +302,61 @@
     if (roomData.status === 'starting') startCountdownUI();
     if (roomData.status === 'voting') startVotingUI();
     if (roomData.status === 'question') startQuestionUI();
+    if (roomData.status === 'reveal') showRevealUI();
     if (roomData.status === 'leaderboard') showLeaderboardUI();
   }
 
-  // --- ETAP: ODLICZANIE ---
+  // --- LOGIKA HOSTA: STEROWANIE RUNDAMI ---
   async function initiateStart() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex > roomSettings.q_per_round) {
+    let state = { ...roomState };
+    if (!state.q_index) state.q_index = 0;
+    if (!state.asked_questions) state.asked_questions = [];
+    
+    state.q_index++;
+
+    // Sprawdzenie czy gra się kończy
+    if (state.q_index > roomSettings.total_questions) {
        await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
-       alert("Koniec Quizu!");
        return;
     }
-    
+
+    // Zresetuj gotowość graczy
     await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
 
-    const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
-    const uniqueCats = [...new Set(data.map(q => q.category))];
-    const shuffledCats = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+    // Czy potrzebujemy nowej kategorii? (np. q_index 1, 3, 5 dla paczek po 2)
+    let needsNewCategory = ((state.q_index - 1) % roomSettings.q_per_category === 0);
     
-    await dbClient.from('quiz_rooms').update({ status: 'starting', state: { categories: shuffledCats, q_index: currentQuestionIndex } }).eq('id', currentRoomId);
+    if (needsNewCategory) {
+        const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
+        const uniqueCats = [...new Set(data.map(q => q.category))];
+        
+        if (roomSettings.random_mode) {
+            state.current_category = uniqueCats[Math.floor(Math.random() * uniqueCats.length)];
+            state.next_phase = 'question';
+            await hostPrepareNextQuestion(state);
+        } else {
+            state.categories_to_vote = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+            state.next_phase = 'voting';
+        }
+    } else {
+        state.next_phase = 'question';
+        await hostPrepareNextQuestion(state);
+    }
+
+    await dbClient.from('quiz_rooms').update({ status: 'starting', state: state }).eq('id', currentRoomId);
   }
 
+  async function hostPrepareNextQuestion(state) {
+      const { data } = await dbClient.from('quiz_questions').select('*').eq('category', state.current_category).eq('is_verified', true);
+      let available = data.filter(q => !state.asked_questions.includes(q.id));
+      if (available.length === 0) available = data; // Awaryjnie resetuje pulę dla tej kategorii
+      
+      let picked = available[Math.floor(Math.random() * available.length)];
+      state.question = picked;
+      state.asked_questions.push(picked.id);
+  }
+
+  // --- ETAP: ODLICZANIE ---
   function startCountdownUI() {
     switchView('view-countdown');
     let count = 5;
@@ -319,13 +365,12 @@
     
     const int = setInterval(async () => {
       count--;
-      if(count > 0) {
-        el.textContent = count;
-      } else {
+      if(count > 0) el.textContent = count;
+      else {
         clearInterval(int);
         if(isHost) {
-          const { error } = await dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
-          if (error) alert("Błąd przejścia do głosowania: " + error.message);
+          const { error } = await dbClient.from('quiz_rooms').update({ status: roomState.next_phase, state: roomState }).eq('id', currentRoomId);
+          if (error) alert("Błąd bazy po odliczaniu: " + error.message);
         }
       }
     }, 1000);
@@ -334,14 +379,13 @@
   // --- ETAP: GŁOSOWANIE ---
   function startVotingUI() {
     switchView('view-voting');
-    document.getElementById('q-counter').textContent = roomState.q_index + " / " + roomSettings.q_per_round;
     hasVoted = false; hostVoteTally = {};
     document.getElementById('vote-status').textContent = `Oddane głosy: 0 / ${totalPlayers}`;
     
     const container = document.getElementById('category-buttons');
     container.innerHTML = '';
     
-    roomState.categories.forEach(cat => {
+    roomState.categories_to_vote.forEach(cat => {
        const btn = document.createElement('button');
        btn.className = 'cat-btn'; btn.textContent = cat;
        btn.onclick = () => {
@@ -359,24 +403,26 @@
     bar.style.transition = 'none'; bar.style.width = '100%';
     setTimeout(() => { bar.style.transition = `width ${roomSettings.vote_time}s linear`; bar.style.width = '0%'; }, 50);
 
-    if (isHost) setTimeout(() => { finishVoting(); }, roomSettings.vote_time * 1000);
+    if (isHost) setTimeout(() => { hostFinishVoting(); }, roomSettings.vote_time * 1000);
   }
 
-  async function finishVoting() {
-    let winner = roomState.categories[0]; let max = -1;
+  async function hostFinishVoting() {
+    let winner = roomState.categories_to_vote[0]; let max = -1;
     for (let cat in hostVoteTally) { if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; } }
     
-    const { data } = await dbClient.from('quiz_questions').select('*').eq('category', winner).eq('is_verified', true);
-    const randQ = data[Math.floor(Math.random() * data.length)];
+    let state = { ...roomState };
+    state.current_category = winner;
+    await hostPrepareNextQuestion(state);
     
-    await dbClient.from('quiz_rooms').update({ status: 'question', state: { question: randQ } }).eq('id', currentRoomId);
+    await dbClient.from('quiz_rooms').update({ status: 'question', state: state }).eq('id', currentRoomId);
   }
 
-  // --- ETAP: PYTANIE I ODPOWIEDZI ---
+  // --- ETAP: PYTANIE ---
   function startQuestionUI() {
     switchView('view-question');
     currentQuestion = roomState.question;
-    document.getElementById('q-category-label').textContent = currentQuestion.category;
+    document.getElementById('q-category-label').textContent = roomState.current_category;
+    document.getElementById('q-counter').textContent = `Pytanie ${roomState.q_index} / ${roomSettings.total_questions}`;
     document.getElementById('q-text').textContent = currentQuestion.question;
     
     document.getElementById('players-status-list').innerHTML = playersData.map(p => `<div id="status-${p.user_id}" class="player-card" style="font-size:0.8rem; padding: 6px;">${p.nickname}</div>`).join('');
@@ -401,7 +447,7 @@
 
     questionStartTime = Date.now();
 
-    if (isHost) setTimeout(() => { finalizeQuestion(); }, roomSettings.ans_time * 1000);
+    if (isHost) setTimeout(() => { hostFinalizeQuestion(); }, roomSettings.ans_time * 1000);
   }
 
   async function submitAnswer(screenIdx, originalIdx) {
@@ -413,18 +459,43 @@
     selectedBtn.classList.add('ans-selected');
 
     let pointsEarned = 0;
-    if (originalIdx === currentQuestion.correct_index) {
+    // Ważne: parsowanie do int, by upewnić się, że indeksy się zgadzają
+    if (parseInt(originalIdx) === parseInt(currentQuestion.correct_index)) {
         pointsEarned = Math.floor((timeLeft / roomSettings.ans_time) * 1000);
     }
     
     const { data: myData } = await dbClient.from('quiz_players').select('score').eq('room_id', currentRoomId).eq('user_id', currentUser.id).single();
-    await dbClient.from('quiz_players').update({ score: myData.score + pointsEarned, is_ready: true }).eq('room_id', currentRoomId).eq('user_id', currentUser.id);
+    await dbClient.from('quiz_players').update({ score: (myData.score || 0) + pointsEarned, is_ready: true }).eq('room_id', currentRoomId).eq('user_id', currentUser.id);
     
     roomChannel.send({ type: 'broadcast', event: 'player_answered', payload: { user_id: currentUser.id } });
   }
 
-  async function finalizeQuestion() {
-    await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
+  async function hostFinalizeQuestion() {
+    await dbClient.from('quiz_rooms').update({ status: 'reveal' }).eq('id', currentRoomId);
+  }
+
+  // --- ETAP: POKAZANIE POPRAWNEJ ODPOWIEDZI (REVEAL) ---
+  function showRevealUI() {
+     // Blokujemy guziki na wypadek gdyby ktoś nie zdążył kliknąć
+     document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
+     const correctIdx = parseInt(currentQuestion.correct_index);
+     
+     shuffledAnswers.forEach((ansObj, screenIdx) => {
+        const btn = document.getElementById(`ans-btn-${screenIdx}`);
+        if (parseInt(ansObj.originalIdx) === correctIdx) {
+           btn.classList.add('ans-correct');
+           btn.classList.remove('ans-selected');
+        } else if (btn.classList.contains('ans-selected')) {
+           btn.classList.add('ans-wrong');
+        }
+     });
+
+     if (isHost) {
+        // Po 4 sekundach oglądania podświetlonych wyników, Host zabiera graczy na Leaderboard
+        setTimeout(() => {
+           dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
+        }, 4000);
+     }
   }
 
   // --- ETAP: TABLICA WYNIKÓW PO RUNDZIE ---
@@ -435,21 +506,23 @@
     let html = '';
     data.forEach((p, idx) => {
       let rankClass = (idx === 0) ? 'rank-1' : '';
-      html += `<div class="leaderboard-row ${rankClass}"><span>${idx+1}. ${p.nickname}</span><span>${p.score} pkt</span></div>`;
+      html += `<div class="leaderboard-row ${rankClass}"><span>${idx+1}. ${p.nickname}</span><span>${p.score || 0} pkt</span></div>`;
     });
     document.getElementById('leaderboard-list').innerHTML = html;
 
     if (isHost) {
-      if (roomState.q_index < roomSettings.q_per_round) {
+      if (roomState.q_index < roomSettings.total_questions) {
          document.getElementById('host-next-controls').classList.remove('hidden');
+         document.getElementById('host-finish-controls').classList.add('hidden');
       } else {
          document.getElementById('host-finish-controls').classList.remove('hidden');
+         document.getElementById('host-next-controls').classList.add('hidden');
       }
     }
   }
 
   function endGame() {
-    alert("Koniec Gry! Dziękujemy.");
+    alert("Dziękujemy za grę!");
     switchView('view-menu');
     document.getElementById('host-next-controls').classList.add('hidden');
     document.getElementById('host-finish-controls').classList.add('hidden');
@@ -470,7 +543,7 @@
       author_id: currentUser.id, author_name: document.getElementById('join-nick').value, is_verified: false
     };
     await dbClient.from('quiz_questions').insert([data]);
-    alert('Pytanie wysłane do weryfikacji!'); toggleProposeModal();
+    alert('Pytanie wysłane do akceptacji!'); toggleProposeModal();
   }
 </script>
 
