@@ -1,40 +1,48 @@
 {
-  "updated_at": "17.11.2026 16:23",
+  "updated_at": "18.11.2026 15:54",
   "security": [
     {
-      "title": "Deepfake’ami podszywali się pod prezesów / prawników. Ukradli $129 milionów (!)",
-      "link": "https://sekurak.pl/deepfakeami-podszywali-sie-pod-prezesow-prawnikow-ukradli-129-milionow/",
+      "title": "Java4Shell (CVE-2026-114938), czyli jak optymalizacje w assembly spowodowały RCE w dekoderze Base64 OpenJDK",
+      "link": "https://sekurak.pl/java4shell-cve-2026-114938-czyli-jak-optymalizacje-w-assembly-spowodowaly-rce-w-dekoderze-base64-openjdk/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "16.11.2026, 20:17",
-      "timestamp": 1794860269.0
+      "date": "18.11.2026, 10:11",
+      "timestamp": 1794996714.0
     },
     {
-      "title": "Wiadomo co było przyczyną ostatnich giga problemów z niedostępnością Outlooka. Nieszczęśliwy zbieg kilku problemów jednocześnie",
-      "link": "https://sekurak.pl/wiadomo-co-bylo-przyczyna-ostatnich-giga-problemow-z-niedostepnoscia-outlooka-nieszczesliwy-zbieg-kilku-problemow-jednoczesnie/",
+      "title": "Oddajesz zepsuty dysk do naprawy? Uważaj, być może Twoje dane wyciekną.",
+      "link": "https://sekurak.pl/oddajesz-zepsuty-dysk-do-naprawy-uwazaj-byc-moze-twoje-dane-wyciekna/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "16.11.2026, 14:56",
-      "timestamp": 1794840988.0
+      "date": "18.11.2026, 09:13",
+      "timestamp": 1794993221.0
     },
     {
-      "title": "Hashcat 8.0 jest już dostępny. Wsparcie dla FPGA, nowe metody ataku i własne receptury hashy – to tylko niektóre ze zmian wdrożonych w narzędziu",
-      "link": "https://sekurak.pl/hashcat-8-0-jest-juz-dostepny-wsparcie-dla-fpga-nowe-metody-ataku-i-wlasne-receptury-hashy-to-tylko-niektore-ze-zmian-wdrozonych-w-narzedziu/",
+      "title": "Ciemna strona AI. Google ostrzega o istotnym skoku, jeśli chodzi o używanie LLM-ów do hackowania",
+      "link": "https://sekurak.pl/ciemna-strona-ai-google-ostrzega-o-istotnym-skoku-jesli-chodzi-o-uzywanie-llm-ow-do-hackowania/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "16.11.2026, 00:01",
-      "timestamp": 1794787270.0
+      "date": "18.11.2026, 08:50",
+      "timestamp": 1794991827.0
     },
     {
-      "title": "Nowa wersja KeePassXC (2.8.0) – dużo nowości i naprawa poważnych błędów bezpieczeństwa (CVE-2026-69150)",
-      "link": "https://sekurak.pl/nowa-wersja-keepassxc-2-8-0-duzo-nowosci-i-naprawa-powaznych-bledow-bezpieczenstwa-cve-2026-69150/",
+      "title": "Krytyczna podatność 0-click w Cisco Catalyst SD-WAN umożliwiająca zdalne uzyskanie uprawnień administratora",
+      "link": "https://sekurak.pl/krytyczna-podatnosc-0-click-w-cisco-catalyst-sd-wan-umozliwiajaca-zdalne-uzyskanie-uprawnien-administratora/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "15.11.2026, 23:58",
-      "timestamp": 1794787098.0
+      "date": "18.11.2026, 06:04",
+      "timestamp": 1794981850.0
     }
   ],
   "leclerc": [
+    {
+      "title": "Gdzie najtańsze paliwo w Polsce? Benzyna od 5,75 zł, diesel po 7,05 zł. Sprawdź stacje",
+      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUlJmQk5BZUhNejF4RnZaNjlXTDNMM2lXWXJSZHB1MndZd3pUMU5LZjRPZ0gzT1NwSGNGVVJQX3dBbDBqM3JfcUtsV1hPQnZKeHFEYmg5SlVfeGRNeEdrNXQ3d3N6YUZCeVBqQ0RHbDZ3ZGF5LWdtdTlQX3lpTXdBTXMzclZsYjg1Sl9yeERnNS1rclhDT2xzY05CRXE3OTlaNVZLMm54T20wT3JmUnBSTDRTa1U5VHQwOU1IaVlCS1g2Mk94S0ZHUVA2a25teDR3?oc=5",
+      "source": "Transport w praktyce",
+      "badge": "sec",
+      "date": "18.11.2026, 11:00",
+      "timestamp": 1794999600.0
+    },
     {
       "title": "Święta coraz bliżej! W E.Leclerc w Radomiu ruszyła świąteczna aleja. Jest też Sklep Świętego Mikołaja",
       "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxQTndpdmEyamlYV25nbzZyY2h4S1E4RUFEQU1xRE1JUFdQS25pLTY3YkxHbTJ5OFQyVUt1eGJwN2ZHR0dlTzUzLUVHZnJJUWVaNU1fT05JY2RZaHc1N1VtakRRcVlnYzN2LTJUQ1QyWDNQZ2RZX0pZZC01YktCM2wwajA3bU5mSnFlUDA2SUVQUXpzZ2FJRU82cllsRXUyNkUxamFqUVl6VEVtcVdoVDhEX1dmaWZxWmRKVTJJRE12M0FiWHdrRXJmelA2TFhzMkg3SjlIYnI5Q1daR0t5bGc?oc=5",
@@ -52,12 +60,12 @@
       "timestamp": 1794477966.0
     },
     {
-      "title": "E.Leclerc i inne sieci padły ofiarą cyberataku. Francja wskazała sprawców",
-      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxObmpTVndnOWdYU09WVm1UNW1ycThRRF9mTDVxZ3lNRWY5aWJSa0lyQWtjWHZrdHA3MHlNb1JlX2NlZEtOS1dIanJoS1puZnF3OWFyU3VERTQ4WlZsdEVsRnpsempzTE15QmFCSzdqM1VyNVg2dzcwR1AtRVRNbHZuUlkzTnJhb293ZFpzUVBKcXlIRGtvcTdoenhTd196Tm1IanNRSEJ6LWJGZjF4SHFhWlh5OUdmMG1pbVZYRFBnZlVkZXRucDI4SHRkRThQQQ?oc=5",
+      "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
+      "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNMzlPelgxdzA1alJ3QWN2LV9qU3VwVDB2ZW1Rb0FUdHFhM2pBdkNxaU5JLWlYRnhJdUUyRTVoRzVIZkRXYzg0Y3NicG01VEdHZUNmU1ZxQzNmNnFiQWRYRDcxalNnMEtOVHhZWEFEUDVPdGtiUGl1UGJhQWRQbndiMU96elJWY3hwT0ttVk1ValNEOThsNkkyQkhXeUl4QlJNQ3N0ODdqbXhMUWtYMktMZS1FeVdfZmt3S3Rsa1dLNkl5UUxwbzUwYXlPVHFncktvOUE?oc=5",
       "source": "Portal spożywczy",
       "badge": "sec",
-      "date": "10.11.2026, 17:30",
-      "timestamp": 1794331800.0
+      "date": "09.11.2026, 08:00",
+      "timestamp": 1794211200.0
     },
     {
       "title": "E.Leclerc Polska stawia na AI. Tomasz Adamczyk nowym szefem operacji",
@@ -74,14 +82,6 @@
       "badge": "sec",
       "date": "04.09.2026, 07:00",
       "timestamp": 1788505200.0
-    },
-    {
-      "title": "Strefa Motoru w CH E.Leclerc Zana 19",
-      "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE03TVA5blljUzVwcmtMOWFJMFZJeW0yNmd2RldJRlZPTk9TX2J2YlpvZjBWY1BLbF9tMXBGa1ZkbzRNOElrd2o0c3c1S05VTllZQ0hYX00xUjM0dW5tMjVFTW1NUldDLUNMenREZ2FaaGlXVzg?oc=5",
-      "source": "Motor Lublin",
-      "badge": "sec",
-      "date": "20.05.2026, 07:00",
-      "timestamp": 1779260400.0
     }
   ]
 }
