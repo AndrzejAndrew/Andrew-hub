@@ -205,7 +205,7 @@
     document.getElementById(viewId).classList.add('active-view');
   }
 
-  // --- LOGIKA LOBBY ---
+ // --- LOGIKA LOBBY ---
   async function createRoom() {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
     roomSettings = {
@@ -213,54 +213,39 @@
       vote_time: parseInt(document.getElementById('set-votetime').value),
       ans_time: parseInt(document.getElementById('set-anstime').value)
     };
-    const { data: room } = await dbClient.from('quiz_rooms').insert([{ room_code: code, host_id: currentUser.id, settings: roomSettings }]).select().single();
+    
+    const { data: room, error: roomError } = await dbClient.from('quiz_rooms')
+      .insert([{ room_code: code, host_id: currentUser.id, settings: roomSettings }])
+      .select().single();
+      
+    if (roomError) return alert('Błąd bazy podczas tworzenia pokoju: ' + roomError.message);
+    
     isHost = true;
     document.getElementById('host-controls').classList.remove('hidden');
-    await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+    
+    const { error: playerError } = await dbClient.from('quiz_players')
+      .insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+      
+    if (playerError) return alert('Błąd bazy podczas zapisu hosta: ' + playerError.message);
+    
     enterLobby(room.id, code);
   }
 
   async function joinRoom() {
     const code = document.getElementById('join-code').value.toUpperCase();
-    const { data: room } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
-    if (!room || room.status !== 'lobby') return alert('Brak pokoju lub gra trwa!');
-    await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+    
+    const { data: room, error: roomError } = await dbClient.from('quiz_rooms')
+      .select('*').eq('room_code', code).single();
+      
+    if (roomError || !room) return alert('Nie znaleziono pokoju o tym kodzie.');
+    if (room.status !== 'lobby') return alert('Gra w tym pokoju już trwa!');
+    
+    const { error: playerError } = await dbClient.from('quiz_players')
+      .insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
+      
+    if (playerError) return alert('Błąd bazy podczas dołączania gracza: ' + playerError.message);
+    
     enterLobby(room.id, code);
-  }
-
-  function enterLobby(roomId, code) {
-    currentRoomId = roomId; document.getElementById('lobby-code').textContent = code;
-    switchView('view-lobby'); fetchPlayers();
-
-    if(roomChannel) dbClient.removeChannel(roomChannel);
-    roomChannel = dbClient.channel('room-' + roomId, { config: { broadcast: { self: true } } })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, () => fetchPlayers())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` }, (payload) => syncGameState(payload.new))
-      .on('broadcast', { event: 'submit_vote' }, (payload) => {
-         if (isHost) {
-           const cat = payload.payload.category;
-           hostVoteTally[cat] = (hostVoteTally[cat] || 0) + 1;
-           const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
-           roomChannel.send({ type: 'broadcast', event: 'update_tally', payload: totalVotes });
-         }
-      })
-      .on('broadcast', { event: 'update_tally' }, (payload) => {
-         document.getElementById('vote-status').textContent = `Oddane głosy: ${payload.payload} / ${totalPlayers}`;
-      })
-      .on('broadcast', { event: 'player_answered' }, (payload) => {
-         const card = document.getElementById(`status-${payload.payload.user_id}`);
-         if(card) card.classList.add('answered');
-      })
-      .subscribe();
-  }
-
-  async function fetchPlayers() {
-    const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId);
-    if(data) {
-      playersData = data;
-      totalPlayers = data.length;
-      document.getElementById('players-list').innerHTML = data.map(p => `<div class="player-card">${p.nickname}</div>`).join('');
-    }
   }
 
   // --- BRAMKA STANU (Realtime) ---
