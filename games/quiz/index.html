@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz - Lobby</title>
+  <title>Nexus Quiz</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
@@ -16,8 +16,7 @@
 
     .panel {
       background: rgba(10,12,18,0.8); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px; padding: 25px; margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     
     .view-section { display: none; animation: fadeIn 0.3s ease; }
@@ -42,16 +41,23 @@
     
     .flex-row { display: flex; gap: 15px; }
     .flex-row > div { flex: 1; }
+    .flex-column { display: flex; flex-direction: column; gap: 15px; margin-top: 20px;}
 
-    /* Lista graczy w Lobby */
     .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-    .player-card {
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-      padding: 12px; border-radius: 8px; text-align: center; color: #7dd3fc; font-weight: 600;
-    }
-
+    .player-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; text-align: center; color: #7dd3fc; font-weight: 600; }
     .code-display { font-size: 2rem; color: #34d399; letter-spacing: 4px; text-align: center; margin: 10px 0; font-weight: bold; }
     .hidden { display: none !important; }
+
+    /* ODLICZANIE & GŁOSOWANIE */
+    .countdown-container { display: flex; justify-content: center; align-items: center; height: 40vh; }
+    #countdown-text { font-size: 8rem; color: #34d399; margin: 0; text-shadow: 0 0 40px rgba(52,211,153,0.5); animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+
+    .progress-container { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; margin-top: 10px;}
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #7dd3fc, #d8b4fe); width: 100%; }
+    
+    .cat-btn { padding: 20px; font-size: 1.2rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: 0.2s;}
+    .cat-btn:hover { background: rgba(125,211,252,0.1); border-color: #7dd3fc; }
   </style>
 </head>
 <body>
@@ -63,102 +69,68 @@
   <!-- WIDOK 1: MENU GŁÓWNE -->
   <div id="view-menu" class="view-section active-view">
     <div class="flex-row">
-      <!-- Tworzenie gry (Host) -->
       <div class="panel">
         <h2 style="margin-top:0; color:#34d399;">Utwórz Pokój (Host)</h2>
         <div class="flex-row">
-          <div class="input-group">
-            <label>Liczba rund</label>
-            <input type="number" id="set-rounds" class="input-control" value="3" min="1" max="10">
-          </div>
-          <div class="input-group">
-            <label>Pytań na rundę</label>
-            <input type="number" id="set-questions" class="input-control" value="5" min="1" max="20">
-          </div>
+          <div class="input-group"><label>Liczba rund</label><input type="number" id="set-rounds" class="input-control" value="3"></div>
+          <div class="input-group"><label>Pytań na rundę</label><input type="number" id="set-questions" class="input-control" value="5"></div>
         </div>
         <div class="flex-row">
-          <div class="input-group">
-            <label>Czas wyboru kat. (sek)</label>
-            <input type="number" id="set-votetime" class="input-control" value="10" min="5" max="30">
-          </div>
-          <div class="input-group">
-            <label>Czas na odp. (sek)</label>
-            <input type="number" id="set-anstime" class="input-control" value="15" min="5" max="60">
-          </div>
+          <div class="input-group"><label>Czas głosowania (sek)</label><input type="number" id="set-votetime" class="input-control" value="10"></div>
+          <div class="input-group"><label>Czas na odp. (sek)</label><input type="number" id="set-anstime" class="input-control" value="15"></div>
         </div>
         <button class="btn btn-primary" onclick="createRoom()">Utwórz grę</button>
       </div>
 
-      <!-- Dołączanie (Gracz) -->
       <div class="panel">
         <h2 style="margin-top:0; color:#7dd3fc;">Dołącz do Gry</h2>
-        <div class="input-group">
-          <label>Twój Nick</label>
-          <input type="text" id="join-nick" class="input-control" placeholder="Wpisz swój nick">
-        </div>
-        <div class="input-group">
-          <label>Kod Pokoju</label>
-          <input type="text" id="join-code" class="input-control" placeholder="np. ABCD1" style="text-transform: uppercase;">
-        </div>
-        <button class="btn btn-primary" onclick="joinRoom()" style="background: linear-gradient(180deg, rgba(56,189,248,0.2), rgba(56,189,248,0.05)); border-color: rgba(56,189,248,0.4); color:#7dd3fc;">Dołącz</button>
+        <div class="input-group"><label>Twój Nick</label><input type="text" id="join-nick" class="input-control"></div>
+        <div class="input-group"><label>Kod Pokoju</label><input type="text" id="join-code" class="input-control" style="text-transform: uppercase;"></div>
+        <button class="btn btn-primary" onclick="joinRoom()" style="background: rgba(56,189,248,0.1); color:#7dd3fc; border-color:#7dd3fc;">Dołącz</button>
       </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 10px;">
-      <button class="btn" onclick="toggleProposeModal()">💡 Zaproponuj własne pytanie do bazy</button>
-    </div>
+    <div style="text-align: center;"><button class="btn" onclick="toggleProposeModal()">💡 Zaproponuj własne pytanie do bazy</button></div>
   </div>
 
   <!-- WIDOK 2: LOBBY POKOJU -->
   <div id="view-lobby" class="view-section panel">
     <h2 style="text-align:center; margin-top:0;">Oczekujący gracze</h2>
     <div class="code-display" id="lobby-code">----</div>
-    <p style="text-align:center; color:#8b95a5;">Zaproś zespół podając powyższy kod</p>
-    
-    <div class="players-grid" id="players-list">
-      <!-- Karty graczy -->
-    </div>
-
+    <div class="players-grid" id="players-list"></div>
     <div id="host-controls" class="hidden" style="margin-top: 30px;">
-      <button class="btn btn-primary" onclick="startGame()">▶ Rozpocznij Quiz</button>
+      <button class="btn btn-primary" onclick="initiateStart()">▶ Rozpocznij Quiz</button>
     </div>
   </div>
 
-  <!-- WIDOK 3: FORMULARZ ZGŁASZANIA PYTAŃ (Ukryty) -->
+  <!-- WIDOK 3: ODLICZANIE -->
+  <div id="view-countdown" class="view-section">
+    <div class="countdown-container"><h2 id="countdown-text">5</h2></div>
+  </div>
+
+  <!-- WIDOK 4: GŁOSOWANIE NA KATEGORIĘ -->
+  <div id="view-voting" class="view-section panel">
+    <h2 style="text-align:center; margin-top:0; color:#d8b4fe;">Wybierz kategorię</h2>
+    <p style="text-align:center; color:#8b95a5;">Kategoria z największą liczbą głosów wygrywa!</p>
+    
+    <div class="progress-container"><div id="vote-progress" class="progress-bar"></div></div>
+    
+    <div id="category-buttons" class="flex-column">
+      <!-- Przyciski generowane dynamicznie -->
+    </div>
+    
+    <p id="vote-status" class="meta-text" style="margin-top: 20px; font-size:1.1rem; color:#7dd3fc;">Oddane głosy: 0 / 0</p>
+  </div>
+
+  <!-- WIDOK 5: FORMULARZ ZGŁASZANIA PYTAŃ -->
   <div id="view-propose" class="view-section panel">
     <h2 style="margin-top:0; color:#f9a8d4;">Zaproponuj Pytanie</h2>
-    <p style="font-size:0.85rem; color:#8b95a5;">Twoje pytanie trafi do weryfikacji. Zaznacz poprawną odpowiedź kropką.</p>
-    
-    <div class="input-group">
-      <label>Kategoria (np. IT, Biuro, Wiedza Ogólna)</label>
-      <input type="text" id="prop-cat" class="input-control">
-    </div>
-    <div class="input-group">
-      <label>Treść pytania</label>
-      <input type="text" id="prop-q" class="input-control">
-    </div>
-    
-    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-      <input type="radio" name="prop-correct" value="0" checked>
-      <input type="text" id="prop-a0" class="input-control" placeholder="Odpowiedź A">
-    </div>
-    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-      <input type="radio" name="prop-correct" value="1">
-      <input type="text" id="prop-a1" class="input-control" placeholder="Odpowiedź B">
-    </div>
-    <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-      <input type="radio" name="prop-correct" value="2">
-      <input type="text" id="prop-a2" class="input-control" placeholder="Odpowiedź C">
-    </div>
-    <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
-      <input type="radio" name="prop-correct" value="3">
-      <input type="text" id="prop-a3" class="input-control" placeholder="Odpowiedź D">
-    </div>
-
-    <div class="flex-row">
-      <button class="btn" onclick="toggleProposeModal()">Anuluj</button>
-      <button class="btn" style="background:rgba(249,168,212,0.2); color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyszlij do akceptacji</button>
-    </div>
+    <div class="input-group"><label>Kategoria</label><input type="text" id="prop-cat" class="input-control"></div>
+    <div class="input-group"><label>Treść pytania</label><input type="text" id="prop-q" class="input-control"></div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="radio" name="prop-correct" value="0" checked><input type="text" id="prop-a0" class="input-control" placeholder="A"></div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="radio" name="prop-correct" value="1"><input type="text" id="prop-a1" class="input-control" placeholder="B"></div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="radio" name="prop-correct" value="2"><input type="text" id="prop-a2" class="input-control" placeholder="C"></div>
+    <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="radio" name="prop-correct" value="3"><input type="text" id="prop-a3" class="input-control" placeholder="D"></div>
+    <div class="flex-row"><button class="btn" onclick="toggleProposeModal()">Anuluj</button><button class="btn" style="color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyszlij do akceptacji</button></div>
   </div>
 
 </div>
@@ -168,22 +140,25 @@
   const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
   
   let dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  let currentUser = null;
-  let currentRoomId = null;
-  let isHost = false;
-  let subscription = null;
+  let currentUser = null, currentRoomId = null, isHost = false, roomChannel = null;
+  
+  // Stan gry
+  let roomSettings = {};
+  let roomState = {};
+  let totalPlayers = 0;
+  let hasVoted = false;
+  let hostVoteTally = {}; // Tylko dla Hosta
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
-    if (!session) {
-      document.getElementById('status-text').textContent = 'Musisz być zalogowany w Hubie, aby zagrać w Quiz!';
+    if (session) {
+      currentUser = session.user;
+      document.getElementById('join-nick').value = currentUser.email.split('@')[0];
+      document.getElementById('status-text').textContent = 'Gotowy do gry!';
+    } else {
+      document.getElementById('status-text').textContent = 'Zaloguj się w Hubie!';
       document.getElementById('view-menu').classList.add('hidden');
-      return;
     }
-    currentUser = session.user;
-    let autoNick = currentUser.email.split('@')[0];
-    document.getElementById('join-nick').value = autoNick.charAt(0).toUpperCase() + autoNick.slice(1);
-    document.getElementById('status-text').textContent = 'Zalogowano. Wybierz akcję.';
   }
   init();
 
@@ -192,131 +167,171 @@
     document.getElementById(viewId).classList.add('active-view');
   }
 
-  // TWORZENIE POKOJU (HOST)
+  // LOBBY & START
   async function createRoom() {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
-    const settings = {
+    roomSettings = {
       rounds: parseInt(document.getElementById('set-rounds').value),
       q_per_round: parseInt(document.getElementById('set-questions').value),
       vote_time: parseInt(document.getElementById('set-votetime').value),
-      ans_time: parseInt(document.getElementById('set-anstime').value),
-      mode: 'ffa'
+      ans_time: parseInt(document.getElementById('set-anstime').value)
     };
-
-    const { data: room, error } = await dbClient.from('quiz_rooms')
-      .insert([{ room_code: code, host_id: currentUser.id, settings: settings }])
-      .select().single();
-
-    if (error) return alert('Błąd: ' + error.message);
-    
+    const { data: room } = await dbClient.from('quiz_rooms').insert([{ room_code: code, host_id: currentUser.id, settings: roomSettings }]).select().single();
     isHost = true;
     document.getElementById('host-controls').classList.remove('hidden');
-    
-    // Host od razu dołącza jako gracz
-    await addPlayerToRoom(room.id, document.getElementById('join-nick').value);
+    await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
     enterLobby(room.id, code);
   }
 
-  // DOŁĄCZANIE (GRACZ)
   async function joinRoom() {
     const code = document.getElementById('join-code').value.toUpperCase();
-    const nick = document.getElementById('join-nick').value;
-    if (!code || !nick) return alert('Podaj kod i nick!');
-
-    const { data: room, error } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
-    if (error || !room) return alert('Nie znaleziono pokoju o tym kodzie.');
-    if (room.status !== 'lobby') return alert('Gra już trwa!');
-
-    await addPlayerToRoom(room.id, nick);
+    const { data: room } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
+    if (!room || room.status !== 'lobby') return alert('Brak pokoju lub gra trwa!');
+    await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
     enterLobby(room.id, code);
   }
 
-  async function addPlayerToRoom(roomId, nickname) {
-    await dbClient.from('quiz_players').insert([{ room_id: roomId, user_id: currentUser.id, nickname: nickname }]);
-  }
-
-  // WIDOK LOBBY I REALTIME
   function enterLobby(roomId, code) {
-    currentRoomId = roomId;
-    document.getElementById('lobby-code').textContent = code;
-    switchView('view-lobby');
-    fetchPlayers();
+    currentRoomId = roomId; document.getElementById('lobby-code').textContent = code;
+    switchView('view-lobby'); fetchPlayers();
 
-    // Nasłuchiwanie nowych graczy
-    if(subscription) dbClient.removeChannel(subscription);
-    subscription = dbClient.channel('lobby-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, 
-        () => fetchPlayers()
-      )
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` },
-        (payload) => {
-          if (payload.new.status === 'voting' && !isHost) {
-            alert('Host wystartował grę! Przechodzimy do Etapu 3 (wkrótce).');
-            // Tutaj w przyszłości odpalimy switchView('view-game')
-          }
-        }
-      )
+    // PODŁĄCZENIE DO KANAŁU REALTIME
+    if(roomChannel) dbClient.removeChannel(roomChannel);
+    roomChannel = dbClient.channel('room-' + roomId, { config: { broadcast: { self: true } } })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, () => fetchPlayers())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` }, (payload) => syncGameState(payload.new))
+      .on('broadcast', { event: 'submit_vote' }, (payload) => {
+         if (isHost) {
+           // Host odbiera głosy i sumuje, a potem rozgłasza wynik do wszystkich
+           const cat = payload.payload.category;
+           hostVoteTally[cat] = (hostVoteTally[cat] || 0) + 1;
+           const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
+           roomChannel.send({ type: 'broadcast', event: 'update_tally', payload: totalVotes });
+         }
+      })
+      .on('broadcast', { event: 'update_tally' }, (payload) => {
+         // Wszyscy aktualizują tekst na ekranie
+         document.getElementById('vote-status').textContent = `Oddane głosy: ${payload.payload} / ${totalPlayers}`;
+      })
       .subscribe();
   }
 
   async function fetchPlayers() {
     const { data } = await dbClient.from('quiz_players').select('nickname').eq('room_id', currentRoomId);
-    const list = document.getElementById('players-list');
-    list.innerHTML = '';
     if(data) {
-      data.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'player-card';
-        div.textContent = p.nickname;
-        list.appendChild(div);
-      });
+      totalPlayers = data.length;
+      document.getElementById('players-list').innerHTML = data.map(p => `<div class="player-card">${p.nickname}</div>`).join('');
     }
   }
 
-  // START GRY PRZEZ HOSTA (przygotowanie pod Etap 3)
-  async function startGame() {
-    await dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
-    alert('Rozpoczynamy! Przechodzimy do Etapu 3 (Głosowanie na kategorię).');
+  // ETAP 3: START GRY I SYNCHRONIZACJA STANU
+  async function initiateStart() {
+    // 1. Host pobiera 3 losowe kategorie z bazy
+    const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
+    const uniqueCats = [...new Set(data.map(q => q.category))];
+    const shuffledCats = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+    
+    // 2. Host ustawia status na 'starting' co wywoła u wszystkich odliczanie
+    await dbClient.from('quiz_rooms').update({ status: 'starting', state: { categories: shuffledCats } }).eq('id', currentRoomId);
   }
 
-  // ZGŁASZANIE WŁASNYCH PYTAŃ
+  function syncGameState(roomData) {
+    roomSettings = roomData.settings;
+    roomState = roomData.state;
+
+    if (roomData.status === 'starting') startCountdownUI();
+    if (roomData.status === 'voting') startVotingUI();
+  }
+
+  // EKRAN 1: ODLICZANIE
+  function startCountdownUI() {
+    switchView('view-countdown');
+    let count = 5;
+    const el = document.getElementById('countdown-text');
+    el.textContent = count;
+    
+    const int = setInterval(() => {
+      count--;
+      if(count > 0) {
+        el.textContent = count;
+      } else {
+        clearInterval(int);
+        // Po odliczeniu, TYLKO Host pcha grę dalej do etapu głosowania
+        if(isHost) {
+          dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
+        }
+      }
+    }, 1000);
+  }
+
+  // EKRAN 2: GŁOSOWANIE
+  function startVotingUI() {
+    switchView('view-voting');
+    hasVoted = false; hostVoteTally = {};
+    document.getElementById('vote-status').textContent = `Oddane głosy: 0 / ${totalPlayers}`;
+    
+    const container = document.getElementById('category-buttons');
+    container.innerHTML = '';
+    
+    roomState.categories.forEach(cat => {
+       const btn = document.createElement('button');
+       btn.className = 'cat-btn';
+       btn.textContent = cat;
+       btn.onclick = () => {
+         if(!hasVoted) {
+           hasVoted = true;
+           document.querySelectorAll('.cat-btn').forEach(b => { b.style.opacity = '0.3'; b.style.pointerEvents = 'none'; });
+           btn.style.opacity = '1'; btn.style.borderColor = '#34d399'; btn.style.color = '#34d399';
+           // Wyślij głos w próżnię (do Hosta)
+           roomChannel.send({ type: 'broadcast', event: 'submit_vote', payload: { category: cat } });
+         }
+       };
+       container.appendChild(btn);
+    });
+
+    // Pasek postępu
+    const bar = document.getElementById('vote-progress');
+    bar.style.transition = 'none'; bar.style.width = '100%';
+    
+    setTimeout(() => {
+      bar.style.transition = `width ${roomSettings.vote_time}s linear`;
+      bar.style.width = '0%';
+    }, 50);
+
+    // Host kończy głosowanie po upływie czasu
+    if (isHost) {
+       setTimeout(() => { finishVoting(); }, roomSettings.vote_time * 1000);
+    }
+  }
+
+  async function finishVoting() {
+    // Host liczy głosy i wybiera zwycięzcę
+    let winner = roomState.categories[0];
+    let max = -1;
+    for (let cat in hostVoteTally) {
+      if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; }
+    }
+    
+    alert('Czas minął! Wygrywa kategoria: ' + winner + '. Przygotuj się na pytania!');
+    // W NASTĘPNYM ETAPIE: Zmienimy status na 'question' i pobierzemy pytanie z tej kategorii
+  }
+
+  // WYSYŁANIE WŁASNYCH PYTAŃ
   function toggleProposeModal() {
-    const propView = document.getElementById('view-propose');
-    if (propView.classList.contains('active-view')) {
-      switchView('view-menu');
-    } else {
-      switchView('view-propose');
-    }
+    const p = document.getElementById('view-propose');
+    p.classList.contains('active-view') ? switchView('view-menu') : switchView('view-propose');
   }
 
   async function submitProposal() {
-    const cat = document.getElementById('prop-cat').value;
-    const q = document.getElementById('prop-q').value;
-    const a0 = document.getElementById('prop-a0').value;
-    const a1 = document.getElementById('prop-a1').value;
-    const a2 = document.getElementById('prop-a2').value;
-    const a3 = document.getElementById('prop-a3').value;
-    const correctIdx = parseInt(document.querySelector('input[name="prop-correct"]:checked').value);
-
-    if(!cat || !q || !a0 || !a1 || !a2 || !a3) return alert('Wypełnij wszystkie pola!');
-
-    const { error } = await dbClient.from('quiz_questions').insert([{
-      category: cat,
-      question: q,
-      answers: [a0, a1, a2, a3],
-      correct_index: correctIdx,
-      author_id: currentUser.id,
-      author_name: document.getElementById('join-nick').value,
-      is_verified: false // Czeka na Twoją weryfikację
-    }]);
-
-    if (error) {
-      alert('Błąd: ' + error.message);
-    } else {
-      alert('Pytanie wysłane do weryfikacji! Dziękujemy.');
-      document.querySelectorAll('#view-propose input[type="text"]').forEach(el => el.value = '');
-      toggleProposeModal();
-    }
+    const data = {
+      category: document.getElementById('prop-cat').value,
+      question: document.getElementById('prop-q').value,
+      answers: [document.getElementById('prop-a0').value, document.getElementById('prop-a1').value, document.getElementById('prop-a2').value, document.getElementById('prop-a3').value],
+      correct_index: parseInt(document.querySelector('input[name="prop-correct"]:checked').value),
+      author_id: currentUser.id, author_name: document.getElementById('join-nick').value, is_verified: false
+    };
+    await dbClient.from('quiz_questions').insert([data]);
+    alert('Pytanie wysłane do weryfikacji!'); toggleProposeModal();
   }
 </script>
 
