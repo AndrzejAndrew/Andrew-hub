@@ -169,7 +169,6 @@
   </div>
 
 </div>
-
 <script>
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
@@ -180,12 +179,10 @@
   let roomSettings = {}, roomState = {}, playersData = [];
   let totalPlayers = 0, currentQuestionIndex = 0;
   
-  // Zmienne rundy
   let hasVoted = false, hostVoteTally = {};
-  let currentQuestion = null; // Dane pytania
-  let shuffledAnswers = [];   // Potasowane odpowiedzi
+  let currentQuestion = null; 
+  let shuffledAnswers = [];   
   let questionStartTime = 0;
-  let myScore = 0;
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -205,7 +202,7 @@
     document.getElementById(viewId).classList.add('active-view');
   }
 
- // --- LOGIKA LOBBY ---
+  // --- LOGIKA LOBBY ---
   async function createRoom() {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
     roomSettings = {
@@ -248,6 +245,43 @@
     enterLobby(room.id, code);
   }
 
+  function enterLobby(roomId, code) {
+    currentRoomId = roomId; 
+    document.getElementById('lobby-code').textContent = code;
+    switchView('view-lobby'); 
+    fetchPlayers();
+
+    if(roomChannel) dbClient.removeChannel(roomChannel);
+    roomChannel = dbClient.channel('room-' + roomId, { config: { broadcast: { self: true } } })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, () => fetchPlayers())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` }, (payload) => syncGameState(payload.new))
+      .on('broadcast', { event: 'submit_vote' }, (payload) => {
+         if (isHost) {
+           const cat = payload.payload.category;
+           hostVoteTally[cat] = (hostVoteTally[cat] || 0) + 1;
+           const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
+           roomChannel.send({ type: 'broadcast', event: 'update_tally', payload: totalVotes });
+         }
+      })
+      .on('broadcast', { event: 'update_tally' }, (payload) => {
+         document.getElementById('vote-status').textContent = `Oddane głosy: ${payload.payload} / ${totalPlayers}`;
+      })
+      .on('broadcast', { event: 'player_answered' }, (payload) => {
+         const card = document.getElementById(`status-${payload.payload.user_id}`);
+         if(card) card.classList.add('answered');
+      })
+      .subscribe();
+  }
+
+  async function fetchPlayers() {
+    const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId);
+    if(data) {
+      playersData = data;
+      totalPlayers = data.length;
+      document.getElementById('players-list').innerHTML = data.map(p => `<div class="player-card">${p.nickname}</div>`).join('');
+    }
+  }
+
   // --- BRAMKA STANU (Realtime) ---
   function syncGameState(roomData) {
     roomSettings = roomData.settings;
@@ -268,10 +302,8 @@
        return;
     }
     
-    // Zresetuj flagi gotowości (w bazie)
     await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
 
-    // Host losuje 3 kategorie z bazy
     const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
     const uniqueCats = [...new Set(data.map(q => q.category))];
     const shuffledCats = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -285,12 +317,16 @@
     const el = document.getElementById('countdown-text');
     el.textContent = count;
     
-    const int = setInterval(() => {
+    const int = setInterval(async () => {
       count--;
-      if(count > 0) el.textContent = count;
-      else {
+      if(count > 0) {
+        el.textContent = count;
+      } else {
         clearInterval(int);
-        if(isHost) dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
+        if(isHost) {
+          const { error } = await dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
+          if (error) alert("Błąd przejścia do głosowania: " + error.message);
+        }
       }
     }, 1000);
   }
@@ -330,7 +366,6 @@
     let winner = roomState.categories[0]; let max = -1;
     for (let cat in hostVoteTally) { if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; } }
     
-    // Pobierz 1 losowe pytanie z wygranej kategorii
     const { data } = await dbClient.from('quiz_questions').select('*').eq('category', winner).eq('is_verified', true);
     const randQ = data[Math.floor(Math.random() * data.length)];
     
@@ -344,10 +379,8 @@
     document.getElementById('q-category-label').textContent = currentQuestion.category;
     document.getElementById('q-text').textContent = currentQuestion.question;
     
-    // Renderowanie małych kart graczy na dole
     document.getElementById('players-status-list').innerHTML = playersData.map(p => `<div id="status-${p.user_id}" class="player-card" style="font-size:0.8rem; padding: 6px;">${p.nickname}</div>`).join('');
 
-    // Tasowanie odpowiedzi z zapamiętaniem oryginalnego indeksu
     let mappedAns = currentQuestion.answers.map((text, idx) => ({ text, originalIdx: idx }));
     shuffledAnswers = mappedAns.sort(() => 0.5 - Math.random());
     
@@ -375,22 +408,18 @@
     const elapsed = (Date.now() - questionStartTime) / 1000;
     const timeLeft = Math.max(0, roomSettings.ans_time - elapsed);
     
-    // Blokada reszty przycisków
     document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
     const selectedBtn = document.getElementById(`ans-btn-${screenIdx}`);
     selectedBtn.classList.add('ans-selected');
 
-    // Punktacja oparta na refleksie (max 1000 pkt za natychmiastową odp)
     let pointsEarned = 0;
     if (originalIdx === currentQuestion.correct_index) {
         pointsEarned = Math.floor((timeLeft / roomSettings.ans_time) * 1000);
     }
     
-    // Zapis do bazy (kumulowanie punktów)
     const { data: myData } = await dbClient.from('quiz_players').select('score').eq('room_id', currentRoomId).eq('user_id', currentUser.id).single();
     await dbClient.from('quiz_players').update({ score: myData.score + pointsEarned, is_ready: true }).eq('room_id', currentRoomId).eq('user_id', currentUser.id);
     
-    // Wysyłamy sygnał do reszty, by zazielenili nasz nick na liście (że już odpowiedzieliśmy)
     roomChannel.send({ type: 'broadcast', event: 'player_answered', payload: { user_id: currentUser.id } });
   }
 
@@ -401,7 +430,6 @@
   // --- ETAP: TABLICA WYNIKÓW PO RUNDZIE ---
   async function showLeaderboardUI() {
     switchView('view-leaderboard');
-    // Pobierz aktualne wyniki
     const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId).order('score', { ascending: false });
     
     let html = '';
