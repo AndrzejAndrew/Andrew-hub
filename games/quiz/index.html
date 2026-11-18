@@ -10,7 +10,7 @@
       background-color: #05060a; color: #f8fafc; font-family: 'Inter', sans-serif;
       margin: 0; padding: 30px 20px; display: flex; justify-content: center;
     }
-    .quiz-wrapper { max-width: 700px; width: 100%; }
+    .quiz-wrapper { max-width: 800px; width: 100%; }
     h1 { color: #fff; font-size: 2.2rem; margin-bottom: 5px; text-align: center; }
     .meta-text { color: #8b95a5; font-size: 0.9rem; text-align: center; margin-bottom: 25px; }
 
@@ -45,10 +45,11 @@
 
     .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
     .player-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; text-align: center; color: #7dd3fc; font-weight: 600; }
+    .player-card.answered { background: rgba(52,211,153,0.1); border-color: #34d399; color: #34d399; }
     .code-display { font-size: 2rem; color: #34d399; letter-spacing: 4px; text-align: center; margin: 10px 0; font-weight: bold; }
     .hidden { display: none !important; }
 
-    /* ODLICZANIE & GŁOSOWANIE */
+    /* ODLICZANIE & PASKI CZASU */
     .countdown-container { display: flex; justify-content: center; align-items: center; height: 40vh; }
     #countdown-text { font-size: 8rem; color: #34d399; margin: 0; text-shadow: 0 0 40px rgba(52,211,153,0.5); animation: pulse 1s infinite; }
     @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
@@ -58,6 +59,22 @@
     
     .cat-btn { padding: 20px; font-size: 1.2rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: 0.2s;}
     .cat-btn:hover { background: rgba(125,211,252,0.1); border-color: #7dd3fc; }
+    
+    /* GŁÓWNA GRA - PYTANIA */
+    .question-box { text-align: center; font-size: 1.5rem; margin: 20px 0 30px; font-weight: 600; line-height: 1.4; }
+    .ans-btn { 
+      padding: 15px; font-size: 1.1rem; border-radius: 12px; background: rgba(255,255,255,0.05); 
+      border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: 0.2s;
+    }
+    .ans-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); transform: scale(1.02); }
+    .ans-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+    .ans-selected { border-color: #7dd3fc !important; background: rgba(125,211,252,0.1) !important; color: #7dd3fc; }
+    .ans-correct { border-color: #34d399 !important; background: rgba(52,211,153,0.2) !important; color: #34d399 !important; }
+    .ans-wrong { border-color: #f43f5e !important; background: rgba(244,63,94,0.2) !important; color: #f43f5e !important; }
+    
+    .leaderboard-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .leaderboard-row:last-child { border-bottom: none; }
+    .rank-1 { color: #fbbf24; font-weight: bold; font-size: 1.1rem;}
   </style>
 </head>
 <body>
@@ -72,13 +89,10 @@
       <div class="panel">
         <h2 style="margin-top:0; color:#34d399;">Utwórz Pokój (Host)</h2>
         <div class="flex-row">
-          <div class="input-group"><label>Liczba rund</label><input type="number" id="set-rounds" class="input-control" value="3"></div>
-          <div class="input-group"><label>Pytań na rundę</label><input type="number" id="set-questions" class="input-control" value="5"></div>
-        </div>
-        <div class="flex-row">
+          <div class="input-group"><label>Liczba pytań</label><input type="number" id="set-questions" class="input-control" value="5"></div>
           <div class="input-group"><label>Czas głosowania (sek)</label><input type="number" id="set-votetime" class="input-control" value="10"></div>
-          <div class="input-group"><label>Czas na odp. (sek)</label><input type="number" id="set-anstime" class="input-control" value="15"></div>
         </div>
+        <div class="input-group"><label>Czas na odp. (sek)</label><input type="number" id="set-anstime" class="input-control" value="15"></div>
         <button class="btn btn-primary" onclick="createRoom()">Utwórz grę</button>
       </div>
 
@@ -109,19 +123,40 @@
 
   <!-- WIDOK 4: GŁOSOWANIE NA KATEGORIĘ -->
   <div id="view-voting" class="view-section panel">
-    <h2 style="text-align:center; margin-top:0; color:#d8b4fe;">Wybierz kategorię</h2>
-    <p style="text-align:center; color:#8b95a5;">Kategoria z największą liczbą głosów wygrywa!</p>
-    
+    <h2 style="text-align:center; margin-top:0; color:#d8b4fe;">Wybierz kategorię (Pytanie <span id="q-counter">1</span>)</h2>
     <div class="progress-container"><div id="vote-progress" class="progress-bar"></div></div>
-    
-    <div id="category-buttons" class="flex-column">
-      <!-- Przyciski generowane dynamicznie -->
-    </div>
-    
+    <div id="category-buttons" class="flex-column"></div>
     <p id="vote-status" class="meta-text" style="margin-top: 20px; font-size:1.1rem; color:#7dd3fc;">Oddane głosy: 0 / 0</p>
   </div>
 
-  <!-- WIDOK 5: FORMULARZ ZGŁASZANIA PYTAŃ -->
+  <!-- WIDOK 5: PYTANIE -->
+  <div id="view-question" class="view-section panel">
+    <h3 style="color:#d8b4fe; text-align:center; margin-top:0;" id="q-category-label">Kategoria</h3>
+    <div class="progress-container"><div id="ans-progress" class="progress-bar"></div></div>
+    
+    <div class="question-box" id="q-text">Ładowanie pytania...</div>
+    <div id="answer-buttons" class="flex-column"></div>
+    
+    <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+      <p style="font-size:0.85rem; color:#8b95a5; margin-bottom: 5px;">Status graczy:</p>
+      <div class="players-grid" id="players-status-list"></div>
+    </div>
+  </div>
+
+  <!-- WIDOK 6: WYNIKI (LEADERBOARD) -->
+  <div id="view-leaderboard" class="view-section panel">
+    <h2 style="text-align:center; margin-top:0; color:#fbbf24;">Wyniki</h2>
+    <div id="leaderboard-list" style="margin: 20px 0;"></div>
+    
+    <div id="host-next-controls" class="hidden">
+      <button class="btn btn-primary" onclick="initiateStart()">Następne pytanie</button>
+    </div>
+    <div id="host-finish-controls" class="hidden">
+      <button class="btn btn-primary" onclick="endGame()">Zakończ Grę</button>
+    </div>
+  </div>
+
+  <!-- WIDOK 7: FORMULARZ ZGŁASZANIA PYTAŃ -->
   <div id="view-propose" class="view-section panel">
     <h2 style="margin-top:0; color:#f9a8d4;">Zaproponuj Pytanie</h2>
     <div class="input-group"><label>Kategoria</label><input type="text" id="prop-cat" class="input-control"></div>
@@ -130,7 +165,7 @@
     <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="radio" name="prop-correct" value="1"><input type="text" id="prop-a1" class="input-control" placeholder="B"></div>
     <div style="display:flex; gap:10px; margin-bottom:10px;"><input type="radio" name="prop-correct" value="2"><input type="text" id="prop-a2" class="input-control" placeholder="C"></div>
     <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="radio" name="prop-correct" value="3"><input type="text" id="prop-a3" class="input-control" placeholder="D"></div>
-    <div class="flex-row"><button class="btn" onclick="toggleProposeModal()">Anuluj</button><button class="btn" style="color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyszlij do akceptacji</button></div>
+    <div class="flex-row"><button class="btn" onclick="toggleProposeModal()">Anuluj</button><button class="btn" style="color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyślij do akceptacji</button></div>
   </div>
 
 </div>
@@ -142,12 +177,15 @@
   let dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null, currentRoomId = null, isHost = false, roomChannel = null;
   
-  // Stan gry
-  let roomSettings = {};
-  let roomState = {};
-  let totalPlayers = 0;
-  let hasVoted = false;
-  let hostVoteTally = {}; // Tylko dla Hosta
+  let roomSettings = {}, roomState = {}, playersData = [];
+  let totalPlayers = 0, currentQuestionIndex = 0;
+  
+  // Zmienne rundy
+  let hasVoted = false, hostVoteTally = {};
+  let currentQuestion = null; // Dane pytania
+  let shuffledAnswers = [];   // Potasowane odpowiedzi
+  let questionStartTime = 0;
+  let myScore = 0;
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -167,11 +205,10 @@
     document.getElementById(viewId).classList.add('active-view');
   }
 
-  // LOBBY & START
+  // --- LOGIKA LOBBY ---
   async function createRoom() {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
     roomSettings = {
-      rounds: parseInt(document.getElementById('set-rounds').value),
       q_per_round: parseInt(document.getElementById('set-questions').value),
       vote_time: parseInt(document.getElementById('set-votetime').value),
       ans_time: parseInt(document.getElementById('set-anstime').value)
@@ -195,14 +232,12 @@
     currentRoomId = roomId; document.getElementById('lobby-code').textContent = code;
     switchView('view-lobby'); fetchPlayers();
 
-    // PODŁĄCZENIE DO KANAŁU REALTIME
     if(roomChannel) dbClient.removeChannel(roomChannel);
     roomChannel = dbClient.channel('room-' + roomId, { config: { broadcast: { self: true } } })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, () => fetchPlayers())
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` }, (payload) => syncGameState(payload.new))
       .on('broadcast', { event: 'submit_vote' }, (payload) => {
          if (isHost) {
-           // Host odbiera głosy i sumuje, a potem rozgłasza wynik do wszystkich
            const cat = payload.payload.category;
            hostVoteTally[cat] = (hostVoteTally[cat] || 0) + 1;
            const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
@@ -210,40 +245,55 @@
          }
       })
       .on('broadcast', { event: 'update_tally' }, (payload) => {
-         // Wszyscy aktualizują tekst na ekranie
          document.getElementById('vote-status').textContent = `Oddane głosy: ${payload.payload} / ${totalPlayers}`;
+      })
+      .on('broadcast', { event: 'player_answered' }, (payload) => {
+         const card = document.getElementById(`status-${payload.payload.user_id}`);
+         if(card) card.classList.add('answered');
       })
       .subscribe();
   }
 
   async function fetchPlayers() {
-    const { data } = await dbClient.from('quiz_players').select('nickname').eq('room_id', currentRoomId);
+    const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId);
     if(data) {
+      playersData = data;
       totalPlayers = data.length;
       document.getElementById('players-list').innerHTML = data.map(p => `<div class="player-card">${p.nickname}</div>`).join('');
     }
   }
 
-  // ETAP 3: START GRY I SYNCHRONIZACJA STANU
-  async function initiateStart() {
-    // 1. Host pobiera 3 losowe kategorie z bazy
-    const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
-    const uniqueCats = [...new Set(data.map(q => q.category))];
-    const shuffledCats = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
-    
-    // 2. Host ustawia status na 'starting' co wywoła u wszystkich odliczanie
-    await dbClient.from('quiz_rooms').update({ status: 'starting', state: { categories: shuffledCats } }).eq('id', currentRoomId);
-  }
-
+  // --- BRAMKA STANU (Realtime) ---
   function syncGameState(roomData) {
     roomSettings = roomData.settings;
     roomState = roomData.state;
 
     if (roomData.status === 'starting') startCountdownUI();
     if (roomData.status === 'voting') startVotingUI();
+    if (roomData.status === 'question') startQuestionUI();
+    if (roomData.status === 'leaderboard') showLeaderboardUI();
   }
 
-  // EKRAN 1: ODLICZANIE
+  // --- ETAP: ODLICZANIE ---
+  async function initiateStart() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex > roomSettings.q_per_round) {
+       await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
+       alert("Koniec Quizu!");
+       return;
+    }
+    
+    // Zresetuj flagi gotowości (w bazie)
+    await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
+
+    // Host losuje 3 kategorie z bazy
+    const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
+    const uniqueCats = [...new Set(data.map(q => q.category))];
+    const shuffledCats = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+    
+    await dbClient.from('quiz_rooms').update({ status: 'starting', state: { categories: shuffledCats, q_index: currentQuestionIndex } }).eq('id', currentRoomId);
+  }
+
   function startCountdownUI() {
     switchView('view-countdown');
     let count = 5;
@@ -252,21 +302,18 @@
     
     const int = setInterval(() => {
       count--;
-      if(count > 0) {
-        el.textContent = count;
-      } else {
+      if(count > 0) el.textContent = count;
+      else {
         clearInterval(int);
-        // Po odliczeniu, TYLKO Host pcha grę dalej do etapu głosowania
-        if(isHost) {
-          dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
-        }
+        if(isHost) dbClient.from('quiz_rooms').update({ status: 'voting' }).eq('id', currentRoomId);
       }
     }, 1000);
   }
 
-  // EKRAN 2: GŁOSOWANIE
+  // --- ETAP: GŁOSOWANIE ---
   function startVotingUI() {
     switchView('view-voting');
+    document.getElementById('q-counter').textContent = roomState.q_index + " / " + roomSettings.q_per_round;
     hasVoted = false; hostVoteTally = {};
     document.getElementById('vote-status').textContent = `Oddane głosy: 0 / ${totalPlayers}`;
     
@@ -275,48 +322,127 @@
     
     roomState.categories.forEach(cat => {
        const btn = document.createElement('button');
-       btn.className = 'cat-btn';
-       btn.textContent = cat;
+       btn.className = 'cat-btn'; btn.textContent = cat;
        btn.onclick = () => {
          if(!hasVoted) {
            hasVoted = true;
            document.querySelectorAll('.cat-btn').forEach(b => { b.style.opacity = '0.3'; b.style.pointerEvents = 'none'; });
            btn.style.opacity = '1'; btn.style.borderColor = '#34d399'; btn.style.color = '#34d399';
-           // Wyślij głos w próżnię (do Hosta)
            roomChannel.send({ type: 'broadcast', event: 'submit_vote', payload: { category: cat } });
          }
        };
        container.appendChild(btn);
     });
 
-    // Pasek postępu
     const bar = document.getElementById('vote-progress');
     bar.style.transition = 'none'; bar.style.width = '100%';
-    
-    setTimeout(() => {
-      bar.style.transition = `width ${roomSettings.vote_time}s linear`;
-      bar.style.width = '0%';
-    }, 50);
+    setTimeout(() => { bar.style.transition = `width ${roomSettings.vote_time}s linear`; bar.style.width = '0%'; }, 50);
 
-    // Host kończy głosowanie po upływie czasu
-    if (isHost) {
-       setTimeout(() => { finishVoting(); }, roomSettings.vote_time * 1000);
-    }
+    if (isHost) setTimeout(() => { finishVoting(); }, roomSettings.vote_time * 1000);
   }
 
   async function finishVoting() {
-    // Host liczy głosy i wybiera zwycięzcę
-    let winner = roomState.categories[0];
-    let max = -1;
-    for (let cat in hostVoteTally) {
-      if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; }
-    }
+    let winner = roomState.categories[0]; let max = -1;
+    for (let cat in hostVoteTally) { if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; } }
     
-    alert('Czas minął! Wygrywa kategoria: ' + winner + '. Przygotuj się na pytania!');
-    // W NASTĘPNYM ETAPIE: Zmienimy status na 'question' i pobierzemy pytanie z tej kategorii
+    // Pobierz 1 losowe pytanie z wygranej kategorii
+    const { data } = await dbClient.from('quiz_questions').select('*').eq('category', winner).eq('is_verified', true);
+    const randQ = data[Math.floor(Math.random() * data.length)];
+    
+    await dbClient.from('quiz_rooms').update({ status: 'question', state: { question: randQ } }).eq('id', currentRoomId);
   }
 
-  // WYSYŁANIE WŁASNYCH PYTAŃ
+  // --- ETAP: PYTANIE I ODPOWIEDZI ---
+  function startQuestionUI() {
+    switchView('view-question');
+    currentQuestion = roomState.question;
+    document.getElementById('q-category-label').textContent = currentQuestion.category;
+    document.getElementById('q-text').textContent = currentQuestion.question;
+    
+    // Renderowanie małych kart graczy na dole
+    document.getElementById('players-status-list').innerHTML = playersData.map(p => `<div id="status-${p.user_id}" class="player-card" style="font-size:0.8rem; padding: 6px;">${p.nickname}</div>`).join('');
+
+    // Tasowanie odpowiedzi z zapamiętaniem oryginalnego indeksu
+    let mappedAns = currentQuestion.answers.map((text, idx) => ({ text, originalIdx: idx }));
+    shuffledAnswers = mappedAns.sort(() => 0.5 - Math.random());
+    
+    const container = document.getElementById('answer-buttons');
+    container.innerHTML = '';
+    
+    shuffledAnswers.forEach((ansObj, screenIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'ans-btn'; btn.textContent = ansObj.text;
+      btn.id = `ans-btn-${screenIdx}`;
+      btn.onclick = () => submitAnswer(screenIdx, ansObj.originalIdx);
+      container.appendChild(btn);
+    });
+
+    const bar = document.getElementById('ans-progress');
+    bar.style.transition = 'none'; bar.style.width = '100%';
+    setTimeout(() => { bar.style.transition = `width ${roomSettings.ans_time}s linear`; bar.style.width = '0%'; }, 50);
+
+    questionStartTime = Date.now();
+
+    if (isHost) setTimeout(() => { finalizeQuestion(); }, roomSettings.ans_time * 1000);
+  }
+
+  async function submitAnswer(screenIdx, originalIdx) {
+    const elapsed = (Date.now() - questionStartTime) / 1000;
+    const timeLeft = Math.max(0, roomSettings.ans_time - elapsed);
+    
+    // Blokada reszty przycisków
+    document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
+    const selectedBtn = document.getElementById(`ans-btn-${screenIdx}`);
+    selectedBtn.classList.add('ans-selected');
+
+    // Punktacja oparta na refleksie (max 1000 pkt za natychmiastową odp)
+    let pointsEarned = 0;
+    if (originalIdx === currentQuestion.correct_index) {
+        pointsEarned = Math.floor((timeLeft / roomSettings.ans_time) * 1000);
+    }
+    
+    // Zapis do bazy (kumulowanie punktów)
+    const { data: myData } = await dbClient.from('quiz_players').select('score').eq('room_id', currentRoomId).eq('user_id', currentUser.id).single();
+    await dbClient.from('quiz_players').update({ score: myData.score + pointsEarned, is_ready: true }).eq('room_id', currentRoomId).eq('user_id', currentUser.id);
+    
+    // Wysyłamy sygnał do reszty, by zazielenili nasz nick na liście (że już odpowiedzieliśmy)
+    roomChannel.send({ type: 'broadcast', event: 'player_answered', payload: { user_id: currentUser.id } });
+  }
+
+  async function finalizeQuestion() {
+    await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
+  }
+
+  // --- ETAP: TABLICA WYNIKÓW PO RUNDZIE ---
+  async function showLeaderboardUI() {
+    switchView('view-leaderboard');
+    // Pobierz aktualne wyniki
+    const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId).order('score', { ascending: false });
+    
+    let html = '';
+    data.forEach((p, idx) => {
+      let rankClass = (idx === 0) ? 'rank-1' : '';
+      html += `<div class="leaderboard-row ${rankClass}"><span>${idx+1}. ${p.nickname}</span><span>${p.score} pkt</span></div>`;
+    });
+    document.getElementById('leaderboard-list').innerHTML = html;
+
+    if (isHost) {
+      if (roomState.q_index < roomSettings.q_per_round) {
+         document.getElementById('host-next-controls').classList.remove('hidden');
+      } else {
+         document.getElementById('host-finish-controls').classList.remove('hidden');
+      }
+    }
+  }
+
+  function endGame() {
+    alert("Koniec Gry! Dziękujemy.");
+    switchView('view-menu');
+    document.getElementById('host-next-controls').classList.add('hidden');
+    document.getElementById('host-finish-controls').classList.add('hidden');
+  }
+
+  // --- ZGŁASZANIE PYTAŃ ---
   function toggleProposeModal() {
     const p = document.getElementById('view-propose');
     p.classList.contains('active-view') ? switchView('view-menu') : switchView('view-propose');
