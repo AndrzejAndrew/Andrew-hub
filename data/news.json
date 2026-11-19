@@ -1,47 +1,55 @@
 {
-  "updated_at": "18.11.2026 15:54",
+  "updated_at": "19.11.2026 15:58",
   "security": [
     {
-      "title": "Java4Shell (CVE-2026-114938), czyli jak optymalizacje w assembly spowodowały RCE w dekoderze Base64 OpenJDK",
-      "link": "https://sekurak.pl/java4shell-cve-2026-114938-czyli-jak-optymalizacje-w-assembly-spowodowaly-rce-w-dekoderze-base64-openjdk/",
+      "title": "Rusza Black Week z sekurakiem! Najlepsze zniżki w roku (nawet do -80%!) 🚀",
+      "link": "https://sekurak.pl/rusza-black-week-z-sekurakiem/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "18.11.2026, 10:11",
-      "timestamp": 1794996714.0
+      "date": "19.11.2026, 11:14",
+      "timestamp": 1795086888.0
     },
     {
-      "title": "Oddajesz zepsuty dysk do naprawy? Uważaj, być może Twoje dane wyciekną.",
-      "link": "https://sekurak.pl/oddajesz-zepsuty-dysk-do-naprawy-uwazaj-byc-moze-twoje-dane-wyciekna/",
+      "title": "Cyberatak na Komisję Europejską. W użyciu semi-autonomiczny system AI – ARTEX.",
+      "link": "https://sekurak.pl/cyberatak-na-komisje-europejska-w-uzyciu-semi-autonomiczny-system-ai-artex/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "18.11.2026, 09:13",
-      "timestamp": 1794993221.0
+      "date": "19.11.2026, 11:10",
+      "timestamp": 1795086614.0
     },
     {
-      "title": "Ciemna strona AI. Google ostrzega o istotnym skoku, jeśli chodzi o używanie LLM-ów do hackowania",
-      "link": "https://sekurak.pl/ciemna-strona-ai-google-ostrzega-o-istotnym-skoku-jesli-chodzi-o-uzywanie-llm-ow-do-hackowania/",
+      "title": "ruby2shell – heap overflow przy zmianie wielkości liter w Ruby. Rzekomo pozwala na RCE.",
+      "link": "https://sekurak.pl/ruby2shell-heap-overflow-przy-zmianie-wielkosci-liter-w-ruby-rzekomo-pozwala-na-rce/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "18.11.2026, 08:50",
-      "timestamp": 1794991827.0
+      "date": "19.11.2026, 09:18",
+      "timestamp": 1795079934.0
     },
     {
-      "title": "Krytyczna podatność 0-click w Cisco Catalyst SD-WAN umożliwiająca zdalne uzyskanie uprawnień administratora",
-      "link": "https://sekurak.pl/krytyczna-podatnosc-0-click-w-cisco-catalyst-sd-wan-umozliwiajaca-zdalne-uzyskanie-uprawnien-administratora/",
+      "title": "200 tys. dolarów za pięć luk w Azure. Badacz ujawnił błędy w API Connections",
+      "link": "https://sekurak.pl/200-tys-dolarow-za-piec-luk-w-azure-badacz-ujawnil-bledy-w-api-connections/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "18.11.2026, 06:04",
-      "timestamp": 1794981850.0
+      "date": "19.11.2026, 04:40",
+      "timestamp": 1795063221.0
     }
   ],
   "leclerc": [
     {
-      "title": "Gdzie najtańsze paliwo w Polsce? Benzyna od 5,75 zł, diesel po 7,05 zł. Sprawdź stacje",
-      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxPUlJmQk5BZUhNejF4RnZaNjlXTDNMM2lXWXJSZHB1MndZd3pUMU5LZjRPZ0gzT1NwSGNGVVJQX3dBbDBqM3JfcUtsV1hPQnZKeHFEYmg5SlVfeGRNeEdrNXQ3d3N6YUZCeVBqQ0RHbDZ3ZGF5LWdtdTlQX3lpTXdBTXMzclZsYjg1Sl9yeERnNS1rclhDT2xzY05CRXE3OTlaNVZLMm54T20wT3JmUnBSTDRTa1U5VHQwOU1IaVlCS1g2Mk94S0ZHUVA2a25teDR3?oc=5",
+      "title": "Gdzie najtańsze paliwo w Polsce? Benzyna od 5,97 zł, diesel po 7,51 zł. Sprawdź stacje",
+      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNc1dTYTF4NzFZLTV4NTdtaDlVYkNNT25qMVFCa05UM2VsNjRpbG9hcVFzME92R3Z3MWZEeG1iSGdZZXBaUmdWOEpGcEJJaFJ3VXl3Yl95ZlJIbUlLT05pN0l5ci1XQ3RVVFJaNFVhQnhpUTFKTWc5TlJiQVFOUGdfMHVmVF9EbFdXeUNzX1l2dksxZ3I5WHMwTTNhek5SbXRYSDBJQXJCY2NlejZ4d2JxUF85czZQWXFkMEs5Nng2YzQzc0liT2JlRVYxaTF2cTRP?oc=5",
       "source": "Transport w praktyce",
       "badge": "sec",
-      "date": "18.11.2026, 11:00",
-      "timestamp": 1794999600.0
+      "date": "19.11.2026, 10:59",
+      "timestamp": 1795085973.0
+    },
+    {
+      "title": "Radomski E. Leclerc ogłosił godziny otwarcia sklepu w okresie Bożego Narodzenia i Nowego Roku",
+      "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxOZVZYdW9TNy1LU01zdTc3MlNGQU9uNjlJN053RDRwQV9SMXJEem9NQnRYWHJ1WFNfUC0wSS01OHNfcFlrc2lPOG5nTG9qVERvdHpqMVo5aXRCbnp6TWNweDVPRTZBV09yMW5FdkJjUE5kVTZva0NublFXY2xGZ1pQTlhTeFc0azQ1TzhBVXNXWDZFTmR5STRjdm5WSkwwS2cteVFGTDRYVlhEcmo3M0hxRFU1NjllalRvb01EX0ZkR045S2JxaFZ4elFXRUFCRFRXeUdkWg?oc=5",
+      "source": "Radom24.pl",
+      "badge": "sec",
+      "date": "19.11.2026, 10:54",
+      "timestamp": 1795085640.0
     },
     {
       "title": "Święta coraz bliżej! W E.Leclerc w Radomiu ruszyła świąteczna aleja. Jest też Sklep Świętego Mikołaja",
@@ -52,14 +60,6 @@
       "timestamp": 1794926993.0
     },
     {
-      "title": "Gdzie oglądać mecz E.Leclerc Radomka Radom - Grupa Azoty Chemik Police? Transmisja TV i online (12.11.2026)",
-      "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOMXdtWHljeEJIV2FsMXlhWGxnenVrOWxINllfWEE1NjR6b3pGc25zNkZKVEtUZVlyUHI0UTQtNlJYdUMxdDkxVDk2V0ZQblpaNGRzYWpUSE1HQkR2bll3UFBoM2RZNnN1SXJMR3JuMmN1S2Y5TnZaeHdDWk1uN01RLUNWanJBRTdjUENZaEsxb1JucDVPYkZLM0g1NVIxN1VvVVZLaTJybndxcGQtYnB3YXdnaHFvZEFIS09SLVVQUzNsaE1pTkJvRw?oc=5",
-      "source": "Mecze24.pl",
-      "badge": "sec",
-      "date": "12.11.2026, 10:06",
-      "timestamp": 1794477966.0
-    },
-    {
       "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
       "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNMzlPelgxdzA1alJ3QWN2LV9qU3VwVDB2ZW1Rb0FUdHFhM2pBdkNxaU5JLWlYRnhJdUUyRTVoRzVIZkRXYzg0Y3NicG01VEdHZUNmU1ZxQzNmNnFiQWRYRDcxalNnMEtOVHhZWEFEUDVPdGtiUGl1UGJhQWRQbndiMU96elJWY3hwT0ttVk1ValNEOThsNkkyQkhXeUl4QlJNQ3N0ODdqbXhMUWtYMktMZS1FeVdfZmt3S3Rsa1dLNkl5UUxwbzUwYXlPVHFncktvOUE?oc=5",
       "source": "Portal spożywczy",
@@ -68,20 +68,20 @@
       "timestamp": 1794211200.0
     },
     {
-      "title": "E.Leclerc Polska stawia na AI. Tomasz Adamczyk nowym szefem operacji",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQaVNZV3BSX2Y5S2dyaF9UOGJ5RVJnRFBUNl9GUXZ4Zi10U1FzV3FfSU1TbW52b0M5OW8wYnNaNnd2YlRZajJSNlduM2lqSFprQy1mX21Rdm9RMDFZQi1DbHNlc3g0RHdGU3A4UVpCQTRMWWZTZXFiTktzTU0wamhWM1UxRi1hSmxYOE9tZU0yVE96VTkxVWhqVmlQSm5faTJIWU14djNHa2l2UTdjTkYzNjN0Snh5cFBpck9adw?oc=5",
-      "source": "Wiadomości Handlowe",
-      "badge": "sec",
-      "date": "04.11.2026, 21:53",
-      "timestamp": 1793829226.0
-    },
-    {
       "title": "E.Leclerc zmienia sieć w Polsce. Duży sklep zakończy działalność już niebawem",
       "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQX0tVbWNpSG5QdktLY2NERXNYdGl0dFYyengxQmxNRTRjWF9adDF1SFduYXBNVDJTUHBPVk1wM2ZBOFpLd2VrTnlzRzQyN2QwS0xIT0VCVFpqbXNieDJiTjNOTTJlcU9ScV9RUjhRUmxlZm00X0Mxc3l3SzIwWHN1Qjg4TVFZdlROOV8zdkpmWl8zRUg0RE0tUnp2akwzWXNoV1ZpLUx2eDdJQnhvUmhMN1F0RXVOeDZ0ZVdFaE1UbjRtVVdYb0xaakNJMHQ?oc=5",
       "source": "PropertyNews.pl",
       "badge": "sec",
       "date": "04.09.2026, 07:00",
       "timestamp": 1788505200.0
+    },
+    {
+      "title": "Strefa Motoru w CH E.Leclerc Zana 19",
+      "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE03TVA5blljUzVwcmtMOWFJMFZJeW0yNmd2RldJRlZPTk9TX2J2YlpvZjBWY1BLbF9tMXBGa1ZkbzRNOElrd2o0c3c1S05VTllZQ0hYX00xUjM0dW5tMjVFTW1NUldDLUNMenREZ2FaaGlXVzg?oc=5",
+      "source": "Motor Lublin",
+      "badge": "sec",
+      "date": "20.05.2026, 07:00",
+      "timestamp": 1779260400.0
     }
   ]
 }
