@@ -1,47 +1,47 @@
 {
-  "updated_at": "19.11.2026 15:58",
+  "updated_at": "20.11.2026 15:42",
   "security": [
     {
-      "title": "Rusza Black Week z sekurakiem! Najlepsze zniżki w roku (nawet do -80%!) 🚀",
-      "link": "https://sekurak.pl/rusza-black-week-z-sekurakiem/",
+      "title": "Punkty CPE bez tajemnic: jak utrzymać certyfikat, rozwijać się dalej i nie zbankrutować?",
+      "link": "https://sekurak.pl/punkty-cpe-bez-tajemnic-jak-utrzymac-certyfikat-rozwijac-sie-dalej-i-nie-zbankrutowac/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "19.11.2026, 11:14",
-      "timestamp": 1795086888.0
+      "date": "20.11.2026, 15:28",
+      "timestamp": 1795188490.0
     },
     {
-      "title": "Cyberatak na Komisję Europejską. W użyciu semi-autonomiczny system AI – ARTEX.",
-      "link": "https://sekurak.pl/cyberatak-na-komisje-europejska-w-uzyciu-semi-autonomiczny-system-ai-artex/",
+      "title": "OpenSSL: przepełnienie bufora na stercie w EVP_EncodeBlock() – CVE-2026-121481, CVSS 9.8 i ciąg 1.5GB do wykonania ataku",
+      "link": "https://sekurak.pl/openssl-przepelnienie-bufora-na-stercie-w-evp_encodeblock-cve-2026-121481-cvss-9-8-i-ciag-1-5gb-do-wykonania-ataku/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "19.11.2026, 11:10",
-      "timestamp": 1795086614.0
+      "date": "20.11.2026, 11:57",
+      "timestamp": 1795175858.0
     },
     {
-      "title": "ruby2shell – heap overflow przy zmianie wielkości liter w Ruby. Rzekomo pozwala na RCE.",
-      "link": "https://sekurak.pl/ruby2shell-heap-overflow-przy-zmianie-wielkosci-liter-w-ruby-rzekomo-pozwala-na-rce/",
+      "title": "Wycieki za pomocą zrzutów ekranu – PixelLeak czyli u agentów AI po staremu",
+      "link": "https://sekurak.pl/wycieki-za-pomoca-zrzutow-ekranu-pixelleak-czyli-u-agentow-ai-po-staremu/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "19.11.2026, 09:18",
-      "timestamp": 1795079934.0
+      "date": "20.11.2026, 02:49",
+      "timestamp": 1795142966.0
     },
     {
-      "title": "200 tys. dolarów za pięć luk w Azure. Badacz ujawnił błędy w API Connections",
-      "link": "https://sekurak.pl/200-tys-dolarow-za-piec-luk-w-azure-badacz-ujawnil-bledy-w-api-connections/",
+      "title": "FBI podszyło się pod gang ransomware oraz pod zainfekowaną firmę…",
+      "link": "https://sekurak.pl/fbi-podszylo-sie-pod-gang-ransomware-oraz-pod-zainfekowana-firme/",
       "source": "Sekurak",
       "badge": "sec",
-      "date": "19.11.2026, 04:40",
-      "timestamp": 1795063221.0
+      "date": "19.11.2026, 21:12",
+      "timestamp": 1795122744.0
     }
   ],
   "leclerc": [
     {
-      "title": "Gdzie najtańsze paliwo w Polsce? Benzyna od 5,97 zł, diesel po 7,51 zł. Sprawdź stacje",
-      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNc1dTYTF4NzFZLTV4NTdtaDlVYkNNT25qMVFCa05UM2VsNjRpbG9hcVFzME92R3Z3MWZEeG1iSGdZZXBaUmdWOEpGcEJJaFJ3VXl3Yl95ZlJIbUlLT05pN0l5ci1XQ3RVVFJaNFVhQnhpUTFKTWc5TlJiQVFOUGdfMHVmVF9EbFdXeUNzX1l2dksxZ3I5WHMwTTNhek5SbXRYSDBJQXJCY2NlejZ4d2JxUF85czZQWXFkMEs5Nng2YzQzc0liT2JlRVYxaTF2cTRP?oc=5",
+      "title": "Ceny paliw na 20 listopada 2026 r. Nowe limity benzyny i diesla. Gdzie 18 i 19 listopada kierowcy tankowali najtaniej?",
+      "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPek5qZzNZSjZBLVhkZFFFMy1QQ2RIM3lVaW9CUWtaNm5EMDl0NnpLUlN1OXFuRTQyMlVBNkgxR3FzX3RGbUhNWnByZ3NHQnZSNUgwWE91UTlJQmF1MVktcGxWbGJLdzhyUE9CVldabnBzYmlXdzN1ZFRWU1ZMQjl4TGlwV21FTzd5ZmZNU3JKT1ItN0EzVmdVYlo2c3EtbDZiekRrNHRmaVdDVTVtWmRIeGpNMGI4ZEFYendYMnlPdHpFUDRhSXJMby1MZDdjVWQ1WTFrcHluSkNWRGhEYVhlMXg3azRfaFJBLWZkQWFjVTl2LWRKREVmd3l4MA?oc=5",
       "source": "Transport w praktyce",
       "badge": "sec",
-      "date": "19.11.2026, 10:59",
-      "timestamp": 1795085973.0
+      "date": "19.11.2026, 18:00",
+      "timestamp": 1795111200.0
     },
     {
       "title": "Radomski E. Leclerc ogłosił godziny otwarcia sklepu w okresie Bożego Narodzenia i Nowego Roku",
@@ -50,14 +50,6 @@
       "badge": "sec",
       "date": "19.11.2026, 10:54",
       "timestamp": 1795085640.0
-    },
-    {
-      "title": "Święta coraz bliżej! W E.Leclerc w Radomiu ruszyła świąteczna aleja. Jest też Sklep Świętego Mikołaja",
-      "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxQTndpdmEyamlYV25nbzZyY2h4S1E4RUFEQU1xRE1JUFdQS25pLTY3YkxHbTJ5OFQyVUt1eGJwN2ZHR0dlTzUzLUVHZnJJUWVaNU1fT05JY2RZaHc1N1VtakRRcVlnYzN2LTJUQ1QyWDNQZ2RZX0pZZC01YktCM2wwajA3bU5mSnFlUDA2SUVQUXpzZ2FJRU82cllsRXUyNkUxamFqUVl6VEVtcVdoVDhEX1dmaWZxWmRKVTJJRE12M0FiWHdrRXJmelA2TFhzMkg3SjlIYnI5Q1daR0t5bGc?oc=5",
-      "source": "Radom Nasze Miasto",
-      "badge": "sec",
-      "date": "17.11.2026, 14:49",
-      "timestamp": 1794926993.0
     },
     {
       "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
@@ -74,6 +66,14 @@
       "badge": "sec",
       "date": "04.09.2026, 07:00",
       "timestamp": 1788505200.0
+    },
+    {
+      "title": "Otworzyli E.Leclerc w każdą niedzielę dzięki sprytnemu trikowi. Ministerstwo ostro reaguje",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPQTFrY0hjMG9FdUtmWWdKZmg4Q1BoNVl1TGZQN3Jqc1lHdktRVlc2QVBvdkZXNkwwd2ExaF9Td2Y1cGp3TGtndXRkYmhwMUE0cVgtTm41OVpRNHRlZjhoQWJ1OUx0OFd1T3NGX0Jodmg0RGxfVlQ3SnVjN1RMV0ZJNFJnZC1LR3ZDUmxaMG1WQ2ozNlZ3bHFnNEh4YzhPU1dkaTVVUldKcnI1WW9IWmlOQW0xYU5EekJuWXc?oc=5",
+      "source": "Gazeta Prawna",
+      "badge": "sec",
+      "date": "16.06.2026, 07:00",
+      "timestamp": 1781593200.0
     },
     {
       "title": "Strefa Motoru w CH E.Leclerc Zana 19",
