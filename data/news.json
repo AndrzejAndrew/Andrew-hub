@@ -1,6 +1,14 @@
 {
-  "updated_at": "20.11.2026 15:42",
+  "updated_at": "21.11.2026 14:52",
   "security": [
+    {
+      "title": "Cyberatak na ePUAP. Dobrze to nie wygląda",
+      "link": "https://sekurak.pl/cyberatak-na-epuap-dobrze-to-nie-wyglada/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "21.11.2026, 08:27",
+      "timestamp": 1795249643.0
+    },
     {
       "title": "Punkty CPE bez tajemnic: jak utrzymać certyfikat, rozwijać się dalej i nie zbankrutować?",
       "link": "https://sekurak.pl/punkty-cpe-bez-tajemnic-jak-utrzymac-certyfikat-rozwijac-sie-dalej-i-nie-zbankrutowac/",
@@ -24,14 +32,6 @@
       "badge": "sec",
       "date": "20.11.2026, 02:49",
       "timestamp": 1795142966.0
-    },
-    {
-      "title": "FBI podszyło się pod gang ransomware oraz pod zainfekowaną firmę…",
-      "link": "https://sekurak.pl/fbi-podszylo-sie-pod-gang-ransomware-oraz-pod-zainfekowana-firme/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "19.11.2026, 21:12",
-      "timestamp": 1795122744.0
     }
   ],
   "leclerc": [
