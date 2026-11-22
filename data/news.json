@@ -1,6 +1,22 @@
 {
-  "updated_at": "21.11.2026 14:52",
+  "updated_at": "22.11.2026 14:49",
   "security": [
+    {
+      "title": "Badacze wysłali dwa miliony spreparowanych promptów do routerów AI, zawierających baity (tzw. kanarki zawierające poufne dane). Ktoś kradnie niektóre prompty…",
+      "link": "https://sekurak.pl/badacze-wyslali-dwa-miliony-spreparowanych-promptow-do-routerow-ai-zawierajacych-baity-tzw-kanarki-zawierajace-poufne-dane-ktos-kradnie-niektore-prompty/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "22.11.2026, 14:28",
+      "timestamp": 1795357684.0
+    },
+    {
+      "title": "Ktoś zhackował chmurę producenta routerów domowych i zdalnie infekował routery. GL.iNET",
+      "link": "https://sekurak.pl/ktos-zhackowal-chmure-producenta-routerow-domowych-i-zdalnie-infekowal-routery-gl-inet/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "22.11.2026, 09:57",
+      "timestamp": 1795341465.0
+    },
     {
       "title": "Cyberatak na ePUAP. Dobrze to nie wygląda",
       "link": "https://sekurak.pl/cyberatak-na-epuap-dobrze-to-nie-wyglada/",
@@ -16,25 +32,17 @@
       "badge": "sec",
       "date": "20.11.2026, 15:28",
       "timestamp": 1795188490.0
-    },
-    {
-      "title": "OpenSSL: przepełnienie bufora na stercie w EVP_EncodeBlock() – CVE-2026-121481, CVSS 9.8 i ciąg 1.5GB do wykonania ataku",
-      "link": "https://sekurak.pl/openssl-przepelnienie-bufora-na-stercie-w-evp_encodeblock-cve-2026-121481-cvss-9-8-i-ciag-1-5gb-do-wykonania-ataku/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "20.11.2026, 11:57",
-      "timestamp": 1795175858.0
-    },
-    {
-      "title": "Wycieki za pomocą zrzutów ekranu – PixelLeak czyli u agentów AI po staremu",
-      "link": "https://sekurak.pl/wycieki-za-pomoca-zrzutow-ekranu-pixelleak-czyli-u-agentow-ai-po-staremu/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "20.11.2026, 02:49",
-      "timestamp": 1795142966.0
     }
   ],
   "leclerc": [
+    {
+      "title": "MKS Kalisz - E.Leclerc Radomka Radom gdzie oglądać mecz? Transmisja TV i online (22.11.2026)",
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNRExVdW5zMk5zaGVfLUtZaHh6WUQzeURpMUVZaWxQR3FGWlpWSjlSR2x5QnVFMmk5b2RCWjczdUJKT1NZMy1fejRCbDNMeXI0Unc1akRPMjU3WVFhOU1LZEY1VmVOdmstdmxRUzJPVm96WkxtcjZnMVRrVFdSVGxlbTlSakxQY1ZVT1ZzenhVUjZLWGRhbmF2Qmx3a3BZeDVDLXhDOXA3MFZyc3V1US1WdUNndXQ?oc=5",
+      "source": "Mecze24.pl",
+      "badge": "sec",
+      "date": "22.11.2026, 05:09",
+      "timestamp": 1795324165.0
+    },
     {
       "title": "Ceny paliw na 20 listopada 2026 r. Nowe limity benzyny i diesla. Gdzie 18 i 19 listopada kierowcy tankowali najtaniej?",
       "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPek5qZzNZSjZBLVhkZFFFMy1QQ2RIM3lVaW9CUWtaNm5EMDl0NnpLUlN1OXFuRTQyMlVBNkgxR3FzX3RGbUhNWnByZ3NHQnZSNUgwWE91UTlJQmF1MVktcGxWbGJLdzhyUE9CVldabnBzYmlXdzN1ZFRWU1ZMQjl4TGlwV21FTzd5ZmZNU3JKT1ItN0EzVmdVYlo2c3EtbDZiekRrNHRmaVdDVTVtWmRIeGpNMGI4ZEFYendYMnlPdHpFUDRhSXJMby1MZDdjVWQ1WTFrcHluSkNWRGhEYVhlMXg3azRfaFJBLWZkQWFjVTl2LWRKREVmd3l4MA?oc=5",
@@ -66,14 +74,6 @@
       "badge": "sec",
       "date": "04.09.2026, 07:00",
       "timestamp": 1788505200.0
-    },
-    {
-      "title": "Otworzyli E.Leclerc w każdą niedzielę dzięki sprytnemu trikowi. Ministerstwo ostro reaguje",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPQTFrY0hjMG9FdUtmWWdKZmg4Q1BoNVl1TGZQN3Jqc1lHdktRVlc2QVBvdkZXNkwwd2ExaF9Td2Y1cGp3TGtndXRkYmhwMUE0cVgtTm41OVpRNHRlZjhoQWJ1OUx0OFd1T3NGX0Jodmg0RGxfVlQ3SnVjN1RMV0ZJNFJnZC1LR3ZDUmxaMG1WQ2ozNlZ3bHFnNEh4YzhPU1dkaTVVUldKcnI1WW9IWmlOQW0xYU5EekJuWXc?oc=5",
-      "source": "Gazeta Prawna",
-      "badge": "sec",
-      "date": "16.06.2026, 07:00",
-      "timestamp": 1781593200.0
     },
     {
       "title": "Strefa Motoru w CH E.Leclerc Zana 19",
