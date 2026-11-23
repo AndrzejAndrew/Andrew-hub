@@ -1,6 +1,22 @@
 {
-  "updated_at": "22.11.2026 14:49",
+  "updated_at": "23.11.2026 18:40",
   "security": [
+    {
+      "title": "Nowość od sekuraka! Wireshark Expert ze zniżką na Black Week",
+      "link": "https://sekurak.pl/nowosc-od-sekuraka-wireshark-expert-ze-znizka-na-black-week/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "23.11.2026, 12:06",
+      "timestamp": 1795435596.0
+    },
+    {
+      "title": "Dowolna złośliwa appka na iOS mogła sobie słuchać mikrofonu",
+      "link": "https://sekurak.pl/dowolna-zlosliwa-appka-na-ios-mogla-sobie-sluchac-mikrofonu/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "23.11.2026, 12:06",
+      "timestamp": 1795435580.0
+    },
     {
       "title": "Badacze wysłali dwa miliony spreparowanych promptów do routerów AI, zawierających baity (tzw. kanarki zawierające poufne dane). Ktoś kradnie niektóre prompty…",
       "link": "https://sekurak.pl/badacze-wyslali-dwa-miliony-spreparowanych-promptow-do-routerow-ai-zawierajacych-baity-tzw-kanarki-zawierajace-poufne-dane-ktos-kradnie-niektore-prompty/",
@@ -16,22 +32,6 @@
       "badge": "sec",
       "date": "22.11.2026, 09:57",
       "timestamp": 1795341465.0
-    },
-    {
-      "title": "Cyberatak na ePUAP. Dobrze to nie wygląda",
-      "link": "https://sekurak.pl/cyberatak-na-epuap-dobrze-to-nie-wyglada/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "21.11.2026, 08:27",
-      "timestamp": 1795249643.0
-    },
-    {
-      "title": "Punkty CPE bez tajemnic: jak utrzymać certyfikat, rozwijać się dalej i nie zbankrutować?",
-      "link": "https://sekurak.pl/punkty-cpe-bez-tajemnic-jak-utrzymac-certyfikat-rozwijac-sie-dalej-i-nie-zbankrutowac/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "20.11.2026, 15:28",
-      "timestamp": 1795188490.0
     }
   ],
   "leclerc": [
