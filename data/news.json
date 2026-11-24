@@ -1,6 +1,22 @@
 {
-  "updated_at": "23.11.2026 18:40",
+  "updated_at": "24.11.2026 18:08",
   "security": [
+    {
+      "title": "Badacze znaleźli sposób na ominięcie blokady PIN-ów Windows Hello i BitLockera. Nie trzeba łamać kryptografii, wystarczy manipulacja pamięcią flash",
+      "link": "https://sekurak.pl/badacze-znalezli-sposob-na-ominiecie-blokady-pin-ow-windows-hello-i-bitlockera-nie-trzeba-lamac-kryptografii-wystarczy-manipulacja-pamiecia-flash/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "24.11.2026, 08:39",
+      "timestamp": 1795509586.0
+    },
+    {
+      "title": "Cyberprzestępcy oferują rzekomy instalator GTA VI na platformy PC. Kulisy operacji CyberLeek",
+      "link": "https://sekurak.pl/cyberprzestepcy-oferuja-rzekomy-instalator-gta-vi-na-platformy-pc-kulisy-operacji-cyberleek/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "24.11.2026, 08:36",
+      "timestamp": 1795509366.0
+    },
     {
       "title": "Nowość od sekuraka! Wireshark Expert ze zniżką na Black Week",
       "link": "https://sekurak.pl/nowosc-od-sekuraka-wireshark-expert-ze-znizka-na-black-week/",
@@ -16,22 +32,6 @@
       "badge": "sec",
       "date": "23.11.2026, 12:06",
       "timestamp": 1795435580.0
-    },
-    {
-      "title": "Badacze wysłali dwa miliony spreparowanych promptów do routerów AI, zawierających baity (tzw. kanarki zawierające poufne dane). Ktoś kradnie niektóre prompty…",
-      "link": "https://sekurak.pl/badacze-wyslali-dwa-miliony-spreparowanych-promptow-do-routerow-ai-zawierajacych-baity-tzw-kanarki-zawierajace-poufne-dane-ktos-kradnie-niektore-prompty/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "22.11.2026, 14:28",
-      "timestamp": 1795357684.0
-    },
-    {
-      "title": "Ktoś zhackował chmurę producenta routerów domowych i zdalnie infekował routery. GL.iNET",
-      "link": "https://sekurak.pl/ktos-zhackowal-chmure-producenta-routerow-domowych-i-zdalnie-infekowal-routery-gl-inet/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "22.11.2026, 09:57",
-      "timestamp": 1795341465.0
     }
   ],
   "leclerc": [
