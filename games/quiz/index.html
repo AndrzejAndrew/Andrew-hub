@@ -186,7 +186,7 @@
 </div>
 <script>
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp'; // Zapisano klucz na stałe
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
   
   let dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null, currentRoomId = null, isHost = false, roomChannel = null;
@@ -194,17 +194,17 @@
   let roomSettings = {}, roomState = {}, playersData = [];
   let totalPlayers = 0;
   
-  // Zmienne rundy
   let hasVoted = false, hostVoteTally = {};
   let currentQuestion = null;
   let shuffledAnswers = [];   
   let questionStartTime = 0;
   
-  // Nowe zmienne do kontroli płynności
-  let answersCount = 0;
+  // Kontrola czasu i unikalnych odpowiedzi
+  let answeredUsers = new Set();
   let questionTimer = null;
+  let voteTimer = null;
   let isQuestionFinalized = false;
-  let isRevealFinalized = false;
+  let isVotingFinalized = false;
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -264,7 +264,7 @@
 
   function enterLobby(room) {
     currentRoomId = room.id; 
-    isHost = (currentUser.id === room.host_id); // Pancerne przypisanie statusu Hosta
+    isHost = (currentUser.id === room.host_id);
     document.getElementById('lobby-code').textContent = room.room_code;
     
     switchView('view-lobby'); 
@@ -275,25 +275,31 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${room.id}` }, () => fetchPlayers())
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${room.id}` }, (payload) => syncGameState(payload.new))
       .on('broadcast', { event: 'submit_vote' }, (payload) => {
-         if (isHost) {
+         if (isHost && !isVotingFinalized) {
            const cat = payload.payload.category;
            hostVoteTally[cat] = (hostVoteTally[cat] || 0) + 1;
            const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
            roomChannel.send({ type: 'broadcast', event: 'update_tally', payload: totalVotes });
+           
+           // Jeśli wszyscy zagłosowali, kończymy głosowanie od razu
+           if (totalVotes >= totalPlayers) {
+             if (voteTimer) clearTimeout(voteTimer);
+             hostFinishVoting();
+           }
          }
       })
       .on('broadcast', { event: 'update_tally' }, (payload) => {
          document.getElementById('vote-status').textContent = `Oddane głosy: ${payload.payload} / ${totalPlayers}`;
       })
       .on('broadcast', { event: 'player_answered' }, (payload) => {
-         const card = document.getElementById(`status-${payload.payload.user_id}`);
+         const uid = payload.payload.user_id;
+         const card = document.getElementById(`status-${uid}`);
          if(card) card.classList.add('answered');
          
-         // Logika przyśpieszania czasu
-         answersCount++;
-         if (isHost && answersCount >= totalPlayers && !isQuestionFinalized) {
+         answeredUsers.add(uid);
+         if (isHost && answeredUsers.size >= totalPlayers && !isQuestionFinalized) {
              if (questionTimer) clearTimeout(questionTimer);
-             hostFinalizeQuestion(); // Wszyscy odpowiedzieli, skippujemy czas
+             hostFinalizeQuestion();
          }
       })
       .subscribe();
@@ -316,54 +322,70 @@
     if (roomData.status === 'voting') startVotingUI();
     if (roomData.status === 'question') startQuestionUI();
     if (roomData.status === 'reveal') showRevealUI();
-    if (roomData.status === 'leaderboard') showLeaderboardUI();
+    if (roomData.status === 'leaderboard') showLeaderboardUI(false);
+    if (roomData.status === 'finished') showLeaderboardUI(true);
   }
 
-  // --- LOGIKA HOSTA: STEROWANIE RUNDAMI ---
+  // --- START GRY (TYLKO RAZ Z LOBBY) ---
   async function initiateStart() {
-    let state = { ...roomState };
-    if (!state.q_index) state.q_index = 0;
-    if (!state.asked_questions) state.asked_questions = [];
-    
-    state.q_index++;
-
-    if (state.q_index > roomSettings.total_questions) {
-       await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
-       return;
-    }
-
+    let state = { q_index: 1, asked_questions: [] };
     await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
 
-    let needsNewCategory = ((state.q_index - 1) % roomSettings.q_per_category === 0);
-    
-    if (needsNewCategory) {
-        const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
-        const uniqueCats = [...new Set(data.map(q => q.category))];
-        
-        if (roomSettings.random_mode) {
-            state.current_category = uniqueCats[Math.floor(Math.random() * uniqueCats.length)];
-            state.next_phase = 'question';
-            await hostPrepareNextQuestion(state);
-        } else {
-            state.categories_to_vote = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
-            state.next_phase = 'voting';
-        }
-    } else {
+    const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
+    const uniqueCats = [...new Set(data.map(q => q.category))];
+
+    if (roomSettings.random_mode) {
+        state.current_category = uniqueCats[Math.floor(Math.random() * uniqueCats.length)];
         state.next_phase = 'question';
         await hostPrepareNextQuestion(state);
+    } else {
+        state.categories_to_vote = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+        state.next_phase = 'voting';
     }
 
     await dbClient.from('quiz_rooms').update({ status: 'starting', state: state }).eq('id', currentRoomId);
   }
 
+  // --- AUTOMATYCZNE PRZEJŚCIE DO KOLEJNEGO PYTANIA (HOST) ---
+  async function hostAdvanceGame() {
+    let state = { ...roomState };
+    state.q_index = (state.q_index || 0) + 1;
+
+    if (state.q_index > roomSettings.total_questions) {
+        await dbClient.from('quiz_rooms').update({ status: 'finished', state: state }).eq('id', currentRoomId);
+        return;
+    }
+
+    await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
+
+    let needsNewCategory = ((state.q_index - 1) % roomSettings.q_per_category === 0);
+
+    if (needsNewCategory) {
+        const { data } = await dbClient.from('quiz_questions').select('category').eq('is_verified', true);
+        const uniqueCats = [...new Set(data.map(q => q.category))];
+
+        if (roomSettings.random_mode) {
+            state.current_category = uniqueCats[Math.floor(Math.random() * uniqueCats.length)];
+            await hostPrepareNextQuestion(state);
+            await dbClient.from('quiz_rooms').update({ status: 'question', state: state }).eq('id', currentRoomId);
+        } else {
+            state.categories_to_vote = uniqueCats.sort(() => 0.5 - Math.random()).slice(0, 3);
+            await dbClient.from('quiz_rooms').update({ status: 'voting', state: state }).eq('id', currentRoomId);
+        }
+    } else {
+        await hostPrepareNextQuestion(state);
+        await dbClient.from('quiz_rooms').update({ status: 'question', state: state }).eq('id', currentRoomId);
+    }
+  }
+
   async function hostPrepareNextQuestion(state) {
       const { data } = await dbClient.from('quiz_questions').select('*').eq('category', state.current_category).eq('is_verified', true);
-      let available = data.filter(q => !state.asked_questions.includes(q.id));
+      let available = data.filter(q => !(state.asked_questions || []).includes(q.id));
       if (available.length === 0) available = data; 
       
       let picked = available[Math.floor(Math.random() * available.length)];
       state.question = picked;
-      state.asked_questions.push(picked.id);
+      state.asked_questions = [...(state.asked_questions || []), picked.id];
   }
 
   // --- ETAP: ODLICZANIE ---
@@ -388,7 +410,9 @@
   // --- ETAP: GŁOSOWANIE ---
   function startVotingUI() {
     switchView('view-voting');
-    hasVoted = false; hostVoteTally = {};
+    hasVoted = false; 
+    isVotingFinalized = false;
+    hostVoteTally = {};
     document.getElementById('vote-status').textContent = `Oddane głosy: 0 / ${totalPlayers}`;
     
     const container = document.getElementById('category-buttons');
@@ -412,10 +436,16 @@
     bar.style.transition = 'none'; bar.style.width = '100%';
     setTimeout(() => { bar.style.transition = `width ${roomSettings.vote_time}s linear`; bar.style.width = '0%'; }, 50);
 
-    if (isHost) setTimeout(() => { hostFinishVoting(); }, roomSettings.vote_time * 1000);
+    if (isHost) {
+      if (voteTimer) clearTimeout(voteTimer);
+      voteTimer = setTimeout(() => { hostFinishVoting(); }, roomSettings.vote_time * 1000);
+    }
   }
 
   async function hostFinishVoting() {
+    if (isVotingFinalized) return;
+    isVotingFinalized = true;
+
     let winner = roomState.categories_to_vote[0]; let max = -1;
     for (let cat in hostVoteTally) { if (hostVoteTally[cat] > max) { max = hostVoteTally[cat]; winner = cat; } }
     
@@ -430,7 +460,7 @@
   function startQuestionUI() {
     switchView('view-question');
     isQuestionFinalized = false;
-    answersCount = 0; // Reset odpowiedzi graczy
+    answeredUsers.clear();
     
     currentQuestion = roomState.question;
     document.getElementById('q-category-label').textContent = roomState.current_category;
@@ -492,7 +522,6 @@
 
   // --- ETAP: POKAZANIE POPRAWNEJ ODPOWIEDZI (REVEAL) ---
   function showRevealUI() {
-     isRevealFinalized = false;
      document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
      const correctIdx = parseInt(currentQuestion.correct_index);
      
@@ -508,15 +537,24 @@
 
      if (isHost) {
         setTimeout(async () => {
-           if(isRevealFinalized) return;
-           isRevealFinalized = true;
-           await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
-        }, 4000);
+           const isLastQuestion = roomState.q_index >= roomSettings.total_questions;
+           const isEndOfBlock = (roomState.q_index % roomSettings.q_per_category === 0);
+
+           if (isLastQuestion) {
+               await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
+           } else if (isEndOfBlock) {
+               // Koniec bloku kategorii -> pokaż tabelę wyników na 4 sekundy, potem dalej
+               await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
+           } else {
+               // W środku bloku -> od razu następne pytanie z tej samej kategorii!
+               hostAdvanceGame();
+           }
+        }, 3000);
      }
   }
 
-  // --- ETAP: TABLICA WYNIKÓW PO RUNDZIE ---
-  async function showLeaderboardUI() {
+  // --- ETAP: TABLICA WYNIKÓW (POŚREDNIA LUB KOŃCOWA) ---
+  async function showLeaderboardUI(isFinal) {
     switchView('view-leaderboard');
     const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId).order('score', { ascending: false });
     
@@ -527,14 +565,16 @@
     });
     document.getElementById('leaderboard-list').innerHTML = html;
 
-    if (isHost) {
-      if (roomState.q_index < roomSettings.total_questions) {
-         document.getElementById('host-next-controls').classList.remove('hidden');
-         document.getElementById('host-finish-controls').classList.add('hidden');
-      } else {
-         document.getElementById('host-finish-controls').classList.remove('hidden');
-         document.getElementById('host-next-controls').classList.add('hidden');
-      }
+    document.getElementById('host-next-controls').classList.add('hidden');
+
+    if (isFinal) {
+       document.getElementById('host-finish-controls').classList.remove('hidden');
+    } else {
+       document.getElementById('host-finish-controls').classList.add('hidden');
+       // Pośrednia tabela wyników -> po 4 sekundach Host automatycznie pcha grę do kolejnego bloku
+       if (isHost) {
+          setTimeout(() => { hostAdvanceGame(); }, 4000);
+       }
     }
   }
 
