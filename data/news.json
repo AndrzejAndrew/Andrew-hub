@@ -1,5 +1,5 @@
 {
-  "updated_at": "24.11.2026 18:08",
+  "updated_at": "25.11.2026 17:31",
   "security": [
     {
       "title": "Badacze znaleźli sposób na ominięcie blokady PIN-ów Windows Hello i BitLockera. Nie trzeba łamać kryptografii, wystarczy manipulacja pamięcią flash",
@@ -60,6 +60,14 @@
       "timestamp": 1795085640.0
     },
     {
+      "title": "Nowa rzeczywistość w handlu. E.Leclerc wprowadza wielowarstwowy system ochrony infrastruktury i systemów IT",
+      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOT013a1JTWFl6ajBndzBVcWRad1NCZ2tBQUloNnpzWWJ3S2FJMEcwS0dHRmpJd05vdGt2Vy1Nb1lvbUJVLVB5Y0pTNTFDZ285ZTkybUZqbFA3dFdOT3Y5YUxUSmYzQ3JDUF9EX3RReDY1c0plSGdOWGk1NFRjSC1SaGZjODhoWEZ2RFlmazA2bzZaemxFT1lWemFhZ09mLTZaUGwxTzZlYXNLRC0tVEo4d3Fra0tQNFhIZ1c4Wkl4RXpDSU41S0M5aDNlY2xyOEtfWXFGWFVoeVktUQ?oc=5",
+      "source": "Omnichannel News",
+      "badge": "sec",
+      "date": "09.11.2026, 13:31",
+      "timestamp": 1794231111.0
+    },
+    {
       "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
       "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNMzlPelgxdzA1alJ3QWN2LV9qU3VwVDB2ZW1Rb0FUdHFhM2pBdkNxaU5JLWlYRnhJdUUyRTVoRzVIZkRXYzg0Y3NicG01VEdHZUNmU1ZxQzNmNnFiQWRYRDcxalNnMEtOVHhZWEFEUDVPdGtiUGl1UGJhQWRQbndiMU96elJWY3hwT0ttVk1ValNEOThsNkkyQkhXeUl4QlJNQ3N0ODdqbXhMUWtYMktMZS1FeVdfZmt3S3Rsa1dLNkl5UUxwbzUwYXlPVHFncktvOUE?oc=5",
       "source": "Portal spożywczy",
@@ -68,20 +76,12 @@
       "timestamp": 1794211200.0
     },
     {
-      "title": "E.Leclerc zmienia sieć w Polsce. Duży sklep zakończy działalność już niebawem",
-      "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQX0tVbWNpSG5QdktLY2NERXNYdGl0dFYyengxQmxNRTRjWF9adDF1SFduYXBNVDJTUHBPVk1wM2ZBOFpLd2VrTnlzRzQyN2QwS0xIT0VCVFpqbXNieDJiTjNOTTJlcU9ScV9RUjhRUmxlZm00X0Mxc3l3SzIwWHN1Qjg4TVFZdlROOV8zdkpmWl8zRUg0RE0tUnp2akwzWXNoV1ZpLUx2eDdJQnhvUmhMN1F0RXVOeDZ0ZVdFaE1UbjRtVVdYb0xaakNJMHQ?oc=5",
-      "source": "PropertyNews.pl",
+      "title": "E.Leclerc uszczelnia systemy IT. Sieć odłącza systemy chłodnicze od otwartego internetu",
+      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQZkh1WmYxTVl5VHdRenA5NnhUMTdrZ2RWaEpyQ0pWbFN0TGx1dzdHMnZWc0J2OTVDZlFlU0MzTDN5ZzlLTlRoemhBMjdHUExFdU5FM2xRVWEwUzJpeEU2WnVFUnpFY2I4cVJlZEhRektnWFNQYUQ4QWFrVVYtcUlqbWZ5dHlmNTVjVFhHS2FyRl9EblZPTlFCVmdIUG85QlRZX1BHXzJVNXN4NW1RcUcwT3ZKbW8wOTlNVUM3Q2tKdVhPc2xGWlQ0c1RuOGdvbUJvamdzbXI0MDNzN2pBdXNmOVYybw?oc=5",
+      "source": "Wiadomości Handlowe",
       "badge": "sec",
-      "date": "04.09.2026, 07:00",
-      "timestamp": 1788505200.0
-    },
-    {
-      "title": "Strefa Motoru w CH E.Leclerc Zana 19",
-      "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE03TVA5blljUzVwcmtMOWFJMFZJeW0yNmd2RldJRlZPTk9TX2J2YlpvZjBWY1BLbF9tMXBGa1ZkbzRNOElrd2o0c3c1S05VTllZQ0hYX00xUjM0dW5tMjVFTW1NUldDLUNMenREZ2FaaGlXVzg?oc=5",
-      "source": "Motor Lublin",
-      "badge": "sec",
-      "date": "20.05.2026, 07:00",
-      "timestamp": 1779260400.0
+      "date": "09.11.2026, 08:00",
+      "timestamp": 1794211200.0
     }
   ]
 }
