@@ -183,12 +183,10 @@
     <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="radio" name="prop-correct" value="3"><input type="text" id="prop-a3" class="input-control" placeholder="D"></div>
     <div class="flex-row"><button class="btn" onclick="toggleProposeModal()">Anuluj</button><button class="btn" style="color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyślij do akceptacji</button></div>
   </div>
-
 </div>
-
 <script>
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp'; // Zapisano klucz na stałe
   
   let dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null, currentRoomId = null, isHost = false, roomChannel = null;
@@ -201,6 +199,12 @@
   let currentQuestion = null;
   let shuffledAnswers = [];   
   let questionStartTime = 0;
+  
+  // Nowe zmienne do kontroli płynności
+  let answersCount = 0;
+  let questionTimer = null;
+  let isQuestionFinalized = false;
+  let isRevealFinalized = false;
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -237,37 +241,39 @@
       
     if (roomError) return alert('Błąd bazy: ' + roomError.message);
     
-    isHost = true;
     document.getElementById('host-controls').classList.remove('hidden');
     
     const { error: playerError } = await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
     if (playerError) return alert('Błąd gracza: ' + playerError.message);
     
-    enterLobby(room.id, code);
+    enterLobby(room);
   }
 
   async function joinRoom() {
     const code = document.getElementById('join-code').value.toUpperCase();
     const { data: room, error: roomError } = await dbClient.from('quiz_rooms').select('*').eq('room_code', code).single();
+    
     if (roomError || !room) return alert('Nie znaleziono pokoju o tym kodzie.');
     if (room.status !== 'lobby') return alert('Gra w tym pokoju już trwa!');
     
     const { error: playerError } = await dbClient.from('quiz_players').insert([{ room_id: room.id, user_id: currentUser.id, nickname: document.getElementById('join-nick').value }]);
     if (playerError) return alert('Błąd gracza: ' + playerError.message);
     
-    enterLobby(room.id, code);
+    enterLobby(room);
   }
 
-  function enterLobby(roomId, code) {
-    currentRoomId = roomId; 
-    document.getElementById('lobby-code').textContent = code;
+  function enterLobby(room) {
+    currentRoomId = room.id; 
+    isHost = (currentUser.id === room.host_id); // Pancerne przypisanie statusu Hosta
+    document.getElementById('lobby-code').textContent = room.room_code;
+    
     switchView('view-lobby'); 
     fetchPlayers();
 
     if(roomChannel) dbClient.removeChannel(roomChannel);
-    roomChannel = dbClient.channel('room-' + roomId, { config: { broadcast: { self: true } } })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${roomId}` }, () => fetchPlayers())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${roomId}` }, (payload) => syncGameState(payload.new))
+    roomChannel = dbClient.channel('room-' + room.id, { config: { broadcast: { self: true } } })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_players', filter: `room_id=eq.${room.id}` }, () => fetchPlayers())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'quiz_rooms', filter: `id=eq.${room.id}` }, (payload) => syncGameState(payload.new))
       .on('broadcast', { event: 'submit_vote' }, (payload) => {
          if (isHost) {
            const cat = payload.payload.category;
@@ -282,6 +288,13 @@
       .on('broadcast', { event: 'player_answered' }, (payload) => {
          const card = document.getElementById(`status-${payload.payload.user_id}`);
          if(card) card.classList.add('answered');
+         
+         // Logika przyśpieszania czasu
+         answersCount++;
+         if (isHost && answersCount >= totalPlayers && !isQuestionFinalized) {
+             if (questionTimer) clearTimeout(questionTimer);
+             hostFinalizeQuestion(); // Wszyscy odpowiedzieli, skippujemy czas
+         }
       })
       .subscribe();
   }
@@ -314,16 +327,13 @@
     
     state.q_index++;
 
-    // Sprawdzenie czy gra się kończy
     if (state.q_index > roomSettings.total_questions) {
        await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
        return;
     }
 
-    // Zresetuj gotowość graczy
     await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
 
-    // Czy potrzebujemy nowej kategorii? (np. q_index 1, 3, 5 dla paczek po 2)
     let needsNewCategory = ((state.q_index - 1) % roomSettings.q_per_category === 0);
     
     if (needsNewCategory) {
@@ -349,7 +359,7 @@
   async function hostPrepareNextQuestion(state) {
       const { data } = await dbClient.from('quiz_questions').select('*').eq('category', state.current_category).eq('is_verified', true);
       let available = data.filter(q => !state.asked_questions.includes(q.id));
-      if (available.length === 0) available = data; // Awaryjnie resetuje pulę dla tej kategorii
+      if (available.length === 0) available = data; 
       
       let picked = available[Math.floor(Math.random() * available.length)];
       state.question = picked;
@@ -369,8 +379,7 @@
       else {
         clearInterval(int);
         if(isHost) {
-          const { error } = await dbClient.from('quiz_rooms').update({ status: roomState.next_phase, state: roomState }).eq('id', currentRoomId);
-          if (error) alert("Błąd bazy po odliczaniu: " + error.message);
+          await dbClient.from('quiz_rooms').update({ status: roomState.next_phase, state: roomState }).eq('id', currentRoomId);
         }
       }
     }, 1000);
@@ -420,6 +429,9 @@
   // --- ETAP: PYTANIE ---
   function startQuestionUI() {
     switchView('view-question');
+    isQuestionFinalized = false;
+    answersCount = 0; // Reset odpowiedzi graczy
+    
     currentQuestion = roomState.question;
     document.getElementById('q-category-label').textContent = roomState.current_category;
     document.getElementById('q-counter').textContent = `Pytanie ${roomState.q_index} / ${roomSettings.total_questions}`;
@@ -447,7 +459,10 @@
 
     questionStartTime = Date.now();
 
-    if (isHost) setTimeout(() => { hostFinalizeQuestion(); }, roomSettings.ans_time * 1000);
+    if (isHost) {
+      if(questionTimer) clearTimeout(questionTimer);
+      questionTimer = setTimeout(() => { hostFinalizeQuestion(); }, roomSettings.ans_time * 1000);
+    }
   }
 
   async function submitAnswer(screenIdx, originalIdx) {
@@ -459,7 +474,6 @@
     selectedBtn.classList.add('ans-selected');
 
     let pointsEarned = 0;
-    // Ważne: parsowanie do int, by upewnić się, że indeksy się zgadzają
     if (parseInt(originalIdx) === parseInt(currentQuestion.correct_index)) {
         pointsEarned = Math.floor((timeLeft / roomSettings.ans_time) * 1000);
     }
@@ -471,12 +485,14 @@
   }
 
   async function hostFinalizeQuestion() {
+    if(isQuestionFinalized) return;
+    isQuestionFinalized = true;
     await dbClient.from('quiz_rooms').update({ status: 'reveal' }).eq('id', currentRoomId);
   }
 
   // --- ETAP: POKAZANIE POPRAWNEJ ODPOWIEDZI (REVEAL) ---
   function showRevealUI() {
-     // Blokujemy guziki na wypadek gdyby ktoś nie zdążył kliknąć
+     isRevealFinalized = false;
      document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
      const correctIdx = parseInt(currentQuestion.correct_index);
      
@@ -491,9 +507,10 @@
      });
 
      if (isHost) {
-        // Po 4 sekundach oglądania podświetlonych wyników, Host zabiera graczy na Leaderboard
-        setTimeout(() => {
-           dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
+        setTimeout(async () => {
+           if(isRevealFinalized) return;
+           isRevealFinalized = true;
+           await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
         }, 4000);
      }
   }
@@ -522,7 +539,6 @@
   }
 
   function endGame() {
-    alert("Dziękujemy za grę!");
     switchView('view-menu');
     document.getElementById('host-next-controls').classList.add('hidden');
     document.getElementById('host-finish-controls').classList.add('hidden');
@@ -546,6 +562,5 @@
     alert('Pytanie wysłane do akceptacji!'); toggleProposeModal();
   }
 </script>
-
 </body>
 </html>
