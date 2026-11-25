@@ -62,13 +62,25 @@
   {
     "id": "tictactoe",
     "title": "Kółko i Krzyżyk (Multiplayer)",
-    "description": "Zagraj z kolegą przy jednym biurku lub połączcie się w biurze wpisując kod pokoju. Na żywo, przez Supabase.",
+    "description": "Tutaj będzie poprawny opis...",
     "category": "arcade",
     "tag": "Multiplayer",
     "tagColor": "pink",
     "span": "span-1x1",
     "mode": "sidebar",
     "url": "./games/tic_tac_toe/index.html",
+    "featured": false
+  }
+   {
+    "id": "papersoccer",
+    "title": "Papierowa piłka nożna",
+    "description": "Zagraj z kolegą przy jednym biurku lub połączcie się w biurze wpisując kod pokoju. Na żywo, przez Supabase.",
+    "category": "arcade",
+    "tag": "Multiplayer", "bot",
+    "tagColor": "mint",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/paper_soccer/index.html",
     "featured": false
   }
 ]
