@@ -74,6 +74,20 @@
     .leaderboard-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .leaderboard-row:last-child { border-bottom: none; }
     .rank-1 { color: #fbbf24; font-weight: bold; font-size: 1.1rem;}
+    .review-section { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+.review-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 15px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 15px; border-radius: 10px; margin-bottom: 10px;
+}
+.review-q { font-size: 0.95rem; color: #f8fafc; margin-bottom: 4px; }
+.review-a { font-size: 0.85rem; color: #34d399; }
+.btn-report {
+  background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); color: #f43f5e;
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: 0.2s;
+}
+.btn-report:hover:not(:disabled) { background: rgba(244,63,94,0.25); }
+.btn-report:disabled { opacity: 0.5; cursor: default; border-color: rgba(255,255,255,0.1); color: #8b95a5; background: transparent; }
   </style>
 </head>
 <body>
@@ -169,6 +183,10 @@
     </div>
     <div id="host-finish-controls" class="hidden">
       <button class="btn btn-primary" onclick="endGame()">Zakończ Grę</button>
+    </div>
+    <div id="final-questions-review" class="review-section hidden">
+      <h3 style="margin:0 0 12px 0; font-size:1rem; color:#8b95a5;">Przegląd pytań z tej gry (możesz zgłosić błąd):</h3>
+      <div id="review-list"></div>
     </div>
   </div>
 
@@ -557,6 +575,9 @@
     switchView('view-leaderboard');
 
     const titleEl = document.getElementById('leaderboard-title');
+    const reviewBox = document.getElementById('final-questions-review');
+    const reviewList = document.getElementById('review-list');
+
     if (isFinal) {
       titleEl.textContent = 'Tablica wyników końcowa';
     } else {
@@ -577,37 +598,79 @@
     document.getElementById('host-next-controls').classList.add('hidden');
 
     if (isFinal) {
-       document.getElementById('host-finish-controls').classList.remove('hidden');
+      document.getElementById('host-finish-controls').classList.remove('hidden');
+
+      // Pobierz pytania z tej rozgrywki do przeglądu i ewentualnego zgłoszenia
+      if (roomState.asked_questions && roomState.asked_questions.length > 0) {
+        const { data: playedQs } = await dbClient
+          .from('quiz_questions')
+          .select('id, category, question, answers, correct_index')
+          .in('id', roomState.asked_questions);
+
+        if (playedQs && playedQs.length > 0) {
+          reviewList.innerHTML = playedQs.map(q => `
+            <div class="review-item">
+              <div>
+                <div class="review-q"><span style="color:#8b95a5;">[${q.category}]</span> ${q.question}</div>
+                <div class="review-a">Poprawna: ${q.answers[q.correct_index]}</div>
+              </div>
+              <button class="btn-report" onclick="reportQuestion(${q.id}, this)">🚩 Zgłoś błąd</button>
+            </div>
+          `).join('');
+          reviewBox.classList.remove('hidden');
+        }
+      }
     } else {
-       document.getElementById('host-finish-controls').classList.add('hidden');
-       if (isHost) {
-          setTimeout(() => { hostAdvanceGame(); }, 4000);
-       }
+      document.getElementById('host-finish-controls').classList.add('hidden');
+      reviewBox.classList.add('hidden');
+      if (isHost) {
+        setTimeout(() => { hostAdvanceGame(); }, 4000);
+      }
     }
   }
 
-  function endGame() {
-    switchView('view-menu');
-    document.getElementById('host-next-controls').classList.add('hidden');
-    document.getElementById('host-finish-controls').classList.add('hidden');
+  async function reportQuestion(qId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+    const { error } = await dbClient.rpc('report_quiz_question', { q_id: qId });
+    if (error) {
+      alert('Nie udało się zgłosić pytania: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = '🚩 Zgłoś błąd';
+    } else {
+      btn.textContent = 'Zgłoszono ✓';
+    }
   }
 
-  // --- ZGŁASZANIE PYTAŃ ---
-  function toggleProposeModal() {
-    const p = document.getElementById('view-propose');
-    p.classList.contains('active-view') ? switchView('view-menu') : switchView('view-propose');
-  }
-
+  // --- ZGŁASZANIE WŁASNYCH PYTAŃ (z walidacją i czyszczeniem) ---
   async function submitProposal() {
+    const cat = document.getElementById('prop-cat').value.trim();
+    const q = document.getElementById('prop-q').value.trim();
+    const a0 = document.getElementById('prop-a0').value.trim();
+    const a1 = document.getElementById('prop-a1').value.trim();
+    const a2 = document.getElementById('prop-a2').value.trim();
+    const a3 = document.getElementById('prop-a3').value.trim();
+
+    if (!cat || !q || !a0 || !a1 || !a2 || !a3) {
+      return alert('Wypełnij kategorię, pytanie i wszystkie 4 odpowiedzi.');
+    }
+
     const data = {
-      category: document.getElementById('prop-cat').value,
-      question: document.getElementById('prop-q').value,
-      answers: [document.getElementById('prop-a0').value, document.getElementById('prop-a1').value, document.getElementById('prop-a2').value, document.getElementById('prop-a3').value],
+      category: cat,
+      question: q,
+      answers: [a0, a1, a2, a3],
       correct_index: parseInt(document.querySelector('input[name="prop-correct"]:checked').value),
-      author_id: currentUser.id, author_name: document.getElementById('join-nick').value, is_verified: false
+      author_id: currentUser.id,
+      author_name: document.getElementById('join-nick').value,
+      is_verified: false
     };
-    await dbClient.from('quiz_questions').insert([data]);
-    alert('Pytanie wysłane do akceptacji!'); toggleProposeModal();
+
+    const { error } = await dbClient.from('quiz_questions').insert([data]);
+    if (error) return alert('Błąd zapisu: ' + error.message);
+
+    alert('Pytanie wysłane do akceptacji!');
+    document.querySelectorAll('#view-propose input[type="text"]').forEach(el => el.value = '');
+    toggleProposeModal();
   }
 </script>
 </body>
