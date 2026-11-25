@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papierowa Piłka</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .ps-wrapper {
+      max-width: 820px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 4px 0;
+      font-size: 2rem;
+      letter-spacing: -0.5px;
+    }
+    .ps-meta {
+      text-align: center;
+      color: #8b95a5;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .panel {
+      background: rgba(10, 12, 18, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+    }
+    .view-section {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .active-view {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+    .input-group {
+      margin-bottom: 14px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #8b95a5;
+      margin-bottom: 6px;
+    }
+    .input-control, select.input-control {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.45);
+      color: #f8fafc;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .input-control:focus {
+      border-color: #38bdf8;
+    }
+    .btn {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f8fafc;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .btn:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.45);
+      transform: translateY(-1px);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.22), rgba(52, 211, 153, 0.06));
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #34d399;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: rgba(52, 211, 153, 0.28);
+      border-color: #34d399;
+    }
+    .code-display {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #34d399;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .hud-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 14px;
+    }
+    .score-pill {
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #7dd3fc;
+    }
+    .turn-box {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .goal-hint {
+      font-size: 0.8rem;
+      color: #8b95a5;
+      margin-top: 2px;
+    }
+    .board-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+    }
+    canvas#ps-board {
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+      max-width: 100%;
+      height: auto;
+    }
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ps-wrapper">
+  <h1>Papierowa Piłka</h1>
+  <p class="ps-meta" id="ps-auth-status">Łączenie z bazą...</p>
+
+  <!-- WIDOK 1: MENU TRYBÓW -->
+  <div id="view-menu" class="view-section active-view">
+    <div class="grid-2">
+      <!-- GRA Z BOTEM -->
+      <div class="panel">
+        <h2 style="margin-top:0; color:#34d399;">🤖 Gra z Botem</h2>
+        <p style="color:#8b95a5; font-size:0.9rem; margin-top:0;">
+          Atakujesz górną bramkę. Odbicia przedłużają turę, dopóki nie trafisz w wolny węzeł.
+        </p>
+        <div class="input-group">
+          <label for="bot-diff">Poziom trudności bota</label>
+          <select id="bot-diff" class="input-control">
+            <option value="1">1. Łatwy (losowe ruchy)</option>
+            <option value="2" selected>2. Średni (odbicia i unikanie samobója)</option>
+            <option value="3">3. Trudny (łańcuchy odbić i taktyka)</option>
+            <option value="4">4. Ekspert (głęboka analiza i presja)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="startBotGame()">Zagraj z botem</button>
+      </div>
+
+      <!-- MULTIPLAYER ONLINE -->
+      <div class="panel">
+        <h2 style="margin-top:0; color:#7dd3fc;">🌐 Pojedynek Online</h2>
+        <div class="input-group">
+          <label for="ps-nick">Twój nick</label>
+          <input type="text" id="ps-nick" class="input-control" placeholder="Twój nick">
+        </div>
+        <button class="btn btn-primary" style="margin-bottom:14px;" onclick="createOnlineRoom()">Utwórz pokój</button>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="join-room-code" class="input-control" maxlength="5" placeholder="KOD" style="text-transform:uppercase; text-align:center; font-weight:700; letter-spacing:2px;">
+          <button class="btn" onclick="joinOnlineRoom()">Dołącz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIDOK 2: POCZEKALNIA ONLINE -->
+  <div id="view-waiting" class="view-section panel" style="text-align:center;">
+    <h2 style="margin-top:0;">Oczekiwanie na przeciwnika</h2>
+    <p style="color:#8b95a5;">Podaj kod pokoju drugiemu graczowi:</p>
+    <div class="code-display" id="waiting-code">----</div>
+    <p id="waiting-players" style="color:#7dd3fc; margin-bottom:20px;"></p>
+    <button class="btn" onclick="leaveToMenu()">Anuluj / Wróć do menu</button>
+  </div>
+
+  <!-- WIDOK 3: PLANSZA GRY -->
+  <div id="view-game" class="view-section">
+    <div class="hud-bar">
+      <div>
+        <div class="turn-box" id="ps-turn-info">Przygotowanie boiska...</div>
+        <div class="goal-hint" id="ps-goal-info">Atakujesz górną bramkę</div>
+      </div>
+      <div class="score-pill" id="ps-score">Ty 0 : 0 Przeciwnik</div>
+    </div>
+
+    <div class="board-stage">
+      <canvas id="ps-board"></canvas>
+    </div>
+
+    <div class="actions-row">
+      <button id="ps-rematch-btn" class="btn btn-primary hidden" style="width:auto;" onclick="rematchGame()">🔄 Zagraj ponownie</button>
+      <button class="btn" onclick="leaveToMenu()">Wróć do menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
+
+  const dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // KONFIGURACJA BOISKA (siatka 9x13: x 0..8, y 0..12)
+  const cellSize = 40;
+  const pointRadius = 3;
+  const cols = 9;
+  const rows = 13;
+  const boardWidth = (cols - 1) * cellSize;
+  const boardHeight = (rows - 1) * cellSize;
+  const marginOutside = 20;
+  const standWidth = 36;
+  const boardOffsetX = marginOutside + standWidth;
+  const boardOffsetY = marginOutside + standWidth;
+
+  // Bramka górna (y=0) -> cel Gracza X; Bramka dolna (y=12) -> cel Gracza O / Bota
+  const goalTop = { y: 0, xStart: 3, xEnd: 5 };
+  const goalBottom = { y: 12, xStart: 3, xEnd: 5 };
+
+  const canvas = document.getElementById('ps-board');
+  const ctx = canvas.getContext('2d');
+  canvas.width = boardWidth + (marginOutside + standWidth) * 2;
+  canvas.height = boardHeight + (marginOutside + standWidth) * 2;
+
+  // STAN GRY
+  let currentUser = null;
+  let mode = null; // 'bot' | 'online'
+  let botDifficulty = 2;
+  let mySide = 'X'; // 'X' lub 'O'
+  let roomId = null;
+  let roomChannel = null;
+  let currentRoomRow = null;
+
+  let ball = { x: 4, y: 6 };
+  let usedLines = [];
+  let turnSide = 'X';
+  let status = 'playing'; // 'waiting' | 'playing' | 'finished'
+  let winnerSide = null; // 'X' | 'O' | 'draw'
+  let winReason = null; // 'goal' | 'own_goal' | 'blocked' | 'draw'
+  let myScore = 0;
+  let oppScore = 0;
+  let scoreAlreadyCounted = false;
+  let isBusy = false;
+
+  // Animacja piłki
+  let animating = false;
+  let animStartTime = 0;
+  const animDuration = 160;
+  let animFrom = null;
+  let animTo = null;
+
+  function switchView(id) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+    document.getElementById(id).classList.add('active-view');
+  }
+
+  async function initAuth() {
+    const { data: { session } } = await dbClient.auth.getSession();
+    if (session && session.user) {
+      currentUser = session.user;
+      const defaultNick = currentUser.email.split('@')[0];
+      document.getElementById('ps-nick').value = defaultNick.charAt(0).toUpperCase() + defaultNick.slice(1);
+      document.getElementById('ps-auth-status').textContent = 'Zalogowano jako: ' + defaultNick;
+    } else {
+      document.getElementById('ps-auth-status').textContent = 'Tryb lokalny (zaloguj się w Andrew-hub, aby grać online)';
+    }
+  }
+  initAuth();
+
+  // WSPÓŁRZĘDNE I RYSOWANIE
+  function gridToPx(x, y) {
+    return {
+      x: boardOffsetX + x * cellSize,
+      y: boardOffsetY + y * cellSize
+    };
+  }
+
+  function edgeKey(x1, y1, x2, y2) {
+    const a = `${x1},${y1}`;
+    const b = `${x2},${y2}`;
+    return a < b ? `${a}|${b}` : `${b}|${a}`;
+  }
+
+  function isLineUsed(lines, x1, y1, x2, y2) {
+    const key = edgeKey(x1, y1, x2, y2);
+    return lines.some(l => edgeKey(l.x1, l.y1, l.x2, l.y2) === key);
+  }
+
+  // Zewnętrzne krawędzie boiska (poza otworem bramkowym) traktujemy jako zamknięte bandy
+  function isOuterWallSegment(x1, y1, x2, y2) {
+    if (x1 === 0 && x2 === 0 && y1 !== y2) return true;
+    if (x1 === cols - 1 && x2 === cols - 1 && y1 !== y2) return true;
+    if (y1 === 0 && y2 === 0 && x1 !== x2) return true;
+    if (y1 === rows - 1 && y2 === rows - 1 && x1 !== x2) return true;
+    return false;
+  }
+
+  function isGoalNode(x, y) {
+    const inTop = (y === goalTop.y && x >= goalTop.xStart && x <= goalTop.xEnd);
+    const inBot = (y === goalBottom.y && x >= goalBottom.xStart && x <= goalBottom.xEnd);
+    return inTop || inBot;
+  }
+
+  function getGoalWinner(x, y) {
+    if (y === goalTop.y && x >= goalTop.xStart && x <= goalTop.xEnd) return 'X';
+    if (y === goalBottom.y && x >= goalBottom.xStart && x <= goalBottom.xEnd) return 'O';
+    return null;
+  }
+
+  function getLegalMovesFrom(pos, lines) {
+    const moves = [];
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = pos.x + dx;
+        const ny = pos.y + dy;
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
+        if (isOuterWallSegment(pos.x, pos.y, nx, ny)) continue;
+        if (isLineUsed(lines, pos.x, pos.y, nx, ny)) continue;
+        moves.push({ x: nx, y: ny });
+      }
+    }
+    return moves;
+  }
+
+  // Odbicie następuje, gdy w punkcie docelowym (x, y) przechodzą już jakieś narysowane linie
+  // lub gdy węzeł jest punktem bramkowym
+  function hasBounceAt(x, y, lines) {
+    if (isGoalNode(x, y)) return true;
+    for (const l of lines) {
+      if ((l.x1 === x && l.y1 === y) || (l.x2 === x && l.y2 === y)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function drawPitch() {
+    ctx.fillStyle = '#070b14';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#121826';
+    ctx.fillRect(marginOutside, marginOutside, canvas.width - marginOutside * 2, canvas.height - marginOutside * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(marginOutside, marginOutside, canvas.width - marginOutside * 2, canvas.height - marginOutside * 2);
+
+    const grad = ctx.createLinearGradient(boardOffsetX, boardOffsetY, boardOffsetX, boardOffsetY + boardHeight);
+    grad.addColorStop(0, '#1e7f46');
+    grad.addColorStop(1, '#166336');
+    ctx.fillStyle = grad;
+    ctx.fillRect(boardOffsetX, boardOffsetY, boardWidth, boardHeight);
+
+    for (let y = 0; y < boardHeight; y += cellSize * 2) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.fillRect(boardOffsetX, boardOffsetY + y, boardWidth, cellSize);
+    }
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.78)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.rect(boardOffsetX, boardOffsetY, boardWidth, boardHeight);
+
+    const midY = boardOffsetY + boardHeight / 2;
+    ctx.moveTo(boardOffsetX, midY);
+    ctx.lineTo(boardOffsetX + boardWidth, midY);
+
+    const center = gridToPx(4, 6);
+    ctx.moveTo(center.x + cellSize * 1.25, center.y);
+    ctx.arc(center.x, center.y, cellSize * 1.25, 0, Math.PI * 2);
+
+    const penDepth = cellSize * 2.5;
+    const penWidth = cellSize * 4;
+    const penX = boardOffsetX + (boardWidth - penWidth) / 2;
+    ctx.rect(penX, boardOffsetY, penWidth, penDepth);
+    ctx.rect(penX, boardOffsetY + boardHeight - penDepth, penWidth, penDepth);
+    ctx.stroke();
+
+    // Bramka górna (cel X - neonowa zieleń)
+    const topA = gridToPx(goalTop.xStart, goalTop.y);
+    const topB = gridToPx(goalTop.xEnd, goalTop.y);
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(topA.x, topA.y);
+    ctx.lineTo(topA.x, topA.y - cellSize * 0.45);
+    ctx.lineTo(topB.x, topB.y - cellSize * 0.45);
+    ctx.lineTo(topB.x, topB.y);
+    ctx.stroke();
+
+    // Bramka dolna (cel O - błękit)
+    const botA = gridToPx(goalBottom.xStart, goalBottom.y);
+    const botB = gridToPx(goalBottom.xEnd, goalBottom.y);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(botA.x, botA.y);
+    ctx.lineTo(botA.x, botA.y + cellSize * 0.45);
+    ctx.lineTo(botB.x, botB.y + cellSize * 0.45);
+    ctx.lineTo(botB.x, botB.y);
+    ctx.stroke();
+
+    // Węzły siatki
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const p = gridToPx(x, y);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, pointRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+        ctx.fill();
+      }
+    }
+
+    // Podświetlenie legalnych pól, gdy trwa tura gracza
+    const canInteract = (status === 'playing') &&
+      ((mode === 'bot' && turnSide === 'X') || (mode === 'online' && turnSide === mySide));
+
+    if (canInteract && !animating) {
+      const legal = getLegalMovesFrom(ball, usedLines);
+      for (const m of legal) {
+        const p = gridToPx(m.x, m.y);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(125, 211, 252, 0.28)';
+        ctx.fill();
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    // Narysowane linie
+    ctx.lineCap = 'round';
+    for (const l of usedLines) {
+      const p1 = gridToPx(l.x1, l.y1);
+      const p2 = gridToPx(l.x2, l.y2);
+      ctx.strokeStyle = l.by === 'X' ? '#fef08a' : '#f8fafc';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+
+    if (!animating) {
+      drawBallAtPixel(gridToPx(ball.x, ball.y).x, gridToPx(ball.x, ball.y).y);
+    }
+  }
+
+  function drawBallAtPixel(px, py) {
+    const r = cellSize * 0.28;
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#0f172a';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(px, py, r * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+  }
+
+  function animateStep(fromPos, toPos, onDone) {
+    animating = true;
+    animStartTime = performance.now();
+    animFrom = gridToPx(fromPos.x, fromPos.y);
+    animTo = gridToPx(toPos.x, toPos.y);
+
+    function frame(now) {
+      const t = Math.min(1, (now - animStartTime) / animDuration);
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      const cx = animFrom.x + (animTo.x - animFrom.x) * ease;
+      const cy = animFrom.y + (animTo.y - animFrom.y) * ease;
+      drawPitch();
+      drawBallAtPixel(cx, cy);
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        animating = false;
+        drawPitch();
+        if (onDone) onDone();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // OCENA STANU PO RUCHU
+  function evaluateStepResult(prevPos, nextPos, linesAfter, actorSide) {
+    const goalScorer = getGoalWinner(nextPos.x, nextPos.y);
+    if (goalScorer) {
+      if (goalScorer === actorSide) {
+        return { finished: true, winner: actorSide, reason: 'goal', nextTurn: actorSide };
+      } else {
+        const other = actorSide === 'X' ? 'O' : 'X';
+        return { finished: true, winner: other, reason: 'own_goal', nextTurn: other };
+      }
+    }
+
+    const bounced = hasBounceAt(nextPos.x, nextPos.y, linesAfter);
+    const nextTurn = bounced ? actorSide : (actorSide === 'X' ? 'O' : 'X');
+    const nextMoves = getLegalMovesFrom(nextPos, linesAfter);
+
+    if (nextMoves.length === 0) {
+      // Gracz, który wykonał ruch i zablokował grę, przegrywa
+      const loser = actorSide;
+      const win = loser === 'X' ? 'O' : 'X';
+      return { finished: true, winner: win, reason: 'blocked', nextTurn };
+    }
+
+    return { finished: false, winner: null, reason: null, nextTurn };
+  }
+
+  function updateHud() {
+    const turnEl = document.getElementById('ps-turn-info');
+    const goalEl = document.getElementById('ps-goal-info');
+    const scoreEl = document.getElementById('ps-score');
+    const rematchBtn = document.getElementById('ps-rematch-btn');
+
+    if (mode === 'bot') {
+      goalEl.textContent = 'Atakujesz górną bramkę (zieloną) • Poziom bota: ' + botDifficulty;
+      scoreEl.textContent = `Ty ${myScore} : ${oppScore} Bot`;
+    } else {
+      const oppName = mySide === 'X'
+        ? (currentRoomRow?.nick_o || 'Przeciwnik')
+        : (currentRoomRow?.nick_x || 'Przeciwnik');
+      goalEl.textContent = mySide === 'X'
+        ? 'Atakujesz górną bramkę (zieloną)'
+        : 'Atakujesz dolną bramkę (błękitną)';
+      scoreEl.textContent = `Ty ${myScore} : ${oppScore} ${oppName}`;
+    }
+
+    if (status === 'waiting') {
+      turnEl.textContent = '⏳ Oczekiwanie na drugiego gracza...';
+      rematchBtn.classList.add('hidden');
+      return;
+    }
+
+    if (status === 'finished') {
+      rematchBtn.classList.remove('hidden');
+      if (!scoreAlreadyCounted) {
+        scoreAlreadyCounted = true;
+        if (winnerSide === 'draw') {
+          // remis bez zmiany punktów
+        } else if (winnerSide === mySide) {
+          myScore++;
+        } else {
+          oppScore++;
+        }
+        if (mode === 'bot') {
+          scoreEl.textContent = `Ty ${myScore} : ${oppScore} Bot`;
+        } else {
+          const oppName = mySide === 'X'
+            ? (currentRoomRow?.nick_o || 'Przeciwnik')
+            : (currentRoomRow?.nick_x || 'Przeciwnik');
+          scoreEl.textContent = `Ty ${myScore} : ${oppScore} ${oppName}`;
+        }
+      }
+
+      if (winnerSide === 'draw') {
+        turnEl.textContent = '🤝 Remis!';
+      } else if (winnerSide === mySide) {
+        if (winReason === 'goal') turnEl.textContent = '🏆 Wygrana! Strzeliłeś gola!';
+        else if (winReason === 'own_goal') turnEl.textContent = '🏆 Wygrana! Przeciwnik strzelił samobója!';
+        else turnEl.textContent = '🏆 Wygrana! Przeciwnik nie ma ruchu!';
+      } else {
+        if (winReason === 'goal') turnEl.textContent = '❌ Porażka! Straciłeś gola.';
+        else if (winReason === 'own_goal') turnEl.textContent = '❌ Porażka! Samobój.';
+        else turnEl.textContent = '❌ Porażka! Brak legalnego ruchu.';
+      }
+      return;
+    }
+
+    rematchBtn.classList.add('hidden');
+    if (mode === 'bot') {
+      turnEl.textContent = turnSide === 'X' ? '👉 Twój ruch (odbicia przedłużają turę)' : '🤖 Bot myśli...';
+    } else {
+      turnEl.textContent = turnSide === mySide ? '👉 Twój ruch' : '⏳ Ruch przeciwnika...';
+    }
+  }
+
+  // KLIKNIĘCIE W WĘZEŁ
+  canvas.addEventListener('click', async (e) => {
+    if (status !== 'playing' || animating || isBusy) return;
+    if (mode === 'bot' && turnSide !== 'X') return;
+    if (mode === 'online' && turnSide !== mySide) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    const gx = Math.round((mx - boardOffsetX) / cellSize);
+    const gy = Math.round((my - boardOffsetY) / cellSize);
+
+    const legal = getLegalMovesFrom(ball, usedLines);
+    if (!legal.some(m => m.x === gx && m.y === gy)) return;
+
+    const actor = mode === 'bot' ? 'X' : mySide;
+    await applyMove(actor, { x: gx, y: gy });
+  });
+
+  async function applyMove(actor, target) {
+    isBusy = true;
+    const prev = { x: ball.x, y: ball.y };
+    const nextLines = [...usedLines, { x1: prev.x, y1: prev.y, x2: target.x, y2: target.y, by: actor }];
+    const res = evaluateStepResult(prev, target, nextLines, actor);
+
+    usedLines = nextLines;
+    ball = { x: target.x, y: target.y };
+
+    if (res.finished) {
+      status = 'finished';
+      winnerSide = res.winner;
+      winReason = res.reason;
+    } else {
+      turnSide = res.nextTurn;
+    }
+
+    if (mode === 'online' && roomId) {
+      await dbClient.from('paper_soccer_rooms').update({
+        ball_x: ball.x,
+        ball_y: ball.y,
+        moves: usedLines,
+        turn: turnSide,
+        status: status,
+        winner: winnerSide,
+        win_reason: winReason
+      }).eq('id', roomId);
+    }
+
+    updateHud();
+    animateStep(prev, target, () => {
+      isBusy = false;
+      if (mode === 'bot' && status === 'playing' && turnSide === 'O') {
+        setTimeout(runBotTurn, 220);
+      }
+    });
+  }
+
+  // SILNIK BOTA (4 POZIOMY TRUDNOŚCI)
+  function scorePositionForBot(pos, lines, depthLeft) {
+    // Bot gra jako 'O' (atakuje y=12), gracz jako 'X' (atakuje y=0)
+    const moves = getLegalMovesFrom(pos, lines);
+    if (moves.length === 0) return -10000;
+
+    let bestScore = -Infinity;
+    for (const m of moves) {
+      const nextLines = [...lines, { x1: pos.x, y1: pos.y, x2: m.x, y2: m.y, by: 'O' }];
+      const step = evaluateStepResult(pos, m, nextLines, 'O');
+
+      if (step.finished) {
+        if (step.winner === 'O') return 9000 + depthLeft * 100;
+        if (step.winner === 'X') return -9000; // unikanie samobója lub blokady
+      }
+
+      let val = 0;
+      // Postęp w stronę bramki przeciwnika (y=12)
+      val += (m.y - 6) * 18;
+      // Lekka kara za zbliżanie się do własnej bramki (y=0)
+      val -= Math.max(0, 3 - m.y) * 25;
+      // Preferencja środka boiska (x=4)
+      val -= Math.abs(m.x - 4) * 6;
+
+      if (step.nextTurn === 'O') {
+        // Odbicie daje kolejny ruch w tej samej turze!
+        val += 140;
+        if (depthLeft > 0) {
+          val += 0.75 * scorePositionForBot(m, nextLines, depthLeft - 1);
+        }
+      } else {
+        // Tura przechodzi na gracza X — na wyższych poziomach sprawdzamy odpowiedź gracza
+        const oppMoves = getLegalMovesFrom(m, nextLines);
+        val += oppMoves.length * 4;
+        if (depthLeft > 0) {
+          let worstForBot = Infinity;
+          for (const om of oppMoves) {
+            const oLines = [...nextLines, { x1: m.x, y1: m.y, x2: om.x, y2: om.y, by: 'X' }];
+            const oStep = evaluateStepResult(m, om, oLines, 'X');
+            if (oStep.finished && oStep.winner === 'X') {
+              worstForBot = Math.min(worstForBot, -4500);
+            } else {
+              const replyVal = scorePositionForBot(om, oLines, depthLeft - 1);
+              worstForBot = Math.min(worstForBot, replyVal);
+            }
+          }
+          if (worstForBot !== Infinity) val += worstForBot * 0.6;
+        }
+      }
+
+      if (val > bestScore) bestScore = val;
+    }
+    return bestScore;
+  }
+
+  function chooseBotMove() {
+    const legal = getLegalMovesFrom(ball, usedLines);
+    if (legal.length === 0) return null;
+
+    // 1. Łatwy: losowy ruch
+    if (botDifficulty === 1) {
+      return legal[Math.floor(Math.random() * legal.length)];
+    }
+
+    // 2. Średni: szuka bezpośredniego gola, unika samobója/blokady, ceni odbicia
+    if (botDifficulty === 2) {
+      const safe = legal.filter(m => {
+        const nl = [...usedLines, { x1: ball.x, y1: ball.y, x2: m.x, y2: m.y, by: 'O' }];
+        const st = evaluateStepResult(ball, m, nl, 'O');
+        return !(st.finished && st.winner === 'X');
+      });
+      const pool = safe.length > 0 ? safe : legal;
+      const scored = pool.map(m => {
+        const nl = [...usedLines, { x1: ball.x, y1: ball.y, x2: m.x, y2: m.y, by: 'O' }];
+        const st = evaluateStepResult(ball, m, nl, 'O');
+        let s = (m.y - 6) * 15 - Math.abs(m.x - 4) * 5 + (Math.random() * 25);
+        if (st.finished && st.winner === 'O') s += 10000;
+        if (!st.finished && st.nextTurn === 'O') s += 90;
+        return { move: m, score: s };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored[0].move;
+    }
+
+    // 3. Trudny i 4. Ekspert: przeszukiwanie z łańcuchami odbić i odpowiedzią rywala
+    const depth = botDifficulty === 4 ? 3 : 2;
+    const jitter = botDifficulty === 4 ? 0 : 8;
+    let bestMove = legal[0];
+    let bestScore = -Infinity;
+
+    for (const m of legal) {
+      const nextLines = [...usedLines, { x1: ball.x, y1: ball.y, x2: m.x, y2: m.y, by: 'O' }];
+      const st = evaluateStepResult(ball, m, nextLines, 'O');
+      let sc = 0;
+      if (st.finished) {
+        sc = st.winner === 'O' ? 100000 : -100000;
+      } else {
+        sc = scorePositionForBot(m, nextLines, depth - 1) + (Math.random() * jitter);
+      }
+      if (sc > bestScore) {
+        bestScore = sc;
+        bestMove = m;
+      }
+    }
+    return bestMove;
+  }
+
+  async function runBotTurn() {
+    if (status !== 'playing' || turnSide !== 'O' || animating) return;
+    const move = chooseBotMove();
+    if (!move) {
+      status = 'finished';
+      winnerSide = 'X';
+      winReason = 'blocked';
+      updateHud();
+      return;
+    }
+    await applyMove('O', move);
+  }
+
+  // TRYBY I POKOJE
+  function resetBoardState() {
+    ball = { x: 4, y: 6 };
+    usedLines = [];
+    turnSide = 'X';
+    winnerSide = null;
+    winReason = null;
+    scoreAlreadyCounted = false;
+    animating = false;
+    isBusy = false;
+  }
+
+  function startBotGame() {
+    mode = 'bot';
+    mySide = 'X';
+    botDifficulty = parseInt(document.getElementById('bot-diff').value, 10) || 2;
+    myScore = 0;
+    oppScore = 0;
+    resetBoardState();
+    status = 'playing';
+    switchView('view-game');
+    updateHud();
+    drawPitch();
+  }
+
+  async function createOnlineRoom() {
+    if (!currentUser) return alert('Musisz być zalogowany w Andrew-hub, aby utworzyć pokój online.');
+    const nick = document.getElementById('ps-nick').value.trim() || 'Gracz X';
+    const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    const { data, error } = await dbClient
+      .from('paper_soccer_rooms')
+      .insert([{
+        room_code: code,
+        host_id: currentUser.id,
+        player_x: currentUser.id,
+        nick_x: nick,
+        status: 'waiting'
+      }])
+      .select()
+      .single();
+
+    if (error) return alert('Błąd tworzenia pokoju: ' + error.message);
+
+    mode = 'online';
+    mySide = 'X';
+    myScore = 0;
+    oppScore = 0;
+    currentRoomRow = data;
+    roomId = data.id;
+
+    document.getElementById('waiting-code').textContent = code;
+    document.getElementById('waiting-players').textContent = `Gracz X: ${nick} • Czeka na Gracza O...`;
+    switchView('view-waiting');
+    subscribeToRoom(roomId);
+  }
+
+  async function joinOnlineRoom() {
+    if (!currentUser) return alert('Musisz być zalogowany w Andrew-hub, aby dołączyć do pokoju.');
+    const code = document.getElementById('join-room-code').value.trim().toUpperCase();
+    const nick = document.getElementById('ps-nick').value.trim() || 'Gracz O';
+    if (!code) return alert('Wpisz kod pokoju.');
+
+    const { data: room, error } = await dbClient
+      .from('paper_soccer_rooms')
+      .select('*')
+      .eq('room_code', code)
+      .single();
+
+    if (error || !room) return alert('Nie znaleziono pokoju o podanym kodzie.');
+
+    mode = 'online';
+    roomId = room.id;
+
+    if (room.player_x === currentUser.id) {
+      mySide = 'X';
+    } else if (!room.player_o || room.player_o === currentUser.id) {
+      mySide = 'O';
+      const { data: updated, error: updErr } = await dbClient
+        .from('paper_soccer_rooms')
+        .update({ player_o: currentUser.id, nick_o: nick, status: 'playing' })
+        .eq('id', room.id)
+        .select()
+        .single();
+      if (updErr) return alert('Błąd dołączania: ' + updErr.message);
+      currentRoomRow = updated;
+    } else {
+      return alert('Ten pokój jest już pełny.');
+    }
+
+    syncFromRoomRow(currentRoomRow || room);
+    subscribeToRoom(roomId);
+  }
+
+  function subscribeToRoom(id) {
+    if (roomChannel) dbClient.removeChannel(roomChannel);
+    roomChannel = dbClient.channel('ps-room-' + id)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'paper_soccer_rooms',
+        filter: `id=eq.${id}`
+      }, payload => {
+        syncFromRoomRow(payload.new);
+      })
+      .subscribe();
+  }
+
+  function syncFromRoomRow(row) {
+    currentRoomRow = row;
+    const prevMovesCount = usedLines.length;
+    const nextMoves = Array.isArray(row.moves) ? row.moves : [];
+
+    status = row.status;
+    turnSide = row.turn || 'X';
+    winnerSide = row.winner || null;
+    winReason = row.win_reason || null;
+
+    if (status === 'waiting') {
+      document.getElementById('waiting-code').textContent = row.room_code;
+      document.getElementById('waiting-players').textContent = `Gracz X: ${row.nick_x} • Czeka na Gracza O...`;
+      switchView('view-waiting');
+      return;
+    }
+
+    switchView('view-game');
+
+    if (nextMoves.length === 0 && prevMovesCount > 0) {
+      scoreAlreadyCounted = false;
+    }
+
+    usedLines = nextMoves;
+    ball = { x: Number(row.ball_x ?? 4), y: Number(row.ball_y ?? 6) };
+
+    if (nextMoves.length > prevMovesCount) {
+      const last = nextMoves[nextMoves.length - 1];
+      updateHud();
+      animateStep({ x: Number(last.from_x), y: Number(last.from_y) }, { x: Number(last.to_x), y: Number(last.to_y) });
+    } else {
+      updateHud();
+      drawPitch();
+    }
+  }
+
+  async function rematchGame() {
+    resetBoardState();
+    status = 'playing';
+    if (mode === 'bot') {
+      switchView('view-game');
+      updateHud();
+      drawPitch();
+    } else if (mode === 'online' && roomId) {
+      await dbClient.from('paper_soccer_rooms').update({
+        ball_x: 4,
+        ball_y: 6,
+        moves: [],
+        turn: 'X',
+        status: 'playing',
+        winner: null,
+        win_reason: null
+      }).eq('id', roomId);
+    }
+  }
+
+  function leaveToMenu() {
+    if (roomChannel) {
+      dbClient.removeChannel(roomChannel);
+      roomChannel = null;
+    }
+    roomId = null;
+    currentRoomRow = null;
+    mode = null;
+    switchView('view-menu');
+  }
+</script>
+
+</body>
+</html>
