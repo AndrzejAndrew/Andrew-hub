@@ -161,7 +161,7 @@
 
   <!-- WIDOK 6: WYNIKI (LEADERBOARD) -->
   <div id="view-leaderboard" class="view-section panel">
-    <h2 style="text-align:center; margin-top:0; color:#fbbf24;">Tablica Wyników</h2>
+    <h2 id="leaderboard-title" style="text-align:center; margin-top:0; color:#fbbf24;">Tablica Wyników</h2>
     <div id="leaderboard-list" style="margin: 20px 0;"></div>
     
     <div id="host-next-controls" class="hidden">
@@ -552,10 +552,19 @@
         }, 3000);
      }
   }
-
-  // --- ETAP: TABLICA WYNIKÓW (POŚREDNIA LUB KOŃCOWA) ---
+// --- ETAP: TABLICA WYNIKÓW (POŚREDNIA LUB KOŃCOWA) ---
   async function showLeaderboardUI(isFinal) {
     switchView('view-leaderboard');
+
+    const titleEl = document.getElementById('leaderboard-title');
+    if (isFinal) {
+      titleEl.textContent = 'Tablica wyników końcowa';
+    } else {
+      const currentRound = Math.ceil(roomState.q_index / roomSettings.q_per_category);
+      const totalRounds = Math.ceil(roomSettings.total_questions / roomSettings.q_per_category);
+      titleEl.textContent = `Tablica wyników po rundzie ${currentRound} z ${totalRounds}`;
+    }
+
     const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId).order('score', { ascending: false });
     
     let html = '';
@@ -571,7 +580,6 @@
        document.getElementById('host-finish-controls').classList.remove('hidden');
     } else {
        document.getElementById('host-finish-controls').classList.add('hidden');
-       // Pośrednia tabela wyników -> po 4 sekundach Host automatycznie pcha grę do kolejnego bloku
        if (isHost) {
           setTimeout(() => { hostAdvanceGame(); }, 4000);
        }
