@@ -789,11 +789,10 @@
     });
   }
 
-// SILNIK BOTA (4 POZIOMY TRUDNOŚCI: Alpha-Beta + BFS)
+// SILNIK BOTA v2 (Iterative Deepening + Alpha-Beta + 0-1 BFS + Detektor Gola w 1 Turze)
   const NUM_NODES = cols * rows; // 117
   const NEIGHBORS = Array.from({ length: NUM_NODES }, () => []);
 
-  // Prekalkulacja legalnych krawędzi siatki (bez ślizgania po bandach)
   (function initBotGraph() {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
@@ -830,34 +829,74 @@
     return null;
   }
 
-  // Szybki BFS: realna odległość (w krokach po wolnych liniach) do obu bramek
-  const bfsQueue = new Int16Array(NUM_NODES);
-  const bfsDist = new Int16Array(NUM_NODES);
+  // Sprawdza, czy dany gracz ('X' lub 'O') może strzelić gola w JEDNEJ turze (dowolny łańcuch odbić)
+  function findWinningStepInOneTurn(u, targetOwner, usedEdges, nodeDegree, maxBounceSteps) {
+    const nbrs = NEIGHBORS[u];
+    for (let i = 0; i < nbrs.length; i++) {
+      const v = nbrs[i];
+      const ek = fastEdgeKey(u, v);
+      if (usedEdges[ek]) continue;
 
-  function evaluateBoardFast(startNode, usedEdges, isBotTurn) {
-    bfsDist.fill(-1);
-    let head = 0, tail = 0;
-    bfsQueue[tail++] = startNode;
-    bfsDist[startNode] = 0;
+      const g = goalOwnerIdx(v);
+      if (g === targetOwner) return v;
+      if (g !== null) continue; // samobój
 
-    let distToBotGoal = 999;    // cel bota 'O' (y=12)
-    let distToPlayerGoal = 999; // cel gracza 'X' (y=0)
+      const bounced = isWallIdx(v) || nodeDegree[v] >= 1;
+      if (bounced && maxBounceSteps > 0) {
+        usedEdges[ek] = 1;
+        nodeDegree[u]++;
+        nodeDegree[v]++;
+        const res = findWinningStepInOneTurn(v, targetOwner, usedEdges, nodeDegree, maxBounceSteps - 1);
+        usedEdges[ek] = 0;
+        nodeDegree[u]--;
+        nodeDegree[v]--;
+        if (res !== -1) return v;
+      }
+    }
+    return -1;
+  }
+
+  // 0-1 BFS: liczy realną minimalną liczbę TUR do obu bramek (odbicie = 0 tur, puste pole = 1 tura)
+  const deque = new Int16Array(NUM_NODES * 4);
+  const turnDist = new Int16Array(NUM_NODES);
+
+  function evaluateBoardFast(startNode, usedEdges, nodeDegree, isBotTurn) {
+    // Krytyczne sprawdzenie: czy gracz, który ma teraz ruch, może strzelić gola w tej 1 turze?
+    const activeOwner = isBotTurn ? 'O' : 'X';
+    if (findWinningStepInOneTurn(startNode, activeOwner, usedEdges, nodeDegree, 5) !== -1) {
+      return isBotTurn ? 42000 : -42000;
+    }
+
+    turnDist.fill(999);
+    let head = NUM_NODES * 2;
+    let tail = head;
+    deque[tail++] = startNode;
+    turnDist[startNode] = 0;
+
+    let turnsToBotGoal = 999;    // cel bota 'O' (y=12)
+    let turnsToPlayerGoal = 999; // cel gracza 'X' (y=0)
 
     while (head < tail) {
-      const u = bfsQueue[head++];
-      const d = bfsDist[u];
+      const u = deque[head++];
+      const d = turnDist[u];
 
       const g = goalOwnerIdx(u);
-      if (g === 'O' && d < distToBotGoal) distToBotGoal = d;
-      if (g === 'X' && d < distToPlayerGoal) distToPlayerGoal = d;
+      if (g === 'O' && d < turnsToBotGoal) turnsToBotGoal = d;
+      if (g === 'X' && d < turnsToPlayerGoal) turnsToPlayerGoal = d;
+      if (g !== null) continue; // z bramki nie wychodzimy dalej
 
       const nbrs = NEIGHBORS[u];
       for (let i = 0; i < nbrs.length; i++) {
         const v = nbrs[i];
-        if (bfsDist[v] !== -1) continue;
         if (usedEdges[fastEdgeKey(u, v)]) continue;
-        bfsDist[v] = d + 1;
-        bfsQueue[tail++] = v;
+        // Jeśli v jest ścianą, bramką lub ma już linię -> odbicie (koszt 0 tur), inaczej 1 tura
+        const stepCost = (isWallIdx(v) || nodeDegree[v] >= 1 || goalOwnerIdx(v) !== null) ? 0 : 1;
+        const nd = d + stepCost;
+        if (nd < turnDist[v]) {
+          turnDist[v] = nd;
+          if (stepCost === 0) deque[--head] = v;
+          else deque[tail++] = v;
+        }
       }
     }
 
@@ -865,15 +904,18 @@
     const y = (startNode / cols) | 0;
 
     let score = 0;
-    if (distToBotGoal === 999) score -= 2500;
-    if (distToPlayerGoal === 999) score += 2500;
-    if (distToBotGoal < 999 && distToPlayerGoal < 999) {
-      score += (distToPlayerGoal - distToBotGoal) * 75;
+    if (turnsToBotGoal === 999) score -= 4000;
+    if (turnsToPlayerGoal === 999) score += 4000;
+    if (turnsToBotGoal < 999 && turnsToPlayerGoal < 999) {
+      score += (turnsToPlayerGoal - turnsToBotGoal) * 180;
+      // Dodatkowy alarm, jeśli gracz jest bardzo blisko bramki bota
+      if (turnsToPlayerGoal <= 1) score -= 450;
+      if (turnsToBotGoal <= 1) score += 350;
     }
 
-    score += (y - 6) * 14;
-    score -= Math.abs(x - 4) * 4;
-    score += isBotTurn ? 20 : -20;
+    score += (y - 6) * 20;
+    score -= Math.abs(x - 4) * 5;
+    score += isBotTurn ? 35 : -35;
     return score;
   }
 
@@ -900,7 +942,7 @@
     botNodesVisited++;
     if ((botNodesVisited & 255) === 0 && performance.now() > deadline) {
       botSearchAborted = true;
-      return evaluateBoardFast(u, usedEdges, isBotTurn);
+      return 0;
     }
 
     const nbrs = NEIGHBORS[u];
@@ -911,10 +953,9 @@
     }
 
     if (moves.length === 0) {
-      return isBotTurn ? -45000 : 45000;
+      return isBotTurn ? -48000 : 48000;
     }
 
-    // Sortowanie ruchów: bot najpierw sprawdza kierunek w dół (y większe), gracz w górę (y mniejsze)
     if (isBotTurn) {
       moves.sort((a, b) => ((b / cols) | 0) - ((a / cols) | 0));
     } else {
@@ -938,7 +979,6 @@
         nodeDegree[u]++;
         nodeDegree[v]++;
 
-        // Sprawdzenie, czy ruch blokuje grę (brak wyjścia z v)
         let hasExit = false;
         const vn = NEIGHBORS[v];
         for (let j = 0; j < vn.length; j++) {
@@ -949,21 +989,20 @@
         }
 
         if (!hasExit) {
-          // Gracz, który zablokował piłkę, przegrywa
-          val = isBotTurn ? (-45000 - depth * 100) : (45000 + depth * 100);
+          val = isBotTurn ? (-48000 - depth * 100) : (48000 + depth * 100);
         } else {
           const bounced = isWallIdx(v) || nodeDegree[v] >= 2;
           if (bounced) {
             if (bounceLeft > 0) {
               val = alphaBeta(v, depth, bounceLeft - 1, alpha, beta, isBotTurn, usedEdges, nodeDegree, deadline, maxBounce);
             } else {
-              val = evaluateBoardFast(v, usedEdges, isBotTurn);
+              val = evaluateBoardFast(v, usedEdges, nodeDegree, isBotTurn);
             }
           } else {
             if (depth > 1) {
               val = alphaBeta(v, depth - 1, maxBounce, alpha, beta, !isBotTurn, usedEdges, nodeDegree, deadline, maxBounce);
             } else {
-              val = evaluateBoardFast(v, usedEdges, !isBotTurn);
+              val = evaluateBoardFast(v, usedEdges, nodeDegree, !isBotTurn);
             }
           }
         }
@@ -973,7 +1012,7 @@
         nodeDegree[v]--;
       }
 
-      if (botSearchAborted) break;
+      if (botSearchAborted) return 0;
 
       if (isBotTurn) {
         if (val > best) best = val;
@@ -1006,72 +1045,95 @@
     const { usedEdges, nodeDegree } = buildFastState();
     const u = ball.y * cols + ball.x;
 
-    // Parametry wyszukiwania dla poziomów 2, 3 i 4
+    // Natychmiastowy strzał na bramkę (również po łańcuchu odbić) dla poziomów 2-4
+    const maxWinBounces = botDifficulty === 2 ? 1 : (botDifficulty === 3 ? 4 : 7);
+    const winNextIdx = findWinningStepInOneTurn(u, 'O', usedEdges, nodeDegree, maxWinBounces);
+    if (winNextIdx !== -1) {
+      return { x: winNextIdx % cols, y: (winNextIdx / cols) | 0 };
+    }
+
     const config = {
-      2: { depth: 1, maxBounce: 2, timeMs: 60,  jitter: 25 }, // Średni
-      3: { depth: 2, maxBounce: 4, timeMs: 140, jitter: 6  }, // Trudny
-      4: { depth: 4, maxBounce: 6, timeMs: 280, jitter: 0  }  // Ekspert
-    }[botDifficulty] || { depth: 2, maxBounce: 4, timeMs: 140, jitter: 6 };
+      2: { maxDepth: 1, maxBounce: 2, timeMs: 80,  jitter: 35 }, // Średni
+      3: { maxDepth: 2, maxBounce: 4, timeMs: 220, jitter: 8  }, // Trudny
+      4: { maxDepth: 4, maxBounce: 5, timeMs: 450, jitter: 0  }  // Ekspert
+    }[botDifficulty] || { maxDepth: 2, maxBounce: 4, timeMs: 220, jitter: 8 };
 
     const deadline = performance.now() + config.timeMs;
-    botNodesVisited = 0;
-    botSearchAborted = false;
-
-    // Sortuj kandydatów od najbardziej ofensywnych
     const sortedLegal = [...legal].sort((a, b) => b.y - a.y);
 
-    let bestMove = sortedLegal[0];
-    let bestScore = -Infinity;
+    let bestMoveOverall = sortedLegal[0];
 
-    for (const m of sortedLegal) {
-      const v = m.y * cols + m.x;
-      const goal = goalOwnerIdx(v);
-      let sc;
+    // ITERATIVE DEEPENING: liczymy głębokość 1, potem 2, 3... jeśli czas minie, bierzemy ostatnią PEŁNĄ głębokość
+    for (let currentDepth = 1; currentDepth <= config.maxDepth; currentDepth++) {
+      botNodesVisited = 0;
+      botSearchAborted = false;
 
-      if (goal === 'O') {
-        return m; // Natychmiastowy gol!
-      } else if (goal === 'X') {
-        sc = -100000;
-      } else {
-        const ek = fastEdgeKey(u, v);
-        usedEdges[ek] = 1;
-        nodeDegree[u]++;
-        nodeDegree[v]++;
+      let iterBestMove = sortedLegal[0];
+      let iterBestScore = -Infinity;
 
-        let hasExit = false;
-        const vn = NEIGHBORS[v];
-        for (let j = 0; j < vn.length; j++) {
-          if (!usedEdges[fastEdgeKey(v, vn[j])]) {
-            hasExit = true;
-            break;
-          }
-        }
+      for (const m of sortedLegal) {
+        const v = m.y * cols + m.x;
+        const goal = goalOwnerIdx(v);
+        let sc;
 
-        if (!hasExit) {
-          sc = -90000;
+        if (goal === 'O') {
+          return m;
+        } else if (goal === 'X') {
+          sc = -100000;
         } else {
-          const bounced = isWallIdx(v) || nodeDegree[v] >= 2;
-          if (bounced) {
-            sc = alphaBeta(v, config.depth, config.maxBounce - 1, -Infinity, Infinity, true, usedEdges, nodeDegree, deadline, config.maxBounce);
-          } else {
-            sc = alphaBeta(v, config.depth - 1, config.maxBounce, -Infinity, Infinity, false, usedEdges, nodeDegree, deadline, config.maxBounce);
+          const ek = fastEdgeKey(u, v);
+          usedEdges[ek] = 1;
+          nodeDegree[u]++;
+          nodeDegree[v]++;
+
+          let hasExit = false;
+          const vn = NEIGHBORS[v];
+          for (let j = 0; j < vn.length; j++) {
+            if (!usedEdges[fastEdgeKey(v, vn[j])]) {
+              hasExit = true;
+              break;
+            }
           }
+
+          if (!hasExit) {
+            sc = -90000;
+          } else {
+            const bounced = isWallIdx(v) || nodeDegree[v] >= 2;
+            if (bounced) {
+              sc = alphaBeta(v, currentDepth, config.maxBounce - 1, -Infinity, Infinity, true, usedEdges, nodeDegree, deadline, config.maxBounce);
+            } else {
+              if (currentDepth > 1) {
+                sc = alphaBeta(v, currentDepth - 1, config.maxBounce, -Infinity, Infinity, false, usedEdges, nodeDegree, deadline, config.maxBounce);
+              } else {
+                sc = evaluateBoardFast(v, usedEdges, nodeDegree, false);
+              }
+            }
+          }
+
+          usedEdges[ek] = 0;
+          nodeDegree[u]--;
+          nodeDegree[v]--;
         }
 
-        usedEdges[ek] = 0;
-        nodeDegree[u]--;
-        nodeDegree[v]--;
+        if (botSearchAborted) break;
+
+        if (config.jitter > 0) sc += Math.random() * config.jitter;
+        if (sc > iterBestScore) {
+          iterBestScore = sc;
+          iterBestMove = m;
+        }
       }
 
-      if (config.jitter > 0) sc += Math.random() * config.jitter;
-
-      if (sc > bestScore) {
-        bestScore = sc;
-        bestMove = m;
+      if (!botSearchAborted) {
+        bestMoveOverall = iterBestMove;
+        // Jeśli znaleźliśmy wymuszoną wygraną, nie ma sensu szukać głębiej
+        if (iterBestScore > 40000) break;
+      } else {
+        break; // Przerywamy i zostajemy przy poprzedniej, w pełni policzonej głębokości
       }
     }
 
-    return bestMove;
+    return bestMoveOverall;
   }
 
   async function runBotTurn() {
