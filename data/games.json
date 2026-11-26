@@ -82,5 +82,17 @@
     "mode": "sidebar",
     "url": "./games/paper_soccer/index.html",
     "featured": false
+  },
+  {
+    "id": "hangman",
+    "title": "Wisielec",
+    "description": "Klasyczna gra słowna z polskimi znakami, wyścigiem na czas, trybem turowym i szubienicą od 8 do 16 elementów.",
+    "category": "arcade",
+    "tag": "Multiplayer / Solo",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/hangman/index.html",
+    "featured": false
   }
 ]
