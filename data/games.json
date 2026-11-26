@@ -94,5 +94,17 @@
     "mode": "sidebar",
     "url": "./games/hangman/index.html",
     "featured": false
+  },
+  {
+    "id": "statki",
+    "title": "Statki",
+    "description": "Klasyczna gra w statki na planszy 10 x 10.",
+    "category": "arcade",
+    "tag": "Multiplayer / Solo",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/statki/index.html",
+    "featured": false
   }
 ]
