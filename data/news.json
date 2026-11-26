@@ -1,6 +1,30 @@
 {
-  "updated_at": "25.11.2026 17:31",
+  "updated_at": "26.11.2026 17:13",
   "security": [
+    {
+      "title": "Incydent bezpieczeństwa w firmie drEryk – producencie oprogramowania medycznego.",
+      "link": "https://sekurak.pl/incydent-bezpieczenstwa-w-dreryk-producencie-oprogramowania-medycznego/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "26.11.2026, 13:06",
+      "timestamp": 1795698399.0
+    },
+    {
+      "title": "Incydent bezpieczeństwa w 1Password.",
+      "link": "https://sekurak.pl/incydent-bezpieczenstwa-w-1password/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "26.11.2026, 12:45",
+      "timestamp": 1795697140.0
+    },
+    {
+      "title": "Zhackowali DIVD, holenderską organizację zajmującą się bezpieczeństwem w sieci",
+      "link": "https://sekurak.pl/zhackowali-divd-holenderska-organizacje-zajmujaca-sie-bezpieczenstwem-w-sieci/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "25.11.2026, 22:20",
+      "timestamp": 1795645213.0
+    },
     {
       "title": "Badacze znaleźli sposób na ominięcie blokady PIN-ów Windows Hello i BitLockera. Nie trzeba łamać kryptografii, wystarczy manipulacja pamięcią flash",
       "link": "https://sekurak.pl/badacze-znalezli-sposob-na-ominiecie-blokady-pin-ow-windows-hello-i-bitlockera-nie-trzeba-lamac-kryptografii-wystarczy-manipulacja-pamiecia-flash/",
@@ -8,33 +32,17 @@
       "badge": "sec",
       "date": "24.11.2026, 08:39",
       "timestamp": 1795509586.0
-    },
-    {
-      "title": "Cyberprzestępcy oferują rzekomy instalator GTA VI na platformy PC. Kulisy operacji CyberLeek",
-      "link": "https://sekurak.pl/cyberprzestepcy-oferuja-rzekomy-instalator-gta-vi-na-platformy-pc-kulisy-operacji-cyberleek/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "24.11.2026, 08:36",
-      "timestamp": 1795509366.0
-    },
-    {
-      "title": "Nowość od sekuraka! Wireshark Expert ze zniżką na Black Week",
-      "link": "https://sekurak.pl/nowosc-od-sekuraka-wireshark-expert-ze-znizka-na-black-week/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "23.11.2026, 12:06",
-      "timestamp": 1795435596.0
-    },
-    {
-      "title": "Dowolna złośliwa appka na iOS mogła sobie słuchać mikrofonu",
-      "link": "https://sekurak.pl/dowolna-zlosliwa-appka-na-ios-mogla-sobie-sluchac-mikrofonu/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "23.11.2026, 12:06",
-      "timestamp": 1795435580.0
     }
   ],
   "leclerc": [
+    {
+      "title": "Maksymalne ceny paliw 26 listopada. Gdzie najtaniej kierowcy tankowali w Warszawie?",
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOMHRycVVwbVEzdTlZRzBfLWthbF9rY01nTHBIQTJ4aU9sVnRhOGJFNm9VTXVvX0lybEl2ZHRMdmRjVlpPZndCNFYwbDM2VVZCR2pfVUExeUduZ2xBamoybXFsc3NfSHZsajlWSUV4RFM3OVNmWFVnRWF6NVRIc1R5d1lYeGZPQnNJdlp4RHQwUDE3RjlxNTN3YVVGMVc5MllucTd6TVZfbFBrRkpSTjNKLU1ZVkpaNFdDRDJmSVpseXNyZ09ET2pkRWZ4blBpQQ?oc=5",
+      "source": "Transport w praktyce",
+      "badge": "sec",
+      "date": "26.11.2026, 07:00",
+      "timestamp": 1795676400.0
+    },
     {
       "title": "MKS Kalisz - E.Leclerc Radomka Radom gdzie oglądać mecz? Transmisja TV i online (22.11.2026)",
       "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNRExVdW5zMk5zaGVfLUtZaHh6WUQzeURpMUVZaWxQR3FGWlpWSjlSR2x5QnVFMmk5b2RCWjczdUJKT1NZMy1fejRCbDNMeXI0Unc1akRPMjU3WVFhOU1LZEY1VmVOdmstdmxRUzJPVm96WkxtcjZnMVRrVFdSVGxlbTlSakxQY1ZVT1ZzenhVUjZLWGRhbmF2Qmx3a3BZeDVDLXhDOXA3MFZyc3V1US1WdUNndXQ?oc=5",
@@ -42,14 +50,6 @@
       "badge": "sec",
       "date": "22.11.2026, 05:09",
       "timestamp": 1795324165.0
-    },
-    {
-      "title": "Ceny paliw na 20 listopada 2026 r. Nowe limity benzyny i diesla. Gdzie 18 i 19 listopada kierowcy tankowali najtaniej?",
-      "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPek5qZzNZSjZBLVhkZFFFMy1QQ2RIM3lVaW9CUWtaNm5EMDl0NnpLUlN1OXFuRTQyMlVBNkgxR3FzX3RGbUhNWnByZ3NHQnZSNUgwWE91UTlJQmF1MVktcGxWbGJLdzhyUE9CVldabnBzYmlXdzN1ZFRWU1ZMQjl4TGlwV21FTzd5ZmZNU3JKT1ItN0EzVmdVYlo2c3EtbDZiekRrNHRmaVdDVTVtWmRIeGpNMGI4ZEFYendYMnlPdHpFUDRhSXJMby1MZDdjVWQ1WTFrcHluSkNWRGhEYVhlMXg3azRfaFJBLWZkQWFjVTl2LWRKREVmd3l4MA?oc=5",
-      "source": "Transport w praktyce",
-      "badge": "sec",
-      "date": "19.11.2026, 18:00",
-      "timestamp": 1795111200.0
     },
     {
       "title": "Radomski E. Leclerc ogłosił godziny otwarcia sklepu w okresie Bożego Narodzenia i Nowego Roku",
