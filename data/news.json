@@ -1,6 +1,38 @@
 {
-  "updated_at": "26.11.2026 17:13",
+  "updated_at": "27.11.2026 13:45",
   "security": [
+    {
+      "title": "Ochrona danych i cyberbezpieczeństwo. Jak radzą sobie polskie firmy? - Gazeta Prawna",
+      "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxNOEZVc282V21sTUdVVzZ0VGRQR1BYdDVLYTdObU8ycktGQXRaS0hYVTB5b2JmVy04VUpmVXlUQ3ZLR0R0S0d5WE5lZ3g5WEg4SEJCQzk3cFNZbzMyam5rbXZMNHhialVIc3FHSEF5RUZ5MGVKbnBhWEh0OG1jUWxyTDY0bFd6WkhIZG40WF8wZ2RfSlVIZzNfekhEczRRQkcxcXkyVkhZZThUcDFManlWTkRhbDZwRjlFczEzR2xkOHV0Ymtmem9RY0tzajdiaVY0VDhITGZURU1URW1CYjFrdGZZbXpEQ3BjS1E?oc=5",
+      "source": "Gazeta Prawna",
+      "badge": "sec",
+      "date": "27.11.2026, 13:06",
+      "timestamp": 1795784814.0
+    },
+    {
+      "title": "Wyciek danych z 1Password. Co z danymi logowania użytkowników? - Geekweek Interia",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNR28xUXlfSW83WlVtTW9pYU1VODNuWl93cG9WbUV6QXctbTF4STNyT2d3SWE1Y0VjS1JzT0lSYW1fcUZmcHBMeW1GaGVkMWNfRm9sR1lreXNoVU8wejBkUjByYUxpeG1wX2FqS2ctLVEyMzh2SUloRndzbVFVRFAwWDRSOHZPVHBCSWY5WmhCQ0FycFdZaFh0TlFnVmtPZkwtRGw0QUg1NkpiaDFUYnlJTFhIcVJtOWRxUHc?oc=5",
+      "source": "Geekweek Interia",
+      "badge": "sec",
+      "date": "27.11.2026, 11:55",
+      "timestamp": 1795780533.0
+    },
+    {
+      "title": "Dane pracowników seksualnych dostępne bez hasła. Ogromny wyciek - CyberDefence24",
+      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNQ2RaM2ZNQTduMGpXXzFLMFVXSFdfT2ktWjBEWG5nMnI1NGpPc2R4eEZYYWRlZVA4Ml8xQWhUQUkxTmpkbE1kY3dMUVRaZV9zOUhFZ29zU2EzLU9sQXg3ZXNDem9uNng0Ui1TWVZkd2l3WEJvbHVvZUFWal9qVVdpSXhRRU9sNEtLRS1JdkpRdU5oWk4wX0FmczFFMzRVcEVyNHJ1eS1kVUp4eGJiZ2xwbDdTLV91S1llX0liWU1MbWY?oc=5",
+      "source": "CyberDefence24",
+      "badge": "sec",
+      "date": "27.11.2026, 11:50",
+      "timestamp": 1795780253.0
+    },
+    {
+      "title": "Pełna lista promek na Black Friday… plus gratisy! 🙂",
+      "link": "https://sekurak.pl/pelna-lista-promek-na-black-friday-plus-gratisy/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "26.11.2026, 19:29",
+      "timestamp": 1795721370.0
+    },
     {
       "title": "Incydent bezpieczeństwa w firmie drEryk – producencie oprogramowania medycznego.",
       "link": "https://sekurak.pl/incydent-bezpieczenstwa-w-dreryk-producencie-oprogramowania-medycznego/",
@@ -16,59 +48,77 @@
       "badge": "sec",
       "date": "26.11.2026, 12:45",
       "timestamp": 1795697140.0
+    }
+  ],
+  "it_games": [
+    {
+      "title": "Wzbudzająca kontrowersje umowa MON podpisana. Sztuczna inteligencja ma pomóc wojsku - wnp.pl",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPbFJSblhYRTJLc011ak5jQzlOSEJHSUhGSzI0QURYWEZ1TnhNOF9PVzIwdnBfRG8za1BSZG5uSUFrWWtmNEJHNXlvYVo4bWZnbkt1ZTBMLXM4eTJ6QV81ZkNwZmQ0YWkxTTctT0h4LTAwXzhlRWdoYkl6T01IV3BBNkprVGQ3aUZqUXdDSmdyZDNLUlEwNU1kdlBxOXI4TER6UlFlTktITVE5dzh1bk5sdnUtMk1nT0ZEN2c?oc=5",
+      "source": "wnp.pl",
+      "badge": "sec",
+      "date": "27.11.2026, 11:26",
+      "timestamp": 1795778760.0
     },
     {
-      "title": "Zhackowali DIVD, holenderską organizację zajmującą się bezpieczeństwem w sieci",
-      "link": "https://sekurak.pl/zhackowali-divd-holenderska-organizacje-zajmujaca-sie-bezpieczenstwem-w-sieci/",
-      "source": "Sekurak",
+      "title": "Badacze: sztuczna inteligencja nie zastąpi specjalisty w kryzysie psychicznym - Nauka w Polsce",
+      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQdjVSakZWTXc0MmExWlNzTnlUY2lpcjFMSlBBOEd1RjBERTFQRzBSaWpaejZ2YWFTT0VrS0ZEcTBPbWVPTFQ2YUhyeXRyQ2hEekFfSzVYU2Z6eVBkWFpiRTYzaS13aG1FbUp5N1lHNDRYcGFld3Y4Z2hXQWVsVG81OE1FUVpjcTRCZVZfdEpoOFlqUzNXX2J4NGh4NWNPRmhXc0xwaXVsTGlGTlhIcjFtSU53TFRvYk0?oc=5",
+      "source": "Nauka w Polsce",
       "badge": "sec",
-      "date": "25.11.2026, 22:20",
-      "timestamp": 1795645213.0
+      "date": "27.11.2026, 11:05",
+      "timestamp": 1795777500.0
     },
     {
-      "title": "Badacze znaleźli sposób na ominięcie blokady PIN-ów Windows Hello i BitLockera. Nie trzeba łamać kryptografii, wystarczy manipulacja pamięcią flash",
-      "link": "https://sekurak.pl/badacze-znalezli-sposob-na-ominiecie-blokady-pin-ow-windows-hello-i-bitlockera-nie-trzeba-lamac-kryptografii-wystarczy-manipulacja-pamiecia-flash/",
-      "source": "Sekurak",
+      "title": "Miniserial „Kino oczami Cunk”. Udaje ignorancję lepiej niż sztuczna inteligencja - Tygodnik Powszechny",
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQQ2puVVlweXZuUm5ycl93WnRfckxWeXJrcy1PNDJDcWRpSW8yUTFrUjF5OHpURi1vRlFyVVUwRmNzUWJ2MXJtclZaWV9aYUlkZk5LdFpQV3ZzckpvcWxKTkFtOFhWQzlraWNTcFp0eGozTlFqZTFQSkJWOXU4UVJ5S21RNUExdURFTVJVa05QdVNZMnZDc2xIaXpKVTEzWWRHR1IzRnFITTNqcXVuemY0Nw?oc=5",
+      "source": "Tygodnik Powszechny",
       "badge": "sec",
-      "date": "24.11.2026, 08:39",
-      "timestamp": 1795509586.0
+      "date": "27.11.2026, 10:31",
+      "timestamp": 1795775464.0
+    },
+    {
+      "title": "Haker kontra zabezpieczenia. Co zmieniła sztuczna inteligencja? - NASK – Państwowy Instytut Badawczy",
+      "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPb01scjh3TnlJNHdKckQ2S201cEg3Q3JScDFZM0RFWGFTOHRVbUxRZ1JRdHlNclBmdGZsYi1hZ29UbUdLdlFORGJBWWJwMjE1c01wa012dG9pdWFHTi1tN0FNQ2psY2ZWQ1JJd1Fnd052cEh0ZzZTTDc0NlQyLUREdUJRdVBOOXhMNHB1M0RLN2pqUU5SbC1JNw?oc=5",
+      "source": "NASK – Państwowy Instytut Badawczy",
+      "badge": "sec",
+      "date": "27.11.2026, 10:17",
+      "timestamp": 1795774621.0
+    },
+    {
+      "title": "Sztuczna inteligencja wesprze decyzje polskiej armii. MON podpisze umowę z Palantir Technologies - MamStartup",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPWDMyOGkwMllQNzFQdVJwRlZkN0RRS3NvSkZoZ1ZiSVRMVEJJUGw5UkRFM19xTGdXdmVkbC1DWFo0b1Jadm1jVmJWSk5mUWpobDc1WkJkbW1wcDJNcXlyblc5aXB3eGsyblFmanRDS3RNcTdiR0lPazdrV09zS2J2U3VyYUZLZjBTejdhYXdLeWQ1OFBRSTN4eENxeXB1Qkx0RDVmalRFQnlONzRWNkN2NzFISUZSZ000dlE?oc=5",
+      "source": "MamStartup",
+      "badge": "sec",
+      "date": "27.11.2026, 09:25",
+      "timestamp": 1795771511.0
+    },
+    {
+      "title": "Rayman Legends Retold na zwiastunie fabularnym. Premiera gry już za kilka dni! - IGN Polska",
+      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPSnRJMkwwcDFkcUJ4dXJsclFFa2tPY09CTnA3OURMMGtKaFc5X1FlRXJfQ3BhMHRrSE1lY1pPWFJ5MFJhU0FTZWswaTBDM29yaUprenZ4OTI0QnpnNGRJbU16RXVYbWJIcGY2bTVRRmRmZ2xpSlFKYWZ3aDRFdEdMeUlsTDA3anBscW9mUDc2Q21LREJCenlfWTFvdWduNVhzVU1TT0I5WQ?oc=5",
+      "source": "IGN Polska",
+      "badge": "sec",
+      "date": "27.11.2026, 08:00",
+      "timestamp": 1795766420.0
+    },
+    {
+      "title": "Sztuczna inteligencja wypiera ludzi. Gigant zwolni tysiące pracowników - TVP Info",
+      "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOVTV2dXFsdlhQRzV6eW51YWF1aFhYckgzRzdlaWV6QWRDaVlPbC1JYm5mQlotSW9ZWTJpLXFsVV92dU5fZlVZZGxDcHJfRlEzYlFZdXRlckNYMU5hTzdIQktYb1VjN2xPQWVTVFhScHdNbWwxSXBXaVRRTzlVWkV4cXhvY3JqM29RSVVDZ0xPdEg0TnZVcG9WcDdEUHhLckFyVDZsdmltSjFQdUkwdmxlSHhlVHZXRWpqVWplVVVWMExaellwMG5QZGRzX3ZpaGt5NE5sN3FwdWg4NmJENmlZR2lNbDJfc1E?oc=5",
+      "source": "TVP Info",
+      "badge": "sec",
+      "date": "27.11.2026, 06:16",
+      "timestamp": 1795760160.0
+    },
+    {
+      "title": "Efekt GTA 6. Premiera gry wpłynęła nawet na polskie restauracje - Benchmark.pl",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOdFFna1Nzd3c4WFpUd2Z6MWlsUEVhSm5XaW0zNVVCSkZ4WDZ1bkl3cTJZc2haVGUyVzJ6ZFY3OWswMjVqVzZVeG80OE41dktLeDhrQXlsTGphN1NCM1J1emswR1NWUWYzdllfUU1BRnBsZEc3VDVRTVIxMzV3YW5CLUxMNkgtQTVOMHVUcTdTd1FlLUpheUVpNGVTdjBNSmM5QlNMTFZIRGE?oc=5",
+      "source": "Benchmark.pl",
+      "badge": "sec",
+      "date": "26.11.2026, 10:45",
+      "timestamp": 1795689958.0
     }
   ],
   "leclerc": [
     {
-      "title": "Maksymalne ceny paliw 26 listopada. Gdzie najtaniej kierowcy tankowali w Warszawie?",
-      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOMHRycVVwbVEzdTlZRzBfLWthbF9rY01nTHBIQTJ4aU9sVnRhOGJFNm9VTXVvX0lybEl2ZHRMdmRjVlpPZndCNFYwbDM2VVZCR2pfVUExeUduZ2xBamoybXFsc3NfSHZsajlWSUV4RFM3OVNmWFVnRWF6NVRIc1R5d1lYeGZPQnNJdlp4RHQwUDE3RjlxNTN3YVVGMVc5MllucTd6TVZfbFBrRkpSTjNKLU1ZVkpaNFdDRDJmSVpseXNyZ09ET2pkRWZ4blBpQQ?oc=5",
-      "source": "Transport w praktyce",
-      "badge": "sec",
-      "date": "26.11.2026, 07:00",
-      "timestamp": 1795676400.0
-    },
-    {
-      "title": "MKS Kalisz - E.Leclerc Radomka Radom gdzie oglądać mecz? Transmisja TV i online (22.11.2026)",
-      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNRExVdW5zMk5zaGVfLUtZaHh6WUQzeURpMUVZaWxQR3FGWlpWSjlSR2x5QnVFMmk5b2RCWjczdUJKT1NZMy1fejRCbDNMeXI0Unc1akRPMjU3WVFhOU1LZEY1VmVOdmstdmxRUzJPVm96WkxtcjZnMVRrVFdSVGxlbTlSakxQY1ZVT1ZzenhVUjZLWGRhbmF2Qmx3a3BZeDVDLXhDOXA3MFZyc3V1US1WdUNndXQ?oc=5",
-      "source": "Mecze24.pl",
-      "badge": "sec",
-      "date": "22.11.2026, 05:09",
-      "timestamp": 1795324165.0
-    },
-    {
-      "title": "Radomski E. Leclerc ogłosił godziny otwarcia sklepu w okresie Bożego Narodzenia i Nowego Roku",
-      "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxOZVZYdW9TNy1LU01zdTc3MlNGQU9uNjlJN053RDRwQV9SMXJEem9NQnRYWHJ1WFNfUC0wSS01OHNfcFlrc2lPOG5nTG9qVERvdHpqMVo5aXRCbnp6TWNweDVPRTZBV09yMW5FdkJjUE5kVTZva0NublFXY2xGZ1pQTlhTeFc0azQ1TzhBVXNXWDZFTmR5STRjdm5WSkwwS2cteVFGTDRYVlhEcmo3M0hxRFU1NjllalRvb01EX0ZkR045S2JxaFZ4elFXRUFCRFRXeUdkWg?oc=5",
-      "source": "Radom24.pl",
-      "badge": "sec",
-      "date": "19.11.2026, 10:54",
-      "timestamp": 1795085640.0
-    },
-    {
-      "title": "Nowa rzeczywistość w handlu. E.Leclerc wprowadza wielowarstwowy system ochrony infrastruktury i systemów IT",
-      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOT013a1JTWFl6ajBndzBVcWRad1NCZ2tBQUloNnpzWWJ3S2FJMEcwS0dHRmpJd05vdGt2Vy1Nb1lvbUJVLVB5Y0pTNTFDZ285ZTkybUZqbFA3dFdOT3Y5YUxUSmYzQ3JDUF9EX3RReDY1c0plSGdOWGk1NFRjSC1SaGZjODhoWEZ2RFlmazA2bzZaemxFT1lWemFhZ09mLTZaUGwxTzZlYXNLRC0tVEo4d3Fra0tQNFhIZ1c4Wkl4RXpDSU41S0M5aDNlY2xyOEtfWXFGWFVoeVktUQ?oc=5",
-      "source": "Omnichannel News",
-      "badge": "sec",
-      "date": "09.11.2026, 13:31",
-      "timestamp": 1794231111.0
-    },
-    {
-      "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu",
+      "title": "E.Leclerc odłącza chłodnictwo od otwartego internetu. Zmienia zasady dostępu - Portal spożywczy",
       "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNMzlPelgxdzA1alJ3QWN2LV9qU3VwVDB2ZW1Rb0FUdHFhM2pBdkNxaU5JLWlYRnhJdUUyRTVoRzVIZkRXYzg0Y3NicG01VEdHZUNmU1ZxQzNmNnFiQWRYRDcxalNnMEtOVHhZWEFEUDVPdGtiUGl1UGJhQWRQbndiMU96elJWY3hwT0ttVk1ValNEOThsNkkyQkhXeUl4QlJNQ3N0ODdqbXhMUWtYMktMZS1FeVdfZmt3S3Rsa1dLNkl5UUxwbzUwYXlPVHFncktvOUE?oc=5",
       "source": "Portal spożywczy",
       "badge": "sec",
@@ -76,12 +126,44 @@
       "timestamp": 1794211200.0
     },
     {
-      "title": "E.Leclerc uszczelnia systemy IT. Sieć odłącza systemy chłodnicze od otwartego internetu",
-      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQZkh1WmYxTVl5VHdRenA5NnhUMTdrZ2RWaEpyQ0pWbFN0TGx1dzdHMnZWc0J2OTVDZlFlU0MzTDN5ZzlLTlRoemhBMjdHUExFdU5FM2xRVWEwUzJpeEU2WnVFUnpFY2I4cVJlZEhRektnWFNQYUQ4QWFrVVYtcUlqbWZ5dHlmNTVjVFhHS2FyRl9EblZPTlFCVmdIUG85QlRZX1BHXzJVNXN4NW1RcUcwT3ZKbW8wOTlNVUM3Q2tKdVhPc2xGWlQ0c1RuOGdvbUJvamdzbXI0MDNzN2pBdXNmOVYybw?oc=5",
+      "title": "Prezes E.Leclerc: Jeśli Polacy wybiorą tylko dyskonty, rynek przegra [WYWIAD] - Wiadomości Handlowe",
+      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPcTZleWdqMFRZN0hIUC1QN2kweFdOVEloQVdJdDVvYXpZaEJ5Ynd5RUdMMThGWEdHaDEyWmF4RmdDTURDVzJROVFHLVhpQ2t2U0tnZ1A0YWQ0UEZEcm12ZVFNVzBJT0loNFF4YzRXOTNlejRpYnRNQThfMFo4VXhpbzZ6dnEydzkwSlBYYzdtX0R1MlJSVUpGTF9ZRTdMNlVzb1BqMlVFTW5nOUZFRFFpZjhCYXYtYnl3RG93aGw4TFBtUk5WUUgxcG5lb0pfQzF4ZmxNbnRIU3ozdw?oc=5",
       "source": "Wiadomości Handlowe",
       "badge": "sec",
-      "date": "09.11.2026, 08:00",
-      "timestamp": 1794211200.0
+      "date": "21.09.2026, 07:00",
+      "timestamp": 1789974000.0
+    },
+    {
+      "title": "Nowy koncept sklepów E.Leclerc. \"Ta formuła zwiększa obroty\" - DlaHandlu.pl",
+      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOZkF3LUF6d3RSUzBmV2NPTjdheWhvY0h1cEtXSFhlVXlWYzljcURreF9UR0FnX0dQZ3A5MjA5N3A0b2M1ekQ2cUhIS2FRSS11QnpBYkl1NDM1N3kxSktrbmE3UEZvbXhPSEJVaUhycmtDTHlSSEZYUXYzTVVhZE1UMmdHR3hlM1Z2dlJOZjFwTWp0VDNSS3FtUG5venRtZ2F6N09ndUo1ZXc?oc=5",
+      "source": "DlaHandlu.pl",
+      "badge": "sec",
+      "date": "08.09.2026, 07:00",
+      "timestamp": 1788850800.0
+    },
+    {
+      "title": "E.Leclerc zmienia sieć w Polsce. Duży sklep zakończy działalność już niebawem - PropertyNews.pl",
+      "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQX0tVbWNpSG5QdktLY2NERXNYdGl0dFYyengxQmxNRTRjWF9adDF1SFduYXBNVDJTUHBPVk1wM2ZBOFpLd2VrTnlzRzQyN2QwS0xIT0VCVFpqbXNieDJiTjNOTTJlcU9ScV9RUjhRUmxlZm00X0Mxc3l3SzIwWHN1Qjg4TVFZdlROOV8zdkpmWl8zRUg0RE0tUnp2akwzWXNoV1ZpLUx2eDdJQnhvUmhMN1F0RXVOeDZ0ZVdFaE1UbjRtVVdYb0xaakNJMHQ?oc=5",
+      "source": "PropertyNews.pl",
+      "badge": "sec",
+      "date": "04.09.2026, 07:00",
+      "timestamp": 1788505200.0
+    },
+    {
+      "title": "Decyzja zapadła. Hipermarket E.Leclerc w Szczecinie zostanie zamknięty - Next Gazeta.pl",
+      "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOLTJEWFRfcTVWOG1sR2lRYWVGZWl1a2pyOEdtTTZUTmUwRGxiUVphQkQtYXlGYjRqa2tUZ1JXLVBkSFQ0aTVXbkRTaXZIdVdpV1VROFByV1c4bXVqMlM3b2ZsQ1hRenVDZy1KSnJXd1R5b2lpUm83T1AzVGxiRmRlcU5XZXNDZnhHNmgtQzVMQXBPckQ5bWVkZzRwQnRQekVoMGpBd0N2UGtSMUxZNlhF?oc=5",
+      "source": "Next Gazeta.pl",
+      "badge": "sec",
+      "date": "04.09.2026, 07:00",
+      "timestamp": 1788505200.0
+    },
+    {
+      "title": "E.Leclerc otworzył \"czytelnię\" w niedzielę. Minister już nasłała inspektorów - INNPoland.pl",
+      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5vOVhYWkxCWW1wd3dDdzR0R0xxSUR5Q3N3bUZqWm5QbDAxQ1lLRjJpblozYjFPLXE1TGpLd2g2a2s4WnBFaDVYb2RweW5pV1lqX25oOHgxSzNFaGlvV0JjZ2Y5bDlZU1U?oc=5",
+      "source": "INNPoland.pl",
+      "badge": "sec",
+      "date": "24.06.2026, 07:00",
+      "timestamp": 1782284400.0
     }
   ]
 }
