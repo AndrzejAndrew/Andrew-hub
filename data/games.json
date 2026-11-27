@@ -124,5 +124,17 @@
     "mode": "sidebar",
     "url": "./games/statki/index.html",
     "featured": false
+  },
+  {
+    "id": "Kółko i Krzyżyk",
+    "title": "KiK",
+    "description": "Klasyczna gra w kółko i krzyżyk",
+    "category": "arcade",
+    "tag": "Multiplayer / Bot",
+    "tagColor": "cyan",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/tictactoe/index.html",
+    "featured": false
   }
 ]
