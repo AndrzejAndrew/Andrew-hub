@@ -2,7 +2,7 @@ name: Auto-Update News Feed
 
 on:
   schedule:
-    # Uruchamia się o 7:30, 11:30 i 15:30 czasu polskiego
+    # Uruchamia się o 7:30, 11:30 i 15:30 czasu polskiego (w okresie zimowym UTC+1)
     - cron: '30 6,10,14 * * *'
   workflow_dispatch:
 
@@ -21,8 +21,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Pobierz najnowsze newsy (Sekurak, Niebezpiecznik, E.Leclerc)
-        run: python scripts/fetch_news.py
+      - name: Pobierz najnowsze newsy (Security, IT & Gry, E.Leclerc)
+        run: python scripts/update_news.py
 
       - name: Zapisz zmiany w repozytorium
         run: |
