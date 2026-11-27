@@ -6,7 +6,7 @@
   <title>Andrew Hub // Portal Andrzeja</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-theme="default">
   <!-- Pastelowe światła w tle (Ambient Glow) -->
   <div class="ambient-light light-cyan"></div>
   <div class="ambient-light light-purple"></div>
@@ -15,22 +15,35 @@
   <div class="app-layout" id="app-layout">
     <!-- Pasek boczny (Nawigacja) -->
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-logo">⚡</div>
-        <div class="brand-text">
-          <h1>ANDREW<span>HUB</span></h1>
-          <small>v1.0 // Witaj w domu</small>
+      <div>
+        <div class="brand">
+          <div class="brand-logo">⚡</div>
+          <div class="brand-text">
+            <h1>ANDREW<span>HUB</span></h1>
+            <small>v1.2 // Witaj w domu</small>
+          </div>
         </div>
+
+        <nav class="nav-menu" style="margin-top: 18px;">
+          <button class="nav-btn active" data-filter="all">⊞ Wszystkie moduły</button>
+          <button class="nav-btn" data-filter="strategy">⚙️ Strategia & Idle</button>
+          <button class="nav-btn" data-filter="arcade">🎲 Szybka przerwa</button>
+          <button class="nav-btn" data-filter="news">📡 Prasówka & Alerty</button>
+          <button class="nav-btn" onclick="toggleCliBar()">&gt;_ Konsola CLI</button>
+        </nav>
       </div>
 
-      <nav class="nav-menu">
-        <button class="nav-btn active" data-filter="all">⊞ Wszystkie moduły</button>
-        <button class="nav-btn" data-filter="strategy">⚙️ Strategia & Idle</button>
-        <button class="nav-btn" data-filter="arcade">🎲 Szybka przerwa</button>
-        <button class="nav-btn" data-filter="news">📡 Prasówka & Alerty</button>
-      </nav>
-
       <div class="sidebar-footer">
+        <div class="theme-switcher-box" id="theme-switcher-box">
+          <span class="theme-switcher-label">Wybierz skórkę</span>
+          <div class="theme-grid">
+            <button type="button" class="theme-btn active" data-theme-val="default" onclick="setTheme('default')">Domyślny</button>
+            <button type="button" class="theme-btn" data-theme-val="dark" onclick="setTheme('dark')">Ciemny</button>
+            <button type="button" class="theme-btn" data-theme-val="light" onclick="setTheme('light')">Jasny</button>
+            <button type="button" class="theme-btn" data-theme-val="terminal" onclick="setTheme('terminal')">&gt;_ Dev/CLI</button>
+          </div>
+        </div>
+
         <div class="user-card" id="user-card">
           <div class="avatar" id="user-avatar">?</div>
           <div class="user-meta">
@@ -48,31 +61,46 @@
       <header class="topbar" id="topbar">
         <div class="welcome-box">
           <h2 id="view-title">Dashboard</h2>
-          <p>Wybierz grę na przerwę lub przejrzyj najnowsze raporty.</p>
+          <p>Wybierz grę na przerwę, przejrzyj raporty lub wpisz komendę (skrót: ~ / Ctrl+K).</p>
         </div>
         <div class="topbar-widgets">
+          <select id="topbar-theme-select" class="topbar-theme-select" onchange="setTheme(this.value)" title="Zmień skórkę">
+            <option value="default">🎨 Skórka: Domyślny</option>
+            <option value="dark">🌑 Skórka: Ciemny</option>
+            <option value="light">☀️ Skórka: Jasny</option>
+            <option value="terminal">&gt;_ Skórka: Dev/CLI</option>
+          </select>
           <div class="pill-badge"><span class="dot-live"></span> System Online</div>
           <div class="pill-badge" id="clock-widget">--:--</div>
         </div>
       </header>
 
+      <!-- UPROSZCZONA LINIA KOMEND (CLI) -->
+      <section class="cli-bar hidden" id="cli-bar">
+        <div class="cli-output" id="cli-output">Andrew-Hub Shell v1.2 — wpisz "help" aby zobaczyć dostępne komendy.</div>
+        <div class="cli-input-row">
+          <span class="cli-prompt">andrzej@hub:~$</span>
+          <input type="text" id="cli-input" class="cli-input" placeholder="np. help, ls, play evolve, theme terminal..." autocomplete="off">
+        </div>
+      </section>
+
       <!-- WIDOK 1: Siatka Bento Grid -->
       <section class="bento-grid" id="bento-dashboard">
         
-        <!-- Kafelek 2x2: Schematic Factory (Domyślny fallback, usuwany po wczytaniu games.json) -->
+        <!-- Kafelek 2x2: Schematic Factory (Fallback, usuwany po wczytaniu games.json) -->
         <article class="bento-item span-2x2 card-featured" data-category="strategy" data-type="game">
           <div class="card-glow"></div>
           <div class="card-top">
             <span class="tag tag-mint">Główny Projekt</span>
-            <span class="tag tag-outline">Pełny Ekran</span>
+            <span class="tag tag-outline">Nowa Karta ↗</span>
           </div>
           <div class="card-body">
             <h3>Schematic Factory</h3>
             <p>Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.</p>
           </div>
           <div class="card-actions">
-            <button class="btn-launch" onclick="launchGame('Schematic Factory', 'https://twoja-fabryka.pages.dev', 'fullscreen')">
-              Uruchom Fabrykę →
+            <button class="btn-launch" onclick="launchGame('Schematic Factory', 'https://fabryka.andrzejandrewendrju.workers.dev', 'newtab', true)">
+              Uruchom Fabrykę ↗
             </button>
           </div>
         </article>
@@ -106,14 +134,12 @@
 
       </section>
 
-      <!-- WIDOK 2: Kontener uruchomionej gry -->
+      <!-- WIDOK 2: Kontener uruchomionej gry lokalnej -->
       <section class="game-runner hidden" id="game-runner">
-        <!-- Pływający przycisk powrotu (dla gier fullscreen jak Evolve / Factory) -->
         <button class="floating-return-btn" id="floating-return-btn" onclick="closeGame()">
           ← Wróć do Huba
         </button>
 
-        <!-- Górny pasek dla małych gier (tryb 'sidebar', np. Statki) -->
         <div class="runner-bar" id="runner-bar">
           <span id="active-game-title">Nazwa Gry</span>
           <div class="runner-controls">
