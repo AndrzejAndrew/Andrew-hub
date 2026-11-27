@@ -75,19 +75,19 @@
     .leaderboard-row:last-child { border-bottom: none; }
     .rank-1 { color: #fbbf24; font-weight: bold; font-size: 1.1rem;}
     .review-section { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-.review-item {
-  display: flex; justify-content: space-between; align-items: center; gap: 15px;
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-  padding: 12px 15px; border-radius: 10px; margin-bottom: 10px;
-}
-.review-q { font-size: 0.95rem; color: #f8fafc; margin-bottom: 4px; }
-.review-a { font-size: 0.85rem; color: #34d399; }
-.btn-report {
-  background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); color: #f43f5e;
-  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: 0.2s;
-}
-.btn-report:hover:not(:disabled) { background: rgba(244,63,94,0.25); }
-.btn-report:disabled { opacity: 0.5; cursor: default; border-color: rgba(255,255,255,0.1); color: #8b95a5; background: transparent; }
+    .review-item {
+      display: flex; justify-content: space-between; align-items: center; gap: 15px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 15px; border-radius: 10px; margin-bottom: 10px;
+    }
+    .review-q { font-size: 0.95rem; color: #f8fafc; margin-bottom: 4px; }
+    .review-a { font-size: 0.85rem; color: #34d399; }
+    .btn-report {
+      background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); color: #f43f5e;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: 0.2s;
+    }
+    .btn-report:hover:not(:disabled) { background: rgba(244,63,94,0.25); }
+    .btn-report:disabled { opacity: 0.5; cursor: default; border-color: rgba(255,255,255,0.1); color: #8b95a5; background: transparent; }
   </style>
 </head>
 <body>
@@ -202,6 +202,7 @@
     <div class="flex-row"><button class="btn" onclick="toggleProposeModal()">Anuluj</button><button class="btn" style="color:#f9a8d4; border-color:#f9a8d4;" onclick="submitProposal()">Wyślij do akceptacji</button></div>
   </div>
 </div>
+
 <script>
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
@@ -217,12 +218,13 @@
   let shuffledAnswers = [];   
   let questionStartTime = 0;
   
-  // Kontrola czasu i unikalnych odpowiedzi
+  // Kontrola czasu, unikalnych odpowiedzi i zapisu wyniku do rankingu
   let answeredUsers = new Set();
   let questionTimer = null;
   let voteTimer = null;
   let isQuestionFinalized = false;
   let isVotingFinalized = false;
+  let quizScoreSaved = false;
 
   async function init() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -240,6 +242,33 @@
   function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
     document.getElementById(viewId).classList.add('active-view');
+  }
+
+  async function recordQuizResult(rankedPlayers) {
+    if (quizScoreSaved || !currentUser || !Array.isArray(rankedPlayers) || rankedPlayers.length === 0) return;
+    quizScoreSaved = true;
+
+    if (!window.parent || typeof window.parent.saveGameScore !== 'function') return;
+
+    const me = rankedPlayers.find(p => p.user_id === currentUser.id);
+    if (!me) return;
+
+    const myPts = Number(me.score) || 0;
+    const topPts = Math.max(...rankedPlayers.map(p => Number(p.score) || 0));
+    const winnersCount = rankedPlayers.filter(p => (Number(p.score) || 0) === topPts).length;
+
+    let result = 'loss';
+    if (rankedPlayers.length === 1) {
+      result = 'win';
+    } else if (myPts === topPts) {
+      result = winnersCount > 1 ? 'draw' : 'win';
+    }
+
+    const mode = rankedPlayers.length === 1 ? 'solo' : 'online';
+    await window.parent.saveGameScore('quiz', mode, result, myPts, {
+      questionsCount: roomSettings.total_questions || 0,
+      playersCount: rankedPlayers.length
+    });
   }
 
   // --- LOGIKA LOBBY ---
@@ -299,7 +328,6 @@
            const totalVotes = Object.values(hostVoteTally).reduce((a, b) => a + b, 0);
            roomChannel.send({ type: 'broadcast', event: 'update_tally', payload: totalVotes });
            
-           // Jeśli wszyscy zagłosowali, kończymy głosowanie od razu
            if (totalVotes >= totalPlayers) {
              if (voteTimer) clearTimeout(voteTimer);
              hostFinishVoting();
@@ -346,6 +374,7 @@
 
   // --- START GRY (TYLKO RAZ Z LOBBY) ---
   async function initiateStart() {
+    quizScoreSaved = false;
     let state = { q_index: 1, asked_questions: [] };
     await dbClient.from('quiz_players').update({ is_ready: false }).eq('room_id', currentRoomId);
 
@@ -561,16 +590,15 @@
            if (isLastQuestion) {
                await dbClient.from('quiz_rooms').update({ status: 'finished' }).eq('id', currentRoomId);
            } else if (isEndOfBlock) {
-               // Koniec bloku kategorii -> pokaż tabelę wyników na 4 sekundy, potem dalej
                await dbClient.from('quiz_rooms').update({ status: 'leaderboard' }).eq('id', currentRoomId);
            } else {
-               // W środku bloku -> od razu następne pytanie z tej samej kategorii!
                hostAdvanceGame();
            }
         }, 3000);
      }
   }
-// --- ETAP: TABLICA WYNIKÓW (POŚREDNIA LUB KOŃCOWA) ---
+
+  // --- ETAP: TABLICA WYNIKÓW (POŚREDNIA LUB KOŃCOWA) ---
   async function showLeaderboardUI(isFinal) {
     switchView('view-leaderboard');
 
@@ -589,18 +617,21 @@
     const { data } = await dbClient.from('quiz_players').select('*').eq('room_id', currentRoomId).order('score', { ascending: false });
     
     let html = '';
-    data.forEach((p, idx) => {
+    (data || []).forEach((p, idx) => {
       let rankClass = (idx === 0) ? 'rank-1' : '';
       html += `<div class="leaderboard-row ${rankClass}"><span>${idx+1}. ${p.nickname}</span><span>${p.score || 0} pkt</span></div>`;
     });
     document.getElementById('leaderboard-list').innerHTML = html;
+
+    if (isFinal && data) {
+      await recordQuizResult(data);
+    }
 
     document.getElementById('host-next-controls').classList.add('hidden');
 
     if (isFinal) {
       document.getElementById('host-finish-controls').classList.remove('hidden');
 
-      // Pobierz pytania z tej rozgrywki do przeglądu i ewentualnego zgłoszenia
       if (roomState.asked_questions && roomState.asked_questions.length > 0) {
         const { data: playedQs } = await dbClient
           .from('quiz_questions')
