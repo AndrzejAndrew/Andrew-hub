@@ -440,7 +440,6 @@
     shipOrient = shipOrient === 'H' ? 'V' : 'H';
     document.getElementById('btn-rotate').textContent =
       shipOrient === 'H' ? '↔ Orientacja: Poziomo' : '↕ Orientacja: Pionowo';
-    renderPlacementGrid();
   }
 
   function getShipCells(r, c, size, orient) {
@@ -470,12 +469,15 @@
     return cells.every(cell => !occupied.has(`${cell.r},${cell.c}`));
   }
 
+ let placementCellsDom = [];
+
   function clearMyFleet() {
     placedShips = [];
     selectedFleetIndex = 0;
     botHitQueue = [];
     renderFleetSelector();
-    renderPlacementGrid();
+    buildPlacementGridOnce();
+    updatePlacementGridVisuals();
     updateConfirmButton();
   }
 
@@ -507,7 +509,8 @@
       if (okAll) {
         placedShips = list;
         renderFleetSelector();
-        renderPlacementGrid();
+        buildPlacementGridOnce();
+        updatePlacementGridVisuals();
         updateConfirmButton();
         return;
       }
@@ -528,49 +531,57 @@
   function selectShipSlot(idx) {
     selectedFleetIndex = idx;
     renderFleetSelector();
-    renderPlacementGrid();
+    updatePlacementGridVisuals();
   }
 
   function updateConfirmButton() {
     document.getElementById('btn-confirm-fleet').disabled = (placedShips.length !== FLEET_TEMPLATE.length);
   }
 
-  function renderPlacementGrid(previewCells = null, previewValid = false) {
+  function buildPlacementGridOnce() {
     const grid = document.getElementById('placement-grid');
+    if (placementCellsDom.length === GRID_SIZE * GRID_SIZE && grid.children.length === GRID_SIZE * GRID_SIZE) {
+      return;
+    }
     grid.innerHTML = '';
-
-    const shipMap = new Map();
-    placedShips.forEach(s => s.cells.forEach(cell => shipMap.set(`${cell.r},${cell.c}`, s.id)));
-
-    const previewSet = new Set((previewCells || []).map(cell => `${cell.r},${cell.c}`));
+    placementCellsDom = [];
 
     for (let r = 0; r < GRID_SIZE; r++) {
       for (let c = 0; c < GRID_SIZE; c++) {
-        const key = `${r},${c}`;
         const el = document.createElement('div');
         el.className = 'cell';
-        if (shipMap.has(key)) el.classList.add('own-ship');
-        if (previewSet.has(key)) {
-          el.classList.add(previewValid ? 'preview-ok' : 'preview-bad');
-        }
 
-        el.onmouseenter = () => {
+        el.addEventListener('mouseenter', () => {
           const sz = FLEET_TEMPLATE[selectedFleetIndex];
           if (!sz) return;
           const cells = getShipCells(r, c, sz, shipOrient);
           const others = placedShips.filter(s => s.id !== selectedFleetIndex);
-          renderPlacementGrid(cells, canPlaceShip(cells, others));
-        };
-        el.onmouseleave = () => renderPlacementGrid();
+          updatePlacementGridVisuals(cells, canPlaceShip(cells, others));
+        });
 
-        el.onclick = () => {
-          // Jeśli kliknięto istniejący statek, zaznaczamy jego slot do podmiany/przesunięcia
-          if (shipMap.has(key)) {
-            selectedFleetIndex = shipMap.get(key);
+        el.addEventListener('mouseleave', () => {
+          updatePlacementGridVisuals();
+        });
+
+        el.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          toggleShipOrientation();
+          const sz = FLEET_TEMPLATE[selectedFleetIndex];
+          if (!sz) return;
+          const cells = getShipCells(r, c, sz, shipOrient);
+          const others = placedShips.filter(s => s.id !== selectedFleetIndex);
+          updatePlacementGridVisuals(cells, canPlaceShip(cells, others));
+        });
+
+        el.addEventListener('click', () => {
+          const existing = placedShips.find(s => s.cells.some(cell => cell.r === r && cell.c === c));
+          if (existing) {
+            selectedFleetIndex = existing.id;
             renderFleetSelector();
-            renderPlacementGrid();
+            updatePlacementGridVisuals();
             return;
           }
+
           const sz = FLEET_TEMPLATE[selectedFleetIndex];
           if (!sz) return;
           const cells = getShipCells(r, c, sz, shipOrient);
@@ -578,18 +589,44 @@
           if (!canPlaceShip(cells, others)) return;
 
           placedShips = [...others, { id: selectedFleetIndex, size: sz, cells, hits: [], sunk: false }];
-          // Przesuń wybór na pierwszy nieustawiony okręt
           const nextFree = FLEET_TEMPLATE.findIndex((_, i) => !placedShips.some(s => s.id === i));
           if (nextFree !== -1) selectedFleetIndex = nextFree;
 
           renderFleetSelector();
-          renderPlacementGrid();
+          updatePlacementGridVisuals();
           updateConfirmButton();
-        };
+        });
 
         grid.appendChild(el);
+        placementCellsDom.push(el);
       }
     }
+  }
+
+  function updatePlacementGridVisuals(previewCells = null, previewValid = false) {
+    if (placementCellsDom.length === 0) buildPlacementGridOnce();
+
+    const shipSet = new Set();
+    placedShips.forEach(s => s.cells.forEach(cell => shipSet.add(`${cell.r},${cell.c}`)));
+    const previewSet = new Set((previewCells || []).map(cell => `${cell.r},${cell.c}`));
+
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const idx = r * GRID_SIZE + c;
+        const key = `${r},${c}`;
+        const el = placementCellsDom[idx];
+        el.className = 'cell';
+        if (shipSet.has(key)) el.classList.add('own-ship');
+        if (previewSet.has(key)) {
+          el.classList.add(previewValid ? 'preview-ok' : 'preview-bad');
+        }
+      }
+    }
+  }
+
+  function renderPlacementGrid() {
+    buildPlacementGridOnce();
+    updatePlacementGridVisuals();
   }
 
   async function confirmFleet() {
