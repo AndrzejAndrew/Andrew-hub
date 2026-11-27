@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Andrew Hub // Portal Andrzeja</title>
-  <link rel="icon" type="image/png" href="mascot.png"> <!-- Favicon -->
+  <link rel="icon" type="image/png" href="mascot.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-theme="default">
@@ -17,13 +17,13 @@
     <!-- Pasek boczny (Nawigacja) -->
     <aside class="sidebar" id="sidebar">
       <div>
-       <div class="brand">
-        <img src="mascot.png" alt="Andrew Mascot" class="brand-mascot">
-        <div class="brand-text">
-          <h1>ANDREW<span>HUB</span></h1>
-          <small>v1.2 // Witaj w domu</small>
+        <div class="brand">
+          <img src="mascot.png" alt="Andrew Mascot" class="brand-mascot">
+          <div class="brand-text">
+            <h1>ANDREW<span>HUB</span></h1>
+            <small>v1.2 // Witaj w domu</small>
+          </div>
         </div>
-      </div>
 
         <nav class="nav-menu" style="margin-top: 18px;">
           <button class="nav-btn active" data-filter="all">⊞ Wszystkie moduły</button>
@@ -88,36 +88,34 @@
 
       <!-- WIDOK 1: Siatka Bento Grid -->
       <section class="bento-grid" id="bento-dashboard">
-        
-        <!-- Kafelek 2x2: Schematic Factory (Fallback, usuwany po wczytaniu games.json) -->
-        <article class="bento-item span-2x2 card-featured" data-category="strategy" data-type="game">
-          <div class="card-glow"></div>
-          <div class="card-top">
-            <span class="tag tag-mint">Główny Projekt</span>
-            <span class="tag tag-outline">Nowa Karta ↗</span>
-          </div>
-          <div class="card-body">
-            <h3>Schematic Factory</h3>
-            <p>Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.</p>
-          </div>
-          <div class="card-actions">
-            <button class="btn-launch" onclick="launchGame('Schematic Factory', 'https://fabryka.andrzejandrewendrju.workers.dev', 'newtab', true)">
-              Uruchom Fabrykę ↗
-            </button>
-          </div>
-        </article>
 
-        <!-- Kafelek 1x2: Prasówka Security (Niebezpiecznik / Sekurak) -->
+        <!-- Kafelek 1x2: Prasówka Bezpieczeństwa -->
         <article class="bento-item span-1x2 card-feed" data-category="news">
           <div class="card-top">
-            <span class="tag tag-cyan">Security & IT</span>
+            <span class="tag tag-cyan">Security</span>
             <span class="feed-status">Auto-Sync</span>
           </div>
           <h3>Prasówka Bezpieczeństwa</h3>
           <ul class="news-list" id="security-feed">
             <li>
-              <span class="source-badge sec">Sekurak</span>
-              <a href="#" target="_blank">Ładowanie najnowszych wiadomości...</a>
+              <span class="source-badge sec">Sync</span>
+              <a href="#" target="_blank" rel="noopener">Ładowanie najnowszych wiadomości...</a>
+              <time>--:--</time>
+            </li>
+          </ul>
+        </article>
+
+        <!-- Kafelek 1x2: Poranna Prasówka IT & Gry -->
+        <article class="bento-item span-1x2 card-feed" data-category="news">
+          <div class="card-top">
+            <span class="tag tag-purple">IT & Gry</span>
+            <span class="feed-status">Poranna Kawa</span>
+          </div>
+          <h3>Prasówka IT & Gry</h3>
+          <ul class="news-list" id="it-games-feed">
+            <li>
+              <span class="source-badge sec">Sync</span>
+              <a href="#" target="_blank" rel="noopener">Ładowanie newsów z IT i gier...</a>
               <time>--:--</time>
             </li>
           </ul>
@@ -162,9 +160,9 @@
   <div id="auth-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-modal" class="btn-close-modal">✕</button>
-      <div class="brand-logo" style="margin: 0 auto 16px; width: 48px; height: 48px;">⚡</div>
+      <img src="mascot.png" alt="Andrew Mascot" class="brand-mascot" style="margin: 0 auto 16px; width: 48px; height: 48px; display: block;">
       <h3 id="modal-title" style="text-align: center; margin-bottom: 20px;">Logowanie do Nexusa</h3>
-      
+
       <div class="input-group">
         <label>Adres e-mail</label>
         <input type="email" id="auth-email" placeholder="nick@twojafirma.pl">
@@ -173,13 +171,13 @@
         <label>Hasło</label>
         <input type="password" id="auth-password" placeholder="••••••••">
       </div>
-      
+
       <p id="auth-error" class="error-msg hidden"></p>
-      
+
       <button id="btn-submit-auth" class="btn-launch" style="width: 100%;">Zaloguj się</button>
-      
+
       <p class="auth-switch">
-        <span id="switch-text">Nie masz konta?</span> 
+        <span id="switch-text">Nie masz konta?</span>
         <a href="#" id="switch-to-register">Zarejestruj się</a>
       </p>
     </div>
