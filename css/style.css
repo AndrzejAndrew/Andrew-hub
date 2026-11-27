@@ -14,7 +14,7 @@
   --accent-pink: #f472b6;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
@@ -27,6 +27,7 @@ html, body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
+
 .brand-mascot {
   width: 42px;
   height: 42px;
@@ -39,8 +40,9 @@ html, body {
 }
 
 .brand:hover .brand-mascot {
-  transform: rotate(10deg) scale(1.08); /* Lekkie machnięcie przy najechaniu */
+  transform: rotate(10deg) scale(1.08);
 }
+
 .hidden {
   display: none !important;
 }
@@ -324,6 +326,43 @@ html, body {
   inset: 0;
   background: radial-gradient(360px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.08), transparent 65%);
   pointer-events: none;
+}
+
+/* Wyróżnienie wybranych kafelków (np. Quiz i Kalambury) */
+.bento-item.is-spotlight {
+  --spot-rgb: 56, 189, 248;
+  border-width: 1.5px;
+  border-color: rgba(var(--spot-rgb), 0.62);
+  animation: spotlightPulse 3.6s ease-in-out infinite;
+}
+
+.bento-item.spotlight-cyan {
+  --spot-rgb: 56, 189, 248;
+  border-color: rgba(56, 189, 248, 0.65);
+}
+
+.bento-item.spotlight-pink {
+  --spot-rgb: 244, 114, 182;
+  border-color: rgba(244, 114, 182, 0.65);
+}
+
+.bento-item.spotlight-mint {
+  --spot-rgb: 52, 211, 153;
+  border-color: rgba(52, 211, 153, 0.65);
+}
+
+.bento-item.is-spotlight:hover {
+  animation-play-state: paused;
+  box-shadow: 0 0 28px rgba(var(--spot-rgb), 0.42), 0 14px 28px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes spotlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(var(--spot-rgb), 0.2), inset 0 0 12px rgba(var(--spot-rgb), 0.06);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(var(--spot-rgb), 0.4), inset 0 0 18px rgba(var(--spot-rgb), 0.12);
+  }
 }
 
 .span-1x1 { grid-column: span 1; grid-row: span 1; }
