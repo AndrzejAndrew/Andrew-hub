@@ -1,17 +1,5 @@
 [
   {
-    "id": "schematic-factory",
-    "title": "Schematic Factory",
-    "description": "Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki.",
-    "category": "strategy",
-    "tag": "Główny Projekt",
-    "tagColor": "mint",
-    "span": "span-2x2",
-    "mode": "fullscreen",
-    "url": "https://fabryka.andrzejandrewendrju.workers.dev",
-    "featured": true
-  },
-  {
     "id": "fabryka",
     "title": "Fabryka",
     "description": "Rozbudowa bazy, cięcie kształtów, automatyzacja i migracja międzyplanetarna.",
