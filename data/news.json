@@ -1,6 +1,14 @@
 {
-  "updated_at": "27.11.2026 13:45",
+  "updated_at": "27.11.2026 16:55",
   "security": [
+    {
+      "title": "Cyberprzestępcy włamali się na platformę chmurową Cloud One Sił Powietrznych USA.",
+      "link": "https://sekurak.pl/cyberprzestepcy-wlamali-sie-na-platforme-chmurowa-cloud-one-sil-powietrznych-usa/",
+      "source": "Sekurak",
+      "badge": "sec",
+      "date": "27.11.2026, 14:25",
+      "timestamp": 1795789559.0
+    },
     {
       "title": "Ochrona danych i cyberbezpieczeństwo. Jak radzą sobie polskie firmy? - Gazeta Prawna",
       "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxNOEZVc282V21sTUdVVzZ0VGRQR1BYdDVLYTdObU8ycktGQXRaS0hYVTB5b2JmVy04VUpmVXlUQ3ZLR0R0S0d5WE5lZ3g5WEg4SEJCQzk3cFNZbzMyam5rbXZMNHhialVIc3FHSEF5RUZ5MGVKbnBhWEh0OG1jUWxyTDY0bFd6WkhIZG40WF8wZ2RfSlVIZzNfekhEczRRQkcxcXkyVkhZZThUcDFManlWTkRhbDZwRjlFczEzR2xkOHV0Ymtmem9RY0tzajdiaVY0VDhITGZURU1URW1CYjFrdGZZbXpEQ3BjS1E?oc=5",
@@ -40,24 +48,48 @@
       "badge": "sec",
       "date": "26.11.2026, 13:06",
       "timestamp": 1795698399.0
-    },
-    {
-      "title": "Incydent bezpieczeństwa w 1Password.",
-      "link": "https://sekurak.pl/incydent-bezpieczenstwa-w-1password/",
-      "source": "Sekurak",
-      "badge": "sec",
-      "date": "26.11.2026, 12:45",
-      "timestamp": 1795697140.0
     }
   ],
   "it_games": [
     {
-      "title": "Wzbudzająca kontrowersje umowa MON podpisana. Sztuczna inteligencja ma pomóc wojsku - wnp.pl",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPbFJSblhYRTJLc011ak5jQzlOSEJHSUhGSzI0QURYWEZ1TnhNOF9PVzIwdnBfRG8za1BSZG5uSUFrWWtmNEJHNXlvYVo4bWZnbkt1ZTBMLXM4eTJ6QV81ZkNwZmQ0YWkxTTctT0h4LTAwXzhlRWdoYkl6T01IV3BBNkprVGQ3aUZqUXdDSmdyZDNLUlEwNU1kdlBxOXI4TER6UlFlTktITVE5dzh1bk5sdnUtMk1nT0ZEN2c?oc=5",
-      "source": "wnp.pl",
+      "title": "Znów to zrobili! Za 2 tygodnie premiera mocno wyczekiwanego darmowego dodatku do hitowego Hollow Knight: Silksong - GRYOnline.pl",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQUU1fdkotQTNhZVlId3hkNi0tYnE5R2VEZVlnbVNINDVKb2tJZ2hObWx5RTViNG91WGhWWnpNMUtRRHJDLS1FUkN3eGdfc1RvdEE3bTFfMENZbVV1UWFkQjBVdWF5VTAwYlg2VGVaT0RGcGZ5NnBMQlVRcE9LN0ZsQXhEeXBfNEFFVXVJdjNjZzhSOFRGYmxOaGpHME85WnZUcXV0ZU9aX0hYUlEw?oc=5",
+      "source": "GRYOnline.pl",
       "badge": "sec",
-      "date": "27.11.2026, 11:26",
-      "timestamp": 1795778760.0
+      "date": "27.11.2026, 15:38",
+      "timestamp": 1795793897.0
+    },
+    {
+      "title": "Sztuczna inteligencja wesprze decyzje polskiej armii. MON podpisze umowę z Palantir Technologies - MamStartup",
+      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPWDMyOGkwMllQNzFQdVJwRlZkN0RRS3NvSkZoZ1ZiSVRMVEJJUGw5UkRFM19xTGdXdmVkbC1DWFo0b1Jadm1jVmJWSk5mUWpobDc1WkJkbW1wcDJNcXlyblc5aXB3eGsyblFmanRDS3RNcTdiR0lPazdrV09zS2J2U3VyYUZLZjBTejdhYXdLeWQ1OFBRSTN4eENxeXB1Qkx0RDVmalRFQnlONzRWNkN2NzFISUZSZ000dlE?oc=5",
+      "source": "MamStartup",
+      "badge": "sec",
+      "date": "27.11.2026, 15:25",
+      "timestamp": 1795793111.0
+    },
+    {
+      "title": "AI rozwiązuje matematyczne zagadki. Eksperci mówią o przełomie - Business Insider Polska",
+      "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPZ25FbWZlNUl1V1FxS28wNlNTclN2ZDdIWS02WlNmZ2JPZnJuMVh1ekVVRGFoeG9OYm1aMFhzUGxQMHRtU0VtcGVyQ1RlX0VRdXhzakI3MXVoZ2NPRlIxRm1fNVhIRVVUOW1pTzJzWUs1WHl0T1dQSlFCVW0zcDBqcmxXRlZRMDUwcFRLVnVJQ3VFVW9zZWFqRllVSnIyOHBFWEsxQlZTcWlnaHVkdmk5VklFVzREOWVOYlY5bFBTTnBIOFpvQUw4cG1QY3dfNzRlV0c0bjhHNjc?oc=5",
+      "source": "Business Insider Polska",
+      "badge": "sec",
+      "date": "27.11.2026, 15:17",
+      "timestamp": 1795792630.0
+    },
+    {
+      "title": "Czy sztuczna inteligencja okrada artystów? - Wyborcza.pl",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOYk1nbS1OM2wyOS1GTTU3bzBvQUNodnZaQ01hQnBBcDZzZ2o3ZTFHRFVXTkpuYUd3bC1UOVQtTmRyM0t4aG0tTFdtMGNPXzF3bFg3OEZOSDIybnpWVDRRYTNLY0xOd0R5aDdTcXI1cmpqRG1EcktjYk5yRTBzQVlHTHFoeXFKQ2N0YkZF?oc=5",
+      "source": "Wyborcza.pl",
+      "badge": "sec",
+      "date": "27.11.2026, 14:38",
+      "timestamp": 1795790332.0
+    },
+    {
+      "title": "Haker kontra zabezpieczenia. Co zmieniła sztuczna inteligencja? - NASK – Państwowy Instytut Badawczy",
+      "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPb01scjh3TnlJNHdKckQ2S201cEg3Q3JScDFZM0RFWGFTOHRVbUxRZ1JRdHlNclBmdGZsYi1hZ29UbUdLdlFORGJBWWJwMjE1c01wa012dG9pdWFHTi1tN0FNQ2psY2ZWQ1JJd1Fnd052cEh0ZzZTTDc0NlQyLUREdUJRdVBOOXhMNHB1M0RLN2pqUU5SbC1JNw?oc=5",
+      "source": "NASK – Państwowy Instytut Badawczy",
+      "badge": "sec",
+      "date": "27.11.2026, 11:40",
+      "timestamp": 1795779645.0
     },
     {
       "title": "Badacze: sztuczna inteligencja nie zastąpi specjalisty w kryzysie psychicznym - Nauka w Polsce",
@@ -68,28 +100,12 @@
       "timestamp": 1795777500.0
     },
     {
-      "title": "Miniserial „Kino oczami Cunk”. Udaje ignorancję lepiej niż sztuczna inteligencja - Tygodnik Powszechny",
-      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQQ2puVVlweXZuUm5ycl93WnRfckxWeXJrcy1PNDJDcWRpSW8yUTFrUjF5OHpURi1vRlFyVVUwRmNzUWJ2MXJtclZaWV9aYUlkZk5LdFpQV3ZzckpvcWxKTkFtOFhWQzlraWNTcFp0eGozTlFqZTFQSkJWOXU4UVJ5S21RNUExdURFTVJVa05QdVNZMnZDc2xIaXpKVTEzWWRHR1IzRnFITTNqcXVuemY0Nw?oc=5",
-      "source": "Tygodnik Powszechny",
+      "title": "Szaleństwo wokół GTA 6 trwa. Gry live-service tracą uwagę graczy na niespotykaną skalę - Interia Gry",
+      "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQMHhiWTFqM1M0dFlmdFZQVnNhaEpadUVmVkp3cnFHUlIwb3RZVDhxM0s1ejNtYWhWb0ZFM202MUc0UF9PajlxOGt3c2ZscXJPZnVocVVhWDRKQnFnUzhnb2RrdlYwVlZ1dHljaktxc0hhekE0SFJjbVVyemNNMmtEVngwOVRGRUNHUmFTWm9yYUw0R2MxODJxaFRfR0hhdlZNTUJNUmlkZWFqQnVHS0tON0xqLXZyYWZENWJB?oc=5",
+      "source": "Interia Gry",
       "badge": "sec",
-      "date": "27.11.2026, 10:31",
-      "timestamp": 1795775464.0
-    },
-    {
-      "title": "Haker kontra zabezpieczenia. Co zmieniła sztuczna inteligencja? - NASK – Państwowy Instytut Badawczy",
-      "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPb01scjh3TnlJNHdKckQ2S201cEg3Q3JScDFZM0RFWGFTOHRVbUxRZ1JRdHlNclBmdGZsYi1hZ29UbUdLdlFORGJBWWJwMjE1c01wa012dG9pdWFHTi1tN0FNQ2psY2ZWQ1JJd1Fnd052cEh0ZzZTTDc0NlQyLUREdUJRdVBOOXhMNHB1M0RLN2pqUU5SbC1JNw?oc=5",
-      "source": "NASK – Państwowy Instytut Badawczy",
-      "badge": "sec",
-      "date": "27.11.2026, 10:17",
-      "timestamp": 1795774621.0
-    },
-    {
-      "title": "Sztuczna inteligencja wesprze decyzje polskiej armii. MON podpisze umowę z Palantir Technologies - MamStartup",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPWDMyOGkwMllQNzFQdVJwRlZkN0RRS3NvSkZoZ1ZiSVRMVEJJUGw5UkRFM19xTGdXdmVkbC1DWFo0b1Jadm1jVmJWSk5mUWpobDc1WkJkbW1wcDJNcXlyblc5aXB3eGsyblFmanRDS3RNcTdiR0lPazdrV09zS2J2U3VyYUZLZjBTejdhYXdLeWQ1OFBRSTN4eENxeXB1Qkx0RDVmalRFQnlONzRWNkN2NzFISUZSZ000dlE?oc=5",
-      "source": "MamStartup",
-      "badge": "sec",
-      "date": "27.11.2026, 09:25",
-      "timestamp": 1795771511.0
+      "date": "27.11.2026, 10:33",
+      "timestamp": 1795775599.0
     },
     {
       "title": "Rayman Legends Retold na zwiastunie fabularnym. Premiera gry już za kilka dni! - IGN Polska",
@@ -98,22 +114,6 @@
       "badge": "sec",
       "date": "27.11.2026, 08:00",
       "timestamp": 1795766420.0
-    },
-    {
-      "title": "Sztuczna inteligencja wypiera ludzi. Gigant zwolni tysiące pracowników - TVP Info",
-      "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOVTV2dXFsdlhQRzV6eW51YWF1aFhYckgzRzdlaWV6QWRDaVlPbC1JYm5mQlotSW9ZWTJpLXFsVV92dU5fZlVZZGxDcHJfRlEzYlFZdXRlckNYMU5hTzdIQktYb1VjN2xPQWVTVFhScHdNbWwxSXBXaVRRTzlVWkV4cXhvY3JqM29RSVVDZ0xPdEg0TnZVcG9WcDdEUHhLckFyVDZsdmltSjFQdUkwdmxlSHhlVHZXRWpqVWplVVVWMExaellwMG5QZGRzX3ZpaGt5NE5sN3FwdWg4NmJENmlZR2lNbDJfc1E?oc=5",
-      "source": "TVP Info",
-      "badge": "sec",
-      "date": "27.11.2026, 06:16",
-      "timestamp": 1795760160.0
-    },
-    {
-      "title": "Efekt GTA 6. Premiera gry wpłynęła nawet na polskie restauracje - Benchmark.pl",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOdFFna1Nzd3c4WFpUd2Z6MWlsUEVhSm5XaW0zNVVCSkZ4WDZ1bkl3cTJZc2haVGUyVzJ6ZFY3OWswMjVqVzZVeG80OE41dktLeDhrQXlsTGphN1NCM1J1emswR1NWUWYzdllfUU1BRnBsZEc3VDVRTVIxMzV3YW5CLUxMNkgtQTVOMHVUcTdTd1FlLUpheUVpNGVTdjBNSmM5QlNMTFZIRGE?oc=5",
-      "source": "Benchmark.pl",
-      "badge": "sec",
-      "date": "26.11.2026, 10:45",
-      "timestamp": 1795689958.0
     }
   ],
   "leclerc": [
