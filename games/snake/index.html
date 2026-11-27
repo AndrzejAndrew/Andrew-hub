@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wąż (Snake) - Andrew Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .snake-wrapper {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+    .snake-head h1 {
+      margin: 0 0 4px 0;
+      font-size: 2rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .snake-meta {
+      color: #8b95a5;
+      margin: 0 0 18px 0;
+      font-size: 0.9rem;
+    }
+    .hud-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: rgba(12, 16, 26, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 80px;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #8b95a5;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #34d399;
+      margin-top: 2px;
+    }
+    .stat-value.best {
+      color: #7dd3fc;
+    }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    select, .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #f8fafc;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .btn:hover, select:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+    }
+    .btn-start {
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.24), rgba(52, 211, 153, 0.08));
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #34d399;
+      font-weight: 600;
+    }
+    .btn-start:hover {
+      background: rgba(52, 211, 153, 0.3);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+    }
+    .canvas-frame {
+      position: relative;
+      display: inline-block;
+      padding: 10px;
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    canvas {
+      display: block;
+      background: #070a12;
+      border-radius: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      max-width: 100%;
+      height: auto;
+    }
+    .overlay-msg {
+      position: absolute;
+      inset: 10px;
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.82);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.2s ease;
+    }
+    .overlay-msg.hidden {
+      display: none;
+    }
+    .overlay-msg h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    .overlay-msg p {
+      margin: 0 0 16px 0;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(2, 48px);
+      gap: 6px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .dpad .btn {
+      padding: 0;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="snake-wrapper">
+    <div class="snake-head">
+      <h1>Wąż (Snake)</h1>
+      <p class="snake-meta" id="player-status">Zbieraj pakiety danych i bij rekordy.</p>
+    </div>
+
+    <div class="hud-panel">
+      <div class="stat-box">
+        <span class="stat-label">Wynik</span>
+        <span class="stat-value" id="score-val">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Długość</span>
+        <span class="stat-value best" id="length-val">3</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Rekord sesji</span>
+        <span class="stat-value best" id="best-val">0</span>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <select id="speed-select" title="Poziom prędkości">
+        <option value="130">Prędkość: Spokojna (x1.0)</option>
+        <option value="95" selected>Prędkość: Standard (x1.3)</option>
+        <option value="65">Prędkość: Turbo (x1.7)</option>
+      </select>
+      <select id="walls-select" title="Tryb ścian">
+        <option value="solid" selected>Ściany: Klasyczne (kolizja)</option>
+        <option value="wrap">Ściany: Przenikanie (portal)</option>
+      </select>
+      <button class="btn btn-start" id="btn-new-game" onclick="startNewGame()">▶ Nowa gra</button>
+      <button class="btn" id="btn-pause" onclick="togglePause()">⏸ Pauza</button>
+    </div>
+
+    <div class="canvas-frame">
+      <canvas id="snake-canvas" width="420" height="420"></canvas>
+      <div class="overlay-msg" id="overlay">
+        <h2 id="overlay-title">Gotowy na szybką rundę?</h2>
+        <p id="overlay-desc">Użyj strzałek lub klawiszy WASD, aby sterować wężem.</p>
+        <button class="btn btn-start" onclick="startNewGame()">Rozpocznij grę</button>
+      </div>
+    </div>
+
+    <div class="dpad" aria-label="Sterowanie ekranowe">
+      <div></div>
+      <button class="btn" onclick="setDirection(0, -1)">▲</button>
+      <div></div>
+      <button class="btn" onclick="setDirection(-1, 0)">◀</button>
+      <button class="btn" onclick="setDirection(0, 1)">▼</button>
+      <button class="btn" onclick="setDirection(1, 0)">▶</button>
+    </div>
+
+    <div class="hint">Sterowanie: Strzałki / WASD • Spacja: Pauza • Enter: Restart</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('snake-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const GRID_SIZE = 21;
+    const TILE = canvas.width / GRID_SIZE;
+
+    let snake = [];
+    let dir = { x: 1, y: 0 };
+    let nextDir = { x: 1, y: 0 };
+    let food = { x: 14, y: 10, bonus: false };
+    let score = 0;
+    let bestScore = Number(localStorage.getItem('andrew_hub_snake_best') || 0);
+    let gameLoop = null;
+    let isRunning = false;
+    let isPaused = false;
+    let scoreSubmitted = false;
+
+    document.getElementById('best-val').textContent = bestScore;
+
+    async function initUserBanner() {
+      try {
+        const db = window.parent?.dbClient;
+        if (!db) return;
+        const { data: { session } } = await db.auth.getSession();
+        if (session?.user?.email) {
+          const nick = session.user.email.split('@')[0];
+          document.getElementById('player-status').textContent =
+            `Gracz: ${nick.charAt(0).toUpperCase() + nick.slice(1)} — wyniki trafiają do rankingu!`;
+        }
+      } catch (_) {}
+    }
+    initUserBanner();
+
+    function spawnFood() {
+      let valid = false;
+      let candidate = { x: 10, y: 10, bonus: false };
+      while (!valid) {
+        candidate.x = Math.floor(Math.random() * GRID_SIZE);
+        candidate.y = Math.floor(Math.random() * GRID_SIZE);
+        valid = !snake.some(seg => seg.x === candidate.x && seg.y === candidate.y);
+      }
+      candidate.bonus = Math.random() < 0.2;
+      food = candidate;
+    }
+
+    function startNewGame() {
+      if (gameLoop) clearInterval(gameLoop);
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      isRunning = true;
+      isPaused = false;
+      scoreSubmitted = false;
+
+      document.getElementById('score-val').textContent = '0';
+      document.getElementById('length-val').textContent = snake.length;
+      document.getElementById('btn-pause').textContent = '⏸ Pauza';
+      document.getElementById('overlay').classList.add('hidden');
+
+      spawnFood();
+      draw();
+
+      const tickMs = Number(document.getElementById('speed-select').value) || 95;
+      gameLoop = setInterval(step, tickMs);
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      document.getElementById('btn-pause').textContent = isPaused ? '▶ Wznów' : '⏸ Pauza';
+      const overlay = document.getElementById('overlay');
+      if (isPaused) {
+        document.getElementById('overlay-title').textContent = 'Pauza';
+        document.getElementById('overlay-desc').textContent = 'Naciśnij Spację lub przycisk Wznów, aby grać dalej.';
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function setDirection(dx, dy) {
+      if (!isRunning || isPaused) return;
+      if (dx === -dir.x && dy === -dir.y) return;
+      nextDir = { x: dx, y: dy };
+    }
+
+    function step() {
+      if (!isRunning || isPaused) return;
+
+      dir = nextDir;
+      const wallMode = document.getElementById('walls-select').value;
+      let headX = snake[0].x + dir.x;
+      let headY = snake[0].y + dir.y;
+
+      if (wallMode === 'wrap') {
+        headX = (headX + GRID_SIZE) % GRID_SIZE;
+        headY = (headY + GRID_SIZE) % GRID_SIZE;
+      } else {
+        if (headX < 0 || headX >= GRID_SIZE || headY < 0 || headY >= GRID_SIZE) {
+          endGame('Uderzyłeś w ścianę!');
+          return;
+        }
+      }
+
+      if (snake.some(seg => seg.x === headX && seg.y === headY)) {
+        endGame('Wąż ugryzł własny ogon!');
+        return;
+      }
+
+      const newHead = { x: headX, y: headY };
+      snake.unshift(newHead);
+
+      if (headX === food.x && headY === food.y) {
+        const speedVal = Number(document.getElementById('speed-select').value);
+        const mult = speedVal <= 65 ? 1.7 : (speedVal <= 95 ? 1.3 : 1.0);
+        const basePts = food.bonus ? 25 : 10;
+        score += Math.round(basePts * mult);
+
+        document.getElementById('score-val').textContent = score;
+        document.getElementById('length-val').textContent = snake.length;
+
+        if (score > bestScore) {
+          bestScore = score;
+          localStorage.setItem('andrew_hub_snake_best', String(bestScore));
+          document.getElementById('best-val').textContent = bestScore;
+        }
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    async function endGame(reason) {
+      isRunning = false;
+      if (gameLoop) clearInterval(gameLoop);
+      draw();
+
+      document.getElementById('overlay-title').textContent = `Koniec gry — ${score} pkt`;
+      document.getElementById('overlay-desc').textContent = `${reason} Długość węża: ${snake.length}.`;
+      document.getElementById('overlay').classList.remove('hidden');
+
+      if (!scoreSubmitted && score > 0 && window.parent && typeof window.parent.saveGameScore === 'function') {
+        scoreSubmitted = true;
+        const speedVal = document.getElementById('speed-select').value;
+        const wallsVal = document.getElementById('walls-select').value;
+        const resultLabel = score >= 150 ? 'win' : 'draw';
+        await window.parent.saveGameScore('snake', 'solo', resultLabel, score, {
+          length: snake.length,
+          speed: speedVal,
+          walls: wallsVal
+        });
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#070a12';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Subtelna siatka
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      for (let i = 1; i < GRID_SIZE; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * TILE, 0);
+        ctx.lineTo(i * TILE, canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * TILE);
+        ctx.lineTo(canvas.width, i * TILE);
+        ctx.stroke();
+      }
+
+      // Jedzenie (pakiet danych)
+      const fx = food.x * TILE + TILE / 2;
+      const fy = food.y * TILE + TILE / 2;
+      ctx.beginPath();
+      ctx.arc(fx, fy, TILE * 0.36, 0, Math.PI * 2);
+      ctx.fillStyle = food.bonus ? '#f472b6' : '#38bdf8';
+      ctx.shadowColor = food.bonus ? '#f472b6' : '#38bdf8';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Wąż
+      snake.forEach((seg, idx) => {
+        const pad = idx === 0 ? 1.5 : 2.5;
+        ctx.fillStyle = idx === 0 ? '#34d399' : `rgba(52, 211, 153, ${Math.max(0.35, 1 - idx * 0.02)})`;
+        ctx.beginPath();
+        ctx.roundRect(seg.x * TILE + pad, seg.y * TILE + pad, TILE - pad * 2, TILE - pad * 2, 5);
+        ctx.fill();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
+        e.preventDefault();
+      }
+      if (key === 'arrowup' || key === 'w') setDirection(0, -1);
+      else if (key === 'arrowdown' || key === 's') setDirection(0, 1);
+      else if (key === 'arrowleft' || key === 'a') setDirection(-1, 0);
+      else if (key === 'arrowright' || key === 'd') setDirection(1, 0);
+      else if (key === ' ') togglePause();
+      else if (key === 'enter' && !isRunning) startNewGame();
+    });
+
+    // Pierwszy podgląd planszy
+    snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+    draw();
+  </script>
+</body>
+</html>
