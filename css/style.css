@@ -27,7 +27,20 @@ html, body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
+.brand-mascot {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+  object-fit: cover;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
 
+.brand:hover .brand-mascot {
+  transform: rotate(10deg) scale(1.08); /* Lekkie machnięcie przy najechaniu */
+}
 .hidden {
   display: none !important;
 }
