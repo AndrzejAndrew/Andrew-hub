@@ -146,5 +146,17 @@
     "mode": "sidebar",
     "url": "./games/memory/index.html",
     "featured": false
+  },
+  {
+    "id": "space_impact",
+    "title": "Space Impact",
+    "description": "Klasyczna kosmiczna strzelanka z poziomym przewijaniem, falami wrogów i bossami.",
+    "category": "arcade",
+    "tag": "Arcade / Retro",
+    "tagColor": "cyan",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/space_impact/index.html",
+    "featured": false
   }
 ]
