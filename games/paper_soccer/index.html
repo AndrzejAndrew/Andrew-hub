@@ -347,6 +347,7 @@
   let myScore = 0;
   let oppScore = 0;
   let scoreAlreadyCounted = false;
+  let matchScoreSaved = false;
   let isBusy = false;
 
   let animating = false;
@@ -373,6 +374,32 @@
   }
   initAuth();
 
+  async function recordPaperSoccerResult() {
+    if (matchScoreSaved || status !== 'finished') return;
+    matchScoreSaved = true;
+
+    if (!window.parent || typeof window.parent.saveGameScore !== 'function') return;
+
+    const scoreMode = mode === 'bot' ? 'bot' : 'online';
+    let result = 'draw';
+    let score = 30;
+
+    if (winnerSide === mySide) {
+      result = 'win';
+      const bonus = mode === 'bot' ? Math.max(0, (botDifficulty - 1) * 15) : 50;
+      score = 100 + bonus;
+    } else if (winnerSide && winnerSide !== 'draw' && winnerSide !== mySide) {
+      result = 'loss';
+      score = 10;
+    }
+
+    await window.parent.saveGameScore('papersoccer', scoreMode, result, score, {
+      botDifficulty: mode === 'bot' ? botDifficulty : null,
+      winReason: winReason || null,
+      movesCount: usedLines.length
+    });
+  }
+
   // MAPOWANIE WSPÓŁRZĘDNYCH (PIONOWO / POZIOMO)
   function gridToPx(gx, gy) {
     if (orientation === 'vertical') {
@@ -381,7 +408,6 @@
         y: boardOffsetY + gy * cellSize
       };
     } else {
-      // Poziomo: y=0 (cel X) po prawej, y=12 (cel O/Bota) po lewej
       return {
         x: boardOffsetX + (rows - 1 - gy) * cellSize,
         y: boardOffsetY + gx * cellSize
@@ -444,7 +470,6 @@
     return moves;
   }
 
-  // POPRAWIONE ODBICIE: banda boiska ALBO punkt ma już inną linię (czyli >= 2 linie po dopisaniu obecnego ruchu)
   function hasBounceAt(x, y, linesAfter) {
     if (x === 0 || x === cols - 1 || y === 0 || y === rows - 1) return true;
     let degree = 0;
@@ -518,7 +543,6 @@
     ctx.arc(center.x, center.y, cellSize * 1.25, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Bramka X (zielona: y=0)
     const topA = gridToPx(goalTop.xStart, goalTop.y);
     const topB = gridToPx(goalTop.xEnd, goalTop.y);
     ctx.strokeStyle = '#34d399';
@@ -537,7 +561,6 @@
     }
     ctx.stroke();
 
-    // Bramka O (błękitna: y=12)
     const botA = gridToPx(goalBottom.xStart, goalBottom.y);
     const botB = gridToPx(goalBottom.xEnd, goalBottom.y);
     ctx.strokeStyle = '#38bdf8';
@@ -556,7 +579,6 @@
     }
     ctx.stroke();
 
-    // Węzły siatki
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const p = gridToPx(x, y);
@@ -567,7 +589,6 @@
       }
     }
 
-    // Podświetlenie legalnych ruchów
     const canInteract = (status === 'playing') &&
       ((mode === 'bot' && turnSide === 'X') || (mode === 'online' && turnSide === mySide));
 
@@ -585,7 +606,6 @@
       }
     }
 
-    // Narysowane linie
     ctx.lineCap = 'round';
     for (const l of usedLines) {
       const p1 = gridToPx(l.x1, l.y1);
@@ -710,6 +730,8 @@
         }
       }
 
+      recordPaperSoccerResult();
+
       if (winnerSide === 'draw') {
         turnEl.textContent = '🤝 Remis!';
       } else if (winnerSide === mySide) {
@@ -789,7 +811,7 @@
     });
   }
 
-// SILNIK BOTA v2 (Iterative Deepening + Alpha-Beta + 0-1 BFS + Detektor Gola w 1 Turze)
+  // SILNIK BOTA v2 (Iterative Deepening + Alpha-Beta + 0-1 BFS + Detektor Gola w 1 Turze)
   const NUM_NODES = cols * rows; // 117
   const NEIGHBORS = Array.from({ length: NUM_NODES }, () => []);
 
@@ -829,7 +851,6 @@
     return null;
   }
 
-  // Sprawdza, czy dany gracz ('X' lub 'O') może strzelić gola w JEDNEJ turze (dowolny łańcuch odbić)
   function findWinningStepInOneTurn(u, targetOwner, usedEdges, nodeDegree, maxBounceSteps) {
     const nbrs = NEIGHBORS[u];
     for (let i = 0; i < nbrs.length; i++) {
@@ -839,7 +860,7 @@
 
       const g = goalOwnerIdx(v);
       if (g === targetOwner) return v;
-      if (g !== null) continue; // samobój
+      if (g !== null) continue;
 
       const bounced = isWallIdx(v) || nodeDegree[v] >= 1;
       if (bounced && maxBounceSteps > 0) {
@@ -856,12 +877,10 @@
     return -1;
   }
 
-  // 0-1 BFS: liczy realną minimalną liczbę TUR do obu bramek (odbicie = 0 tur, puste pole = 1 tura)
   const deque = new Int16Array(NUM_NODES * 4);
   const turnDist = new Int16Array(NUM_NODES);
 
   function evaluateBoardFast(startNode, usedEdges, nodeDegree, isBotTurn) {
-    // Krytyczne sprawdzenie: czy gracz, który ma teraz ruch, może strzelić gola w tej 1 turze?
     const activeOwner = isBotTurn ? 'O' : 'X';
     if (findWinningStepInOneTurn(startNode, activeOwner, usedEdges, nodeDegree, 5) !== -1) {
       return isBotTurn ? 42000 : -42000;
@@ -873,8 +892,8 @@
     deque[tail++] = startNode;
     turnDist[startNode] = 0;
 
-    let turnsToBotGoal = 999;    // cel bota 'O' (y=12)
-    let turnsToPlayerGoal = 999; // cel gracza 'X' (y=0)
+    let turnsToBotGoal = 999;
+    let turnsToPlayerGoal = 999;
 
     while (head < tail) {
       const u = deque[head++];
@@ -883,13 +902,12 @@
       const g = goalOwnerIdx(u);
       if (g === 'O' && d < turnsToBotGoal) turnsToBotGoal = d;
       if (g === 'X' && d < turnsToPlayerGoal) turnsToPlayerGoal = d;
-      if (g !== null) continue; // z bramki nie wychodzimy dalej
+      if (g !== null) continue;
 
       const nbrs = NEIGHBORS[u];
       for (let i = 0; i < nbrs.length; i++) {
         const v = nbrs[i];
         if (usedEdges[fastEdgeKey(u, v)]) continue;
-        // Jeśli v jest ścianą, bramką lub ma już linię -> odbicie (koszt 0 tur), inaczej 1 tura
         const stepCost = (isWallIdx(v) || nodeDegree[v] >= 1 || goalOwnerIdx(v) !== null) ? 0 : 1;
         const nd = d + stepCost;
         if (nd < turnDist[v]) {
@@ -908,7 +926,6 @@
     if (turnsToPlayerGoal === 999) score += 4000;
     if (turnsToBotGoal < 999 && turnsToPlayerGoal < 999) {
       score += (turnsToPlayerGoal - turnsToBotGoal) * 180;
-      // Dodatkowy alarm, jeśli gracz jest bardzo blisko bramki bota
       if (turnsToPlayerGoal <= 1) score -= 450;
       if (turnsToBotGoal <= 1) score += 350;
     }
@@ -1031,7 +1048,6 @@
     const legal = getLegalMovesFrom(ball, usedLines);
     if (legal.length === 0) return null;
 
-    // 1. Łatwy: losowe ruchy (z lekkim unikaniem natychmiastowego samobója)
     if (botDifficulty === 1) {
       const nonSuicide = legal.filter(m => {
         const nl = [...usedLines, { x1: ball.x, y1: ball.y, x2: m.x, y2: m.y, by: 'O' }];
@@ -1045,7 +1061,6 @@
     const { usedEdges, nodeDegree } = buildFastState();
     const u = ball.y * cols + ball.x;
 
-    // Natychmiastowy strzał na bramkę (również po łańcuchu odbić) dla poziomów 2-4
     const maxWinBounces = botDifficulty === 2 ? 1 : (botDifficulty === 3 ? 4 : 7);
     const winNextIdx = findWinningStepInOneTurn(u, 'O', usedEdges, nodeDegree, maxWinBounces);
     if (winNextIdx !== -1) {
@@ -1053,9 +1068,9 @@
     }
 
     const config = {
-      2: { maxDepth: 1, maxBounce: 2, timeMs: 80,  jitter: 35 }, // Średni
-      3: { maxDepth: 2, maxBounce: 4, timeMs: 220, jitter: 8  }, // Trudny
-      4: { maxDepth: 4, maxBounce: 5, timeMs: 450, jitter: 0  }  // Ekspert
+      2: { maxDepth: 1, maxBounce: 2, timeMs: 80,  jitter: 35 },
+      3: { maxDepth: 2, maxBounce: 4, timeMs: 220, jitter: 8  },
+      4: { maxDepth: 4, maxBounce: 5, timeMs: 450, jitter: 0  }
     }[botDifficulty] || { maxDepth: 2, maxBounce: 4, timeMs: 220, jitter: 8 };
 
     const deadline = performance.now() + config.timeMs;
@@ -1063,7 +1078,6 @@
 
     let bestMoveOverall = sortedLegal[0];
 
-    // ITERATIVE DEEPENING: liczymy głębokość 1, potem 2, 3... jeśli czas minie, bierzemy ostatnią PEŁNĄ głębokość
     for (let currentDepth = 1; currentDepth <= config.maxDepth; currentDepth++) {
       botNodesVisited = 0;
       botSearchAborted = false;
@@ -1126,10 +1140,9 @@
 
       if (!botSearchAborted) {
         bestMoveOverall = iterBestMove;
-        // Jeśli znaleźliśmy wymuszoną wygraną, nie ma sensu szukać głębiej
         if (iterBestScore > 40000) break;
       } else {
-        break; // Przerywamy i zostajemy przy poprzedniej, w pełni policzonej głębokości
+        break;
       }
     }
 
@@ -1148,6 +1161,7 @@
     }
     await applyMove('O', move);
   }
+
   function resetBoardState() {
     ball = { x: 4, y: 6 };
     usedLines = [];
@@ -1155,6 +1169,7 @@
     winnerSide = null;
     winReason = null;
     scoreAlreadyCounted = false;
+    matchScoreSaved = false;
     animating = false;
     isBusy = false;
   }
@@ -1279,6 +1294,7 @@
 
     if (nextMoves.length === 0 && prevMovesCount > 0) {
       scoreAlreadyCounted = false;
+      matchScoreSaved = false;
     }
 
     usedLines = nextMoves;
