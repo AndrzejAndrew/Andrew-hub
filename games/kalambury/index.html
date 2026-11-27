@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalambury Realtime - Andrew Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 18px 14px;
+      display: flex;
+      justify-content: center;
+    }
+    .kal-app {
+      max-width: 980px;
+      width: 100%;
+    }
+    .kal-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kal-header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .kal-sub {
+      color: #8b95a5;
+      font-size: 0.88rem;
+      margin: 2px 0 0 0;
+    }
+    .lobby-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+    input, select, .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    input::placeholder { color: #64748b; }
+    select option { background: #0f172a; color: #f8fafc; }
+    .btn {
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .btn:hover:not(:disabled) {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.14);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-green {
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.25), rgba(52, 211, 153, 0.08));
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #34d399;
+      font-weight: 600;
+    }
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.14);
+      border-color: rgba(244, 63, 94, 0.35);
+      color: #fda4af;
+    }
+
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: rgba(12, 16, 26, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+    }
+    .word-box {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #34d399;
+    }
+    .word-box.guessing {
+      color: #7dd3fc;
+      letter-spacing: 2px;
+    }
+    .timer-pill {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fbbf24;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 270px;
+      gap: 14px;
+    }
+    @media (max-width: 820px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .board-card, .side-card {
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .draw-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      cursor: pointer;
+    }
+    .color-swatch.active {
+      border-color: #fff;
+      transform: scale(1.12);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 660px;
+      height: auto;
+      background: #070b14;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .side-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .player-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .player-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.03);
+      font-size: 0.85rem;
+    }
+    .player-item.drawer {
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      background: rgba(52, 211, 153, 0.1);
+    }
+    .player-item.guessed {
+      color: #34d399;
+    }
+
+    .chat-log {
+      height: 190px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-right: 4px;
+      font-size: 0.84rem;
+    }
+    .chat-msg {
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      color: #cbd5e1;
+      word-break: break-word;
+    }
+    .chat-msg.sys {
+      color: #7dd3fc;
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .chat-msg.win {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.12);
+    }
+    .chat-form {
+      display: flex;
+      gap: 6px;
+    }
+    .chat-form input {
+      flex: 1;
+      min-width: 0;
+    }
+    .summary-banner {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #e0f2fe;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .summary-banner.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="kal-app">
+    <div class="kal-header">
+      <div>
+        <h1>Kalambury Realtime</h1>
+        <p class="kal-sub" id="conn-status">Łączenie z pokojem przez Supabase Realtime...</p>
+      </div>
+      <div id="user-badge" style="color:#34d399;font-size:0.88rem;font-weight:600;"></div>
+    </div>
+
+    <div class="lobby-bar">
+      <input type="text" id="nick-input" placeholder="Twój nick" style="width:140px;" />
+      <input type="text" id="room-input" value="HUB-01" placeholder="Kod pokoju" style="width:110px;text-transform:uppercase;" />
+      <button class="btn" id="btn-join" onclick="joinRoom()">Połącz z pokojem</button>
+
+      <select id="round-sec-select" title="Czas rundy">
+        <option value="45">Czas: 45s</option>
+        <option value="60" selected>Czas: 60s</option>
+        <option value="90">Czas: 90s</option>
+      </select>
+
+      <select id="penalty-select" title="Punkty za nieodgadnięcie">
+        <option value="0" selected>Brak trafienia: 0 pkt</option>
+        <option value="-20">Brak trafienia: -20 pkt</option>
+      </select>
+
+      <button class="btn btn-green" id="btn-start-match" onclick="hostStartMatch()" disabled>▶ Start gry</button>
+      <button class="btn btn-danger" id="btn-skip-turn" onclick="requestSkipTurn('Ręczne pominięcie tury')" disabled>⏭ Pomiń rysującego</button>
+    </div>
+
+    <div class="status-strip">
+      <div>
+        <span style="color:#8b95a5;font-size:0.84rem;">Rysuje: </span>
+        <strong id="drawer-name">—</strong>
+        <span style="color:#8b95a5;font-size:0.82rem;margin-left:10px;" id="turn-counter">Tura 0/0</span>
+      </div>
+      <div class="word-box guessing" id="word-display">Oczekiwanie na start gry...</div>
+      <div class="timer-pill" id="timer-display">--s</div>
+    </div>
+
+    <div class="main-grid">
+      <div class="board-card">
+        <div class="draw-tools">
+          <button class="color-swatch active" style="background:#f8fafc" data-color="#f8fafc" onclick="pickColor(this)"></button>
+          <button class="color-swatch" style="background:#34d399" data-color="#34d399" onclick="pickColor(this)"></button>
+          <button class="color-swatch" style="background:#38bdf8" data-color="#38bdf8" onclick="pickColor(this)"></button>
+          <button class="color-swatch" style="background:#fbbf24" data-color="#fbbf24" onclick="pickColor(this)"></button>
+          <button class="color-swatch" style="background:#f472b6" data-color="#f472b6" onclick="pickColor(this)"></button>
+          <button class="color-swatch" style="background:#fb7185" data-color="#fb7185" onclick="pickColor(this)"></button>
+          <select id="brush-size" title="Grubość pędzla">
+            <option value="3">Cienki</option>
+            <option value="6" selected>Średni</option>
+            <option value="11">Gruby</option>
+          </select>
+          <button class="btn" id="btn-clear" onclick="clearCanvas(true)" disabled>🧹 Wyczyść</button>
+        </div>
+
+        <canvas id="draw-canvas" width="660" height="380"></canvas>
+
+        <div class="summary-banner" id="summary-banner"></div>
+      </div>
+
+      <div class="side-col">
+        <div class="side-card">
+          <h3>Gracze w pokoju</h3>
+          <ul class="player-list" id="players-list"></ul>
+        </div>
+
+        <div class="side-card">
+          <h3>Czat / Zgadywanie</h3>
+          <div class="chat-log" id="chat-log"></div>
+          <form class="chat-form" onsubmit="sendGuessOrChat(event)">
+            <input type="text" id="guess-input" placeholder="Wpisz hasło lub wiadomość..." disabled />
+            <button class="btn btn-green" type="submit" id="btn-send" disabled>Wyślij</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WORD_POOL = [
+      'LATARNIA MORSKA', 'ROBOT KUCHENNY', 'KOZIOŁKI POZNAŃSKIE', 'MOST ZWISZONY',
+      'KAKTUS W DONICZCE', 'SAMOLOT PAPIEROWY', 'ZEGAR SŁONECZNY', 'TRAMPKI',
+      'KOMPAS', 'SMOK WAWELSKI', 'ODKURZACZ', 'LODOWISKO', 'MIKROSKOP',
+      'HAMAK MIĘDZY DRZEWAMI', 'KLAWIATURA MECHANICZNA', 'PARASOLKA', 'TELEPORT',
+      'ŁÓDŹ PODWODNA', 'BATERIA SŁONECZNA', 'Pociąg towarowy', 'ŻURAW BUDOWLANY',
+      'Księżyc w pełni', 'SŁUCHAWKI', 'SZACHOWNICA'
+    ].map(w => w.toUpperCase());
+
+    const canvas = document.getElementById('draw-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const clientId = 'p_' + Math.random().toString(36).slice(2, 9);
+    let myNick = 'Gracz';
+    let myEmail = null;
+    let channel = null;
+
+    let currentColor = '#f8fafc';
+    let drawing = false;
+    let lastPt = null;
+    let hasDrawnThisTurn = false;
+
+    // Stan pokoju
+    let presencePlayers = {}; // id -> { id, nick, joinedAt }
+    let match = {
+      active: false,
+      turnOrder: [],     // lista ID graczy (każdy rysuje raz)
+      turnIndex: 0,
+      drawerId: null,
+      secretWord: '',
+      roundDuration: 60,
+      penaltyPts: 0,
+      roundStartTs: 0,
+      secondsLeft: 0,
+      scores: {},        // playerId -> punkty w tym meczu
+      guessedIds: [],    // kto już zgadł w bieżącej rundzie
+      roundEnded: false
+    };
+
+    let tickerInterval = null;
+    let scoreSavedForMatch = false;
+
+    function normalizeWord(str) {
+      return (str || '')
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    async function initIdentity() {
+      try {
+        const db = window.parent?.dbClient;
+        if (db) {
+          const { data: { session } } = await db.auth.getSession();
+          if (session?.user?.email) {
+            myEmail = session.user.email;
+            const base = myEmail.split('@')[0];
+            myNick = base.charAt(0).toUpperCase() + base.slice(1);
+            document.getElementById('user-badge').textContent = `Zalogowany: ${myNick}`;
+          }
+        }
+      } catch (_) {}
+      const savedNick = localStorage.getItem('andrew_hub_kal_nick');
+      document.getElementById('nick-input').value = savedNick || myNick;
+    }
+    initIdentity();
+
+    function appendChat(text, cls = '') {
+      const log = document.getElementById('chat-log');
+      const div = document.createElement('div');
+      div.className = `chat-msg ${cls}`;
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function pickColor(el) {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      currentColor = el.dataset.color;
+    }
+
+    function clearCanvas(broadcast = false) {
+      ctx.fillStyle = '#070b14';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (broadcast && channel && match.drawerId === clientId) {
+        channel.send({ type: 'broadcast', event: 'clear', payload: {} });
+      }
+    }
+    clearCanvas(false);
+
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function drawSegment(x1, y1, x2, y2, color, size) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!match.active || match.roundEnded || match.drawerId !== clientId) return;
+      drawing = true;
+      hasDrawnThisTurn = true;
+      lastPt = getCanvasCoords(e);
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing || !match.active || match.roundEnded || match.drawerId !== clientId) return;
+      const pt = getCanvasCoords(e);
+      const size = Number(document.getElementById('brush-size').value) || 6;
+      drawSegment(lastPt.x, lastPt.y, pt.x, pt.y, currentColor, size);
+
+      channel?.send({
+        type: 'broadcast',
+        event: 'stroke',
+        payload: { x1: lastPt.x, y1: lastPt.y, x2: pt.x, y2: pt.y, color: currentColor, size }
+      });
+      lastPt = pt;
+    });
+
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => {
+      canvas.addEventListener(ev, () => { drawing = false; lastPt = null; });
+    });
+
+    function getOrderedActivePlayers() {
+      return Object.values(presencePlayers).sort((a, b) => a.joinedAt - b.joinedAt);
+    }
+
+    function isAuthority() {
+      const ordered = getOrderedActivePlayers();
+      return ordered.length > 0 && ordered[0].id === clientId;
+    }
+
+    function renderPlayersList() {
+      const list = document.getElementById('players-list');
+      const ordered = getOrderedActivePlayers();
+      list.innerHTML = ordered.map(p => {
+        const isDrawer = match.active && match.drawerId === p.id;
+        const hasGuessed = match.guessedIds.includes(p.id);
+        const pts = match.scores[p.id] ?? 0;
+        const badge = isDrawer ? '✏️ Rysuje' : (hasGuessed ? '✅ Zgadł' : '');
+        return `
+          <li class="player-item ${isDrawer ? 'drawer' : ''} ${hasGuessed ? 'guessed' : ''}">
+            <span><strong>${escapeHtml(p.nick)}</strong> ${p.id === clientId ? '(Ty)' : ''}</span>
+            <span>${badge} <strong>${pts} pkt</strong></span>
+          </li>
+        `;
+      }).join('');
+
+      document.getElementById('btn-start-match').disabled = !channel || ordered.length < 2 || match.active;
+      document.getElementById('btn-skip-turn').disabled = !channel || !match.active;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function updateTurnUi() {
+      const drawerObj = presencePlayers[match.drawerId];
+      document.getElementById('drawer-name').textContent = drawerObj ? drawerObj.nick : '—';
+      document.getElementById('turn-counter').textContent = match.active
+        ? `Tura ${Math.min(match.turnIndex + 1, match.turnOrder.length)}/${match.turnOrder.length}`
+        : 'Tura 0/0';
+
+      const amDrawer = match.active && !match.roundEnded && match.drawerId === clientId;
+      document.getElementById('btn-clear').disabled = !amDrawer;
+      document.getElementById('guess-input').disabled = !channel || !match.active || match.roundEnded || amDrawer;
+      document.getElementById('btn-send').disabled = !channel || !match.active || match.roundEnded || amDrawer;
+
+      const wordEl = document.getElementById('word-display');
+      if (!match.active) {
+        wordEl.className = 'word-box guessing';
+        wordEl.textContent = 'Oczekiwanie na start gry...';
+      } else if (match.drawerId === clientId) {
+        wordEl.className = 'word-box';
+        wordEl.textContent = `RYSUJESZ: ${match.secretWord}`;
+      } else {
+        const hint = match.secretWord
+          .split(' ')
+          .map(part => '_ '.repeat(part.length).trim())
+          .join('   /   ');
+        wordEl.className = 'word-box guessing';
+        wordEl.textContent = `HASŁO: ${hint}`;
+      }
+      renderPlayersList();
+    }
+
+    async function joinRoom() {
+      const db = window.parent?.dbClient;
+      if (!db) {
+        alert('Brak połączenia z klientem Supabase (dbClient).');
+        return;
+      }
+
+      myNick = (document.getElementById('nick-input').value || 'Gracz').trim().slice(0, 20) || 'Gracz';
+      localStorage.setItem('andrew_hub_kal_nick', myNick);
+      const roomCode = (document.getElementById('room-input').value || 'HUB-01').trim().toUpperCase();
+
+      if (channel) {
+        await db.removeChannel(channel);
+        channel = null;
+      }
+
+      document.getElementById('conn-status').textContent = `Łączenie z pokojem ${roomCode}...`;
+      document.getElementById('summary-banner').classList.remove('visible');
+
+      channel = db.channel(`kalambury_${roomCode}`, {
+        config: { presence: { key: clientId } }
+      });
+
+      channel.on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const nextPresence = {};
+        for (const [key, metas] of Object.entries(state)) {
+          if (metas && metas.length > 0) {
+            nextPresence[key] = metas[0];
+          }
+        }
+        presencePlayers = nextPresence;
+        handlePresenceChange();
+      });
+
+      channel.on('broadcast', { event: 'stroke' }, ({ payload }) => {
+        if (!payload || payload.senderId === clientId) return;
+        drawSegment(payload.x1, payload.y1, payload.x2, payload.y2, payload.color, payload.size);
+      });
+
+      channel.on('broadcast', { event: 'clear' }, () => {
+        clearCanvas(false);
+      });
+
+      channel.on('broadcast', { event: 'chat' }, ({ payload }) => {
+        if (!payload) return;
+        appendChat(`${payload.nick}: ${payload.text}`);
+      });
+
+      channel.on('broadcast', { event: 'match_state' }, ({ payload }) => {
+        if (!payload) return;
+        match = { ...match, ...payload };
+        if (payload.clearBoard) clearCanvas(false);
+        updateTurnUi();
+        checkEveryoneGuessed();
+      });
+
+      channel.on('broadcast', { event: 'guess_correct' }, ({ payload }) => {
+        if (!payload) return;
+        match.scores = payload.scores || match.scores;
+        match.guessedIds = payload.guessedIds || match.guessedIds;
+        appendChat(`🎉 ${payload.nick} zgadł hasło (+${payload.points} pkt)!`, 'win');
+        updateTurnUi();
+        checkEveryoneGuessed();
+      });
+
+      channel.on('broadcast', { event: 'round_end' }, ({ payload }) => {
+        if (!payload) return;
+        match.roundEnded = true;
+        match.scores = payload.scores || match.scores;
+        appendChat(`⏱ Koniec rundy (${payload.reason}). Hasło: ${payload.secretWord}`, 'sys');
+        updateTurnUi();
+      });
+
+      channel.on('broadcast', { event: 'match_end' }, ({ payload }) => {
+        if (!payload) return;
+        match.active = false;
+        match.scores = payload.scores || match.scores;
+        clearInterval(tickerInterval);
+        document.getElementById('timer-display').textContent = '--s';
+        updateTurnUi();
+        showFinalSummary(payload.scores);
+      });
+
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          document.getElementById('conn-status').textContent = `Połączono z pokojem ${roomCode}`;
+          await channel.track({
+            id: clientId,
+            nick: myNick,
+            joinedAt: Date.now()
+          });
+          appendChat(`Dołączyłeś do pokoju ${roomCode} jako ${myNick}.`, 'sys');
+        }
+      });
+    }
+
+    function handlePresenceChange() {
+      renderPlayersList();
+      if (!match.active || match.roundEnded) return;
+
+      // Jeśli rysujący wyszedł z pokoju, natychmiast kończymy/pomijamy rundę
+      if (match.drawerId && !presencePlayers[match.drawerId]) {
+        if (isAuthority()) {
+          concludeRound('Rysujący opuścił pokój', false);
+        }
+        return;
+      }
+
+      // Jeśli wszyscy pozostali aktywni zgadujący już zgadli, runda może się domknąć
+      checkEveryoneGuessed();
+    }
+
+    function hostStartMatch() {
+      if (!channel || !isAuthority()) return;
+      const ordered = getOrderedActivePlayers();
+      if (ordered.length < 2) return;
+
+      scoreSavedForMatch = false;
+      document.getElementById('summary-banner').classList.remove('visible');
+
+      const scores = {};
+      ordered.forEach(p => { scores[p.id] = 0; });
+
+      match.active = true;
+      match.turnOrder = ordered.map(p => p.id);
+      match.turnIndex = 0;
+      match.roundDuration = Number(document.getElementById('round-sec-select').value) || 60;
+      match.penaltyPts = Number(document.getElementById('penalty-select').value) || 0;
+      match.scores = scores;
+
+      startTurnAt(0);
+    }
+
+    function startTurnAt(idx) {
+      // Pomijamy graczy, którzy w międzyczasie wyszli z pokoju
+      while (idx < match.turnOrder.length && !presencePlayers[match.turnOrder[idx]]) {
+        idx++;
+      }
+
+      if (idx >= match.turnOrder.length) {
+        finishFullMatch();
+        return;
+      }
+
+      const drawerId = match.turnOrder[idx];
+      const secretWord = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
+
+      match.turnIndex = idx;
+      match.drawerId = drawerId;
+      match.secretWord = secretWord;
+      match.guessedIds = [];
+      match.roundEnded = false;
+      match.roundStartTs = Date.now();
+      match.secondsLeft = match.roundDuration;
+      hasDrawnThisTurn = false;
+
+      const snapshot = {
+        active: true,
+        turnOrder: match.turnOrder,
+        turnIndex: match.turnIndex,
+        drawerId: match.drawerId,
+        secretWord: match.secretWord,
+        roundDuration: match.roundDuration,
+        penaltyPts: match.penaltyPts,
+        roundStartTs: match.roundStartTs,
+        secondsLeft: match.secondsLeft,
+        scores: match.scores,
+        guessedIds: [],
+        roundEnded: false,
+        clearBoard: true
+      };
+
+      match = { ...match, ...snapshot };
+      clearCanvas(false);
+      updateTurnUi();
+
+      channel?.send({
+        type: 'broadcast',
+        event: 'match_state',
+        payload: snapshot
+      });
+
+      startRoundTicker();
+    }
+
+    function startRoundTicker() {
+      if (tickerInterval) clearInterval(tickerInterval);
+      tickerInterval = setInterval(() => {
+        if (!match.active || match.roundEnded) return;
+        const elapsed = Math.floor((Date.now() - match.roundStartTs) / 1000);
+        const left = Math.max(0, match.roundDuration - elapsed);
+        match.secondsLeft = left;
+        document.getElementById('timer-display').textContent = `${left}s`;
+
+        // Zabezpieczenie: jeśli rysujący nie zaczął rysować przez 20s od startu rundy, pomijamy turę
+        if (elapsed >= 20 && !hasDrawnThisTurn && match.drawerId === clientId) {
+          requestSkipTurn('Rysujący nie rozpoczął rysowania w wyznaczonym czasie');
+          return;
+        }
+
+        if (left <= 0 && isAuthority()) {
+          concludeRound('Koniec czasu rundy', true);
+        }
+      }, 400);
+    }
+
+    function requestSkipTurn(reason) {
+      if (!channel || !match.active || match.roundEnded) return;
+      if (isAuthority() || match.drawerId === clientId) {
+        concludeRound(reason, false);
+      }
+    }
+
+    function getActiveGuessersIds() {
+      return Object.keys(presencePlayers).filter(id => id !== match.drawerId);
+    }
+
+    function checkEveryoneGuessed() {
+      if (!match.active || match.roundEnded || !isAuthority()) return;
+      const guessers = getActiveGuessersIds();
+      if (guessers.length === 0) return;
+
+      const allGuessed = guessers.every(id => match.guessedIds.includes(id));
+      if (allGuessed) {
+        // Bonus dla rysującego za odgadnięcie przez wszystkich
+        const drawerBonus = 50 + guessers.length * 15;
+        match.scores[match.drawerId] = (match.scores[match.drawerId] || 0) + drawerBonus;
+        channel.send({
+          type: 'broadcast',
+          event: 'chat',
+          payload: {
+            nick: 'System',
+            text: `Wszyscy odgadli! Rysujący otrzymuje +${drawerBonus} pkt bonusu.`
+          }
+        });
+        concludeRound('Wszyscy gracze odgadli hasło!', false);
+      }
+    }
+
+    function concludeRound(reason, applyTimeoutPenalty) {
+      if (!match.active || match.roundEnded) return;
+      match.roundEnded = true;
+      clearInterval(tickerInterval);
+
+      if (applyTimeoutPenalty && match.penaltyPts !== 0) {
+        const guessers = getActiveGuessersIds();
+        guessers.forEach(gid => {
+          if (!match.guessedIds.includes(gid)) {
+            match.scores[gid] = (match.scores[gid] || 0) + match.penaltyPts;
+          }
+        });
+      }
+
+      channel?.send({
+        type: 'broadcast',
+        event: 'round_end',
+        payload: {
+          reason,
+          secretWord: match.secretWord,
+          scores: match.scores
+        }
+      });
+
+      appendChat(`⏱ ${reason} Hasło: ${match.secretWord}`, 'sys');
+      updateTurnUi();
+
+      setTimeout(() => {
+        if (!match.active || !isAuthority()) return;
+        startTurnAt(match.turnIndex + 1);
+      }, 2600);
+    }
+
+    async function finishFullMatch() {
+      match.active = false;
+      clearInterval(tickerInterval);
+      document.getElementById('timer-display').textContent = '--s';
+      updateTurnUi();
+
+      channel?.send({
+        type: 'broadcast',
+        event: 'match_end',
+        payload: { scores: match.scores }
+      });
+
+      showFinalSummary(match.scores);
+      await saveMyMatchScore(match.scores);
+    }
+
+    function showFinalSummary(scoresMap) {
+      const rows = Object.entries(scoresMap || {})
+        .map(([pid, pts]) => ({
+          nick: presencePlayers[pid]?.nick || 'Gracz',
+          pts
+        }))
+        .sort((a, b) => b.pts - a.pts);
+
+      const banner = document.getElementById('summary-banner');
+      banner.innerHTML = `
+        <strong>Koniec pełnego cyklu Kalamburów!</strong><br/>
+        ${rows.map((r, i) => `${i + 1}. <strong>${escapeHtml(r.nick)}</strong> — ${r.pts} pkt`).join(' • ')}
+      `;
+      banner.classList.add('visible');
+    }
+
+    async function saveMyMatchScore(scoresMap) {
+      if (scoreSavedForMatch) return;
+      scoreSavedForMatch = true;
+
+      const myPts = scoresMap?.[clientId] ?? 0;
+      const allPts = Object.values(scoresMap || {});
+      const maxPts = allPts.length ? Math.max(...allPts) : myPts;
+      const resultLabel = myPts > 0 && myPts >= maxPts ? 'win' : (myPts > 0 ? 'draw' : 'loss');
+
+      if (window.parent && typeof window.parent.saveGameScore === 'function') {
+        await window.parent.saveGameScore('kalambury', 'multiplayer', resultLabel, Math.max(0, myPts), {
+          raw_score: myPts,
+          players_count: Object.keys(presencePlayers).length
+        });
+      }
+    }
+
+    function sendGuessOrChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('guess-input');
+      const rawText = input.value.trim();
+      if (!rawText || !channel || !match.active || match.roundEnded) return;
+      if (match.drawerId === clientId) return;
+
+      input.value = '';
+
+      if (!match.guessedIds.includes(clientId) && normalizeWord(rawText) === normalizeWord(match.secretWord)) {
+        const timeRatio = Math.max(0.2, match.secondsLeft / Math.max(1, match.roundDuration));
+        const earned = Math.round(50 + timeRatio * 100);
+
+        match.guessedIds = [...match.guessedIds, clientId];
+        match.scores[clientId] = (match.scores[clientId] || 0) + earned;
+        // Drobny punkt dla rysującego za każde trafienie
+        match.scores[match.drawerId] = (match.scores[match.drawerId] || 0) + 20;
+
+        channel.send({
+          type: 'broadcast',
+          event: 'guess_correct',
+          payload: {
+            playerId: clientId,
+            nick: myNick,
+            points: earned,
+            guessedIds: match.guessedIds,
+            scores: match.scores
+          }
+        });
+
+        appendChat(`🎉 Zgadłeś hasło! +${earned} pkt`, 'win');
+        updateTurnUi();
+        checkEveryoneGuessed();
+      } else {
+        // Nie zdradzamy hasła na czacie, jeśli ktoś już zgadł
+        if (match.guessedIds.includes(clientId)) return;
+        channel.send({
+          type: 'broadcast',
+          event: 'chat',
+          payload: { nick: myNick, text: rawText }
+        });
+        appendChat(`${myNick}: ${rawText}`);
+      }
+    }
+  </script>
+</body>
+</html>
