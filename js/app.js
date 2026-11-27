@@ -16,12 +16,21 @@ async function initHub() {
 // 2. Dynamiczne renderowanie kafelków gier z data/games.json
 async function loadGames() {
   try {
-    const res = await fetch('./data/games.json');
+    const res = await fetch('./data/games.json?t=' + Date.now());
     if (!res.ok) return;
-    const games = await res.json();
+    const rawGames = await res.json();
 
-    // Usuwamy stare statyczne kafelki gier (zostawiamy tylko kafelki z newsami)
+    // Usuwamy stare kafelki gier przed ponownym wyrenderowaniem
     document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
+
+    // Deduplikacja gier po id lub url
+    const seen = new Set();
+    const games = rawGames.filter(g => {
+      const key = g.id || g.url || g.title;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     const securityCard = document.querySelector('.card-feed');
 
@@ -37,6 +46,7 @@ async function loadGames() {
         : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}')">Graj</button>`;
 
       article.innerHTML = `
+        <div class="card-glow"></div>
         <div class="card-top">
           <span class="tag tag-${game.tagColor}">${game.tag}</span>
           <span class="tag tag-outline">${modeLabel}</span>
@@ -60,6 +70,18 @@ async function loadGames() {
   }
 }
 
+// Pomocnik do usuwania duplikatów artykułów
+function uniqueNewsItems(items) {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set();
+  return items.filter(item => {
+    const key = (item.link && item.link !== '#') ? item.link : `${item.source}|${item.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 // 3. Ładowanie prawdziwych newsów z data/news.json
 async function loadNews() {
   try {
@@ -68,8 +90,9 @@ async function loadNews() {
     newsDataCache = await res.json();
 
     const secFeed = document.getElementById('security-feed');
-    if (secFeed && newsDataCache.security?.length) {
-      secFeed.innerHTML = newsDataCache.security.map(item => `
+    const secItems = uniqueNewsItems(newsDataCache.security);
+    if (secFeed && secItems.length) {
+      secFeed.innerHTML = secItems.map(item => `
         <li>
           <span class="source-badge ${item.badge}">${item.source}</span>
           <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
@@ -90,10 +113,11 @@ function renderLeclercFeed() {
     return;
   }
 
-  if (newsDataCache && newsDataCache.leclerc?.length) {
+  const leclercItems = uniqueNewsItems(newsDataCache?.leclerc);
+  if (leclercItems.length) {
     leclercContent.innerHTML = `
       <ul class="news-list">
-        ${newsDataCache.leclerc.map(item => `
+        ${leclercItems.map(item => `
           <li>
             <span class="source-badge ${item.badge}">${item.source}</span>
             <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
@@ -155,13 +179,11 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 // 6. AUTORYZACJA SUPABASE (Prawdziwe Logowanie i Rejestracja)
 // =========================================================
 
-// Używamy zmiennej globalnej przypisanej do window, by uniknąć błędu re-deklaracji
 const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
 
-// Jeśli supabase zdefiniowano gdzieś wyżej, nie nadpisujemy, a jeśli nie – tworzymy klienta
 if (!window.dbClient) {
-    window.dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window.dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
 const authModal = document.getElementById('auth-modal');
@@ -176,12 +198,11 @@ const btnAuth = document.getElementById('btn-auth');
 
 let isRegisterMode = false;
 
-// Otwieranie / zamykanie modala
 btnAuth.addEventListener('click', async () => {
   if (isLoggedIn) {
-    await window.dbClient.auth.signOut(); // Wylogowanie
+    await window.dbClient.auth.signOut();
   } else {
-    authModal.classList.remove('hidden'); // Pokazanie modala
+    authModal.classList.remove('hidden');
   }
 });
 
@@ -189,7 +210,6 @@ document.getElementById('close-modal').addEventListener('click', () => {
   authModal.classList.add('hidden');
 });
 
-// Przełączanie między Logowaniem a Rejestracją
 switchMode.addEventListener('click', (e) => {
   e.preventDefault();
   isRegisterMode = !isRegisterMode;
@@ -200,7 +220,6 @@ switchMode.addEventListener('click', (e) => {
   authError.classList.add('hidden');
 });
 
-// Obsługa formularza
 btnSubmitAuth.addEventListener('click', async () => {
   const email = authEmail.value;
   const password = authPassword.value;
@@ -213,7 +232,6 @@ btnSubmitAuth.addEventListener('click', async () => {
   btnSubmitAuth.textContent = "Przetwarzanie...";
 
   if (isRegisterMode) {
-    // REJESTRACJA
     const { data, error } = await window.dbClient.auth.signUp({ email, password });
     if (error) {
       showAuthMsg('Błąd: ' + error.message, false);
@@ -223,7 +241,6 @@ btnSubmitAuth.addEventListener('click', async () => {
       authPassword.value = '';
     }
   } else {
-    // LOGOWANIE
     const { data, error } = await window.dbClient.auth.signInWithPassword({ email, password });
     if (error) {
       showAuthMsg('Błąd logowania. Sprawdź dane lub zapytaj admina o akceptację konta.', false);
@@ -242,7 +259,6 @@ function showAuthMsg(msg, isSuccess) {
   authError.classList.remove('hidden');
 }
 
-// Nasłuchuj zmian sesji (odpala się od razu przy wejściu na stronę)
 window.dbClient.auth.onAuthStateChange((event, session) => {
   isLoggedIn = !!session;
   
@@ -263,20 +279,19 @@ window.dbClient.auth.onAuthStateChange((event, session) => {
     document.getElementById('lock-indicator').textContent = '🔒 Wymagane logowanie';
   }
   
-  // Po zmianie statusu odświeżamy kafelki wymagające logowania (Leclerc)
   renderLeclercFeed();
 });
 
 // =========================================================
-// 7. Reflektor myszy na kafelkach
+// 7. Reflektor myszy na kafelkach (delegacja zdarzeń dla dynamicznych kart)
 // =========================================================
 function attachSpotlightEffect() {
-  document.querySelectorAll('.bento-item').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-      card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-    });
+  dashboard.addEventListener('mousemove', e => {
+    const card = e.target.closest('.bento-item');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
   });
 }
 
