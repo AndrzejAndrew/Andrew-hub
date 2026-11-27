@@ -8,7 +8,7 @@ let newsDataCache = null;
 let loadedGamesCache = [];
 let isLoggedIn = false;
 
-// 1. Inicjalizacja portalu (wczytanie motywu, gier i newsów z JSON)
+// 1. Inicjalizacja portalu
 async function initHub() {
   initTheme();
   initCli();
@@ -29,14 +29,14 @@ function setTheme(themeName) {
     btn.classList.toggle('active', btn.dataset.themeVal === chosen);
   });
 
-  // W trybie terminalowym automatycznie pokazujemy konsolę CLI
+  const topSelect = document.getElementById('topbar-theme-select');
+  if (topSelect && topSelect.value !== chosen) {
+    topSelect.value = chosen;
+  }
+
   const cliBar = document.getElementById('cli-bar');
-  if (cliBar) {
-    if (chosen === 'terminal') {
-      cliBar.classList.remove('hidden');
-      const cliInput = document.getElementById('cli-input');
-      if (cliInput) cliInput.focus();
-    }
+  if (cliBar && chosen === 'terminal') {
+    cliBar.classList.remove('hidden');
   }
 }
 
@@ -71,7 +71,7 @@ function executeCliCommand(rawCmd) {
   const arg = parts.slice(1).join(' ').toLowerCase();
 
   if (cmd === 'help') {
-    cliPrint('Dostępne komendy:\n  ls                          - lista wszystkich modułów i gier\n  play <nazwa/id>             - uruchom grę (np. play evolve, play statki)\n  theme <default|dark|light|terminal> - zmień skórkę\n  filter <all|strategy|arcade|news>   - filtruj kafelki\n  close                       - zamknij aktywną grę\n  clear                       - wyczyść konsolę');
+    cliPrint('Komendy:\n  ls                                  - lista gier i projektów\n  play <nazwa/id>                     - uruchom grę\n  theme <default|dark|light|terminal> - zmień skórkę\n  filter <all|strategy|arcade|news>   - filtruj kafelki\n  close                               - zamknij grę\n  clear                               - wyczyść konsolę');
     return;
   }
 
@@ -87,7 +87,7 @@ function executeCliCommand(rawCmd) {
       return;
     }
     const list = loadedGamesCache.map(g => `  [${g.id}] ${g.title} (${g.newTab ? 'nowa karta' : g.mode})`).join('\n');
-    cliPrint('Zainstalowane moduły:\n' + list);
+    cliPrint('Moduły:\n' + list);
     return;
   }
 
@@ -97,7 +97,7 @@ function executeCliCommand(rawCmd) {
       return;
     }
     setTheme(arg);
-    cliPrint(`Ustawiono motyw: ${arg}`);
+    cliPrint(`Motyw: ${arg}`);
     return;
   }
 
@@ -114,13 +114,13 @@ function executeCliCommand(rawCmd) {
 
   if (cmd === 'close') {
     closeGame();
-    cliPrint('Powrót do dashboardu.');
+    cliPrint('Zamknięto grę.');
     return;
   }
 
   if (cmd === 'play' || cmd === 'run' || cmd === 'open') {
     if (!arg) {
-      cliPrint('Podaj nazwę lub ID gry, np. "play evolve". Wpisz "ls" aby zobaczyć listę.');
+      cliPrint('Podaj nazwę lub ID, np. "play evolve".');
       return;
     }
     const found = loadedGamesCache.find(g =>
@@ -129,11 +129,12 @@ function executeCliCommand(rawCmd) {
       g.id.toLowerCase().includes(arg)
     );
     if (!found) {
-      cliPrint(`Nie znaleziono gry: "${arg}". Wpisz "ls" aby zobaczyć listę.`);
+      cliPrint(`Nie znaleziono: "${arg}". Wpisz "ls".`);
       return;
     }
-    cliPrint(`Uruchamianie: ${found.title}...`);
-    launchGame(found.title, found.url, found.mode, Boolean(found.newTab));
+    const isExternal = Boolean(found.newTab || found.mode === 'newtab' || /^https?:\/\//i.test(found.url));
+    cliPrint(`Otwieranie: ${found.title}...`);
+    launchGame(found.title, found.url, found.mode, isExternal);
     return;
   }
 
@@ -152,9 +153,8 @@ function initCli() {
     });
   }
 
-  // Skrót klawiszowy Ctrl+K lub tylda ` otwiera/zamyka konsolę
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey && e.key.toLowerCase() === 'k') || (e.key === '`' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+    if ((e.ctrlKey && e.key.toLowerCase() === 'k') || (e.key === '`' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName))) {
       e.preventDefault();
       toggleCliBar();
     }
@@ -187,11 +187,11 @@ async function loadGames() {
       article.dataset.category = game.category;
       article.dataset.type = 'game';
 
-      const isNewTab = Boolean(game.newTab || game.mode === 'newtab');
-      const modeLabel = isNewTab ? 'Nowa Karta ↗' : (game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu');
+      const isExternalNewTab = Boolean(game.newTab || game.mode === 'newtab' || /^https?:\/\//i.test(game.url));
+      const modeLabel = isExternalNewTab ? 'Nowa Karta ↗' : (game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu');
       const btnHtml = game.featured
-        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isNewTab})">Uruchom ${game.title} →</button>`
-        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isNewTab})">${isNewTab ? 'Otwórz ↗' : 'Graj'}</button>`;
+        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isExternalNewTab})">Uruchom ${game.title} ${isExternalNewTab ? '↗' : '→'}</button>`
+        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isExternalNewTab})">${isExternalNewTab ? 'Otwórz ↗' : 'Graj'}</button>`;
 
       article.innerHTML = `
         <div class="card-glow"></div>
@@ -228,7 +228,7 @@ function uniqueNewsItems(items) {
   });
 }
 
-// 3. Ładowanie prawdziwych newsów z data/news.json
+// 3. Ładowanie newsów z data/news.json
 async function loadNews() {
   try {
     const res = await fetch('./data/news.json?t=' + Date.now());
@@ -248,7 +248,7 @@ async function loadNews() {
     }
     renderLeclercFeed();
   } catch (err) {
-    console.warn('Brak pliku data/news.json – czekam na pierwszy run skryptu:', err);
+    console.warn('Brak pliku data/news.json:', err);
   }
 }
 
@@ -273,13 +273,14 @@ function renderLeclercFeed() {
       </ul>
     `;
   } else {
-    leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json. Uruchom akcję na GitHubie.</p>`;
+    leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json.</p>`;
   }
 }
 
-// 4. Uruchamianie i zamykanie gier
+// 4. Uruchamianie gier (zewnętrzne zawsze w nowej karcie, lokalne w ramce)
 function launchGame(title, url, mode = 'sidebar', newTab = false) {
-  if (newTab || mode === 'newtab') {
+  const isExternal = Boolean(newTab || mode === 'newtab' || /^https?:\/\//i.test(url));
+  if (isExternal) {
     window.open(url, '_blank', 'noopener,noreferrer');
     return;
   }
