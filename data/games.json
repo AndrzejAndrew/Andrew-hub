@@ -1,16 +1,14 @@
 [
   {
-    "id": "schematic-factory",
-    "title": "Schematic Factory",
-    "description": "Projektuj zautomatyzowane linie produkcyjne, zarządzaj surowcami i optymalizuj przepustowość fabryki (otwiera się w nowej karcie).",
-    "category": "strategy",
-    "tag": "Główny Projekt",
+    "id": "QUIZ",
+    "title": "QUIZ",
+    "description": "Turniej wiedzy z głosowaniem na kategorie, punktacją za refleks i zgłaszaniem własnych pytań.",
+    "category": "quiz",
+    "tag": "Główny Projekt- quiz dla ELS",
     "tagColor": "mint",
     "span": "span-2x2",
-    "mode": "newtab",
-    "newTab": true,
-    "url": "https://fabryka.andrzejandrewendrju.workers.dev",
-    "featured": true
+    "url": "./games/quiz/index.html",
+    "featured": false
   },
   {
     "id": "fabryka",
@@ -75,18 +73,6 @@
     "mode": "newtab",
     "newTab": true,
     "url": "https://projektpokoj.netlify.app",
-    "featured": false
-  },
-  {
-    "id": "quiz",
-    "title": "Wielki Quiz",
-    "description": "Turniej wiedzy z głosowaniem na kategorie, punktacją za refleks i zgłaszaniem własnych pytań.",
-    "category": "arcade",
-    "tag": "Multiplayer",
-    "tagColor": "mint",
-    "span": "span-1x1",
-    "mode": "sidebar",
-    "url": "./games/quiz/index.html",
     "featured": false
   },
   {
