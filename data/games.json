@@ -122,5 +122,17 @@
     "mode": "sidebar",
     "url": "./games/tic_tac_toe/index.html",
     "featured": false
+  },
+  {
+    "id": "snake",
+    "title": "Wąż (Snake)",
+    "description": "Klasyczny zręcznościowy wąż z trzema poziomami prędkości i opcją przenikania przez ściany.",
+    "category": "arcade",
+    "tag": "Arcade / Solo",
+    "tagColor": "mint",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/snake/index.html",
+    "featured": false
   }
 ]
