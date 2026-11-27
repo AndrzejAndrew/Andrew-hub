@@ -276,7 +276,25 @@ function renderLeclercFeed() {
     leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json.</p>`;
   }
 }
-
+const itGamesFeed = document.getElementById('it-games-feed');
+    const itGamesItems = uniqueNewsItems(newsDataCache.it_games);
+    if (itGamesFeed && itGamesItems.length) {
+      itGamesFeed.innerHTML = itGamesItems.map(item => `
+        <li>
+          <span class="source-badge ${item.badge}">${item.source}</span>
+          <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+          <time>${item.date}</time>
+        </li>
+      `).join('');
+    } else if (itGamesFeed) {
+      itGamesFeed.innerHTML = `
+        <li>
+          <span class="source-badge sec">Info</span>
+          <a href="#" onclick="return false;">Brak wpisów IT & Gry — uruchom workflow prasówki, aby pobrać świeże newsy.</a>
+          <time>--:--</time>
+        </li>
+      `;
+    }
 // 4. Uruchamianie gier (zewnętrzne zawsze w nowej karcie, lokalne w ramce)
 function launchGame(title, url, mode = 'sidebar', newTab = false) {
   const isExternal = Boolean(newTab || mode === 'newtab' || /^https?:\/\//i.test(url));
