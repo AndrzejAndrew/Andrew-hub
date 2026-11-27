@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rankingi & Profil</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .lb-wrapper {
+      max-width: 1040px;
+      width: 100%;
+    }
+    .lb-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .lb-header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .main-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      padding: 9px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.18s;
+    }
+    .tab-btn:hover {
+      border-color: #38bdf8;
+      color: #f8fafc;
+    }
+    .tab-btn.active {
+      background: rgba(52, 211, 153, 0.18);
+      border-color: #34d399;
+      color: #34d399;
+    }
+    .panel {
+      background: rgba(10, 12, 18, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.35);
+      color: #94a3b8;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pill-btn:hover {
+      border-color: #38bdf8;
+      color: #f8fafc;
+    }
+    .pill-btn.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: #38bdf8;
+      color: #7dd3fc;
+      font-weight: 600;
+    }
+    select.filter-control, input.filter-control {
+      padding: 7px 11px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.45);
+      color: #f8fafc;
+      font-size: 0.84rem;
+      outline: none;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 11px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      white-space: nowrap;
+    }
+    th {
+      color: #8b95a5;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .nick-link {
+      color: #7dd3fc;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nick-link:hover {
+      text-decoration: underline;
+    }
+    .rank-1 { color: #fbbf24; font-weight: 700; }
+    .rank-2 { color: #cbd5e1; font-weight: 700; }
+    .rank-3 { color: #fb923c; font-weight: 700; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .kpi-label {
+      font-size: 0.76rem;
+      color: #8b95a5;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .kpi-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-win { background: rgba(52, 211, 153, 0.16); color: #34d399; }
+    .badge-loss { background: rgba(244, 63, 94, 0.16); color: #fda4af; }
+    .badge-draw { background: rgba(251, 191, 36, 0.16); color: #fbbf24; }
+    .badge-mode { background: rgba(56, 189, 248, 0.14); color: #7dd3fc; }
+    .locked-box {
+      text-align: center;
+      padding: 50px 20px;
+      color: #94a3b8;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="lb-wrapper">
+  <div class="lb-header">
+    <h1>🏆 Rankingi & Statystyki</h1>
+    <div class="main-tabs" id="main-tabs">
+      <button class="tab-btn active" id="tab-rankings" onclick="switchMainTab('rankings')">📊 Tablice Wyników</button>
+      <button class="tab-btn" id="tab-profile" onclick="openMyProfile()">👤 Mój Profil</button>
+    </div>
+  </div>
+
+  <!-- BLOKADA DLA GOŚCI -->
+  <div id="view-locked" class="panel locked-box hidden">
+    <h2 style="margin-top:0; color:#f8fafc;">🔒 Strefa tylko dla zalogowanych</h2>
+    <p>Zaloguj się na swoje konto w Andrew-hub, aby przeglądać tablice wyników zespołu i swoje indywidualne statystyki.</p>
+  </div>
+
+  <!-- WIDOK 1: TABLICE WYNIKÓW -->
+  <div id="view-rankings" class="hidden">
+    <div class="panel">
+      <div class="filters-bar">
+        <div class="pill-group" id="game-filter-pills">
+          <button class="pill-btn active" data-game="all" onclick="setGameFilter('all')">Wszystkie gry</button>
+          <button class="pill-btn" data-game="quiz" onclick="setGameFilter('quiz')">Wielki Quiz</button>
+          <button class="pill-btn" data-game="papersoccer" onclick="setGameFilter('papersoccer')">Papierowa Piłka</button>
+          <button class="pill-btn" data-game="hangman" onclick="setGameFilter('hangman')">Wisielec</button>
+          <button class="pill-btn" data-game="statki" onclick="setGameFilter('statki')">Statki</button>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <select id="period-filter" class="filter-control" onchange="onPeriodChange()">
+          <option value="global">🌍 Globalna (wszech czasów)</option>
+          <option value="month">📅 Miesiąc</option>
+          <option value="day">📆 Dzień</option>
+        </select>
+
+        <input type="date" id="date-picker" class="filter-control hidden" onchange="renderRankings()">
+        <input type="month" id="month-picker" class="filter-control hidden" onchange="renderRankings()">
+
+        <select id="mode-filter" class="filter-control" onchange="renderRankings()">
+          <option value="all">Tryb: Wszystkie</option>
+          <option value="online">🌐 Tylko Online (PvP)</option>
+          <option value="bot_solo">🤖 Bot / Solo</option>
+        </select>
+
+        <button class="pill-btn" onclick="loadAllResults()">🔄 Odśwież</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Gracz</th>
+              <th>Gry</th>
+              <th>W / P / R</th>
+              <th>% Wygranych</th>
+              <th>Suma pkt</th>
+              <th>Średnia</th>
+              <th>Najlepiej</th>
+              <th>Najgorzej</th>
+            </tr>
+          </thead>
+          <tbody id="rankings-tbody">
+            <tr><td colspan="9" style="text-align:center; color:#8b95a5;">Ładowanie danych...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIDOK 2: PROFIL INDYWIDUALNY GRACZA -->
+  <div id="view-profile" class="hidden">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <div>
+          <h2 style="margin:0; color:#34d399;" id="profile-title">Profil gracza</h2>
+          <span style="font-size:0.84rem; color:#8b95a5;" id="profile-subtitle">Statystyki ze wszystkich trybów</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <select id="profile-mode-filter" class="filter-control" onchange="renderProfile(selectedProfileUserId, selectedProfileNick)">
+            <option value="all">Tryb: Wszystkie</option>
+            <option value="online">🌐 Tylko Online (PvP)</option>
+            <option value="bot_solo">🤖 Bot / Solo</option>
+          </select>
+          <button id="btn-back-my-profile" class="pill-btn hidden" onclick="openMyProfile()">← Wróć do mojego profilu</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="profile-kpis"></div>
+
+      <h3 style="margin:18px 0 10px; font-size:1rem; color:#e2e8f0;">Statystyki per gra</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Gra</th>
+              <th>Rozegrane</th>
+              <th>Wygrane</th>
+              <th>Przegrane</th>
+              <th>% Wygranych</th>
+              <th>Suma pkt</th>
+              <th>Średnia</th>
+              <th>Najlepiej</th>
+              <th>Najgorzej</th>
+            </tr>
+          </thead>
+          <tbody id="profile-games-tbody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin:22px 0 10px; font-size:1rem; color:#e2e8f0;">Ostatnie 15 partii</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Gra</th>
+              <th>Tryb</th>
+              <th>Wynik</th>
+              <th>Punkty</th>
+            </tr>
+          </thead>
+          <tbody id="profile-history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
+  const dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const GAME_LABELS = {
+    quiz: 'Wielki Quiz',
+    papersoccer: 'Papierowa Piłka',
+    hangman: 'Wisielec',
+    statki: 'Statki'
+  };
+
+  let currentUser = null;
+  let currentNick = 'Gracz';
+  let allResults = [];
+  let activeGameFilter = 'all';
+  let selectedProfileUserId = null;
+  let selectedProfileNick = '';
+
+  async function init() {
+    const today = new Date();
+    document.getElementById('date-picker').value = today.toISOString().slice(0, 10);
+    document.getElementById('month-picker').value = today.toISOString().slice(0, 7);
+
+    const { data: { session } } = await dbClient.auth.getSession();
+    if (!session || !session.user) {
+      document.getElementById('main-tabs').classList.add('hidden');
+      document.getElementById('view-locked').classList.remove('hidden');
+      return;
+    }
+
+    currentUser = session.user;
+    const base = currentUser.email.split('@')[0];
+    currentNick = base.charAt(0).toUpperCase() + base.slice(1);
+    selectedProfileUserId = currentUser.id;
+    selectedProfileNick = currentNick;
+
+    await loadAllResults();
+    switchMainTab('rankings');
+  }
+
+  async function loadAllResults() {
+    const { data, error } = await dbClient
+      .from('game_results')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(2000);
+
+    if (error) {
+      console.error('Błąd pobierania wyników:', error);
+      return;
+    }
