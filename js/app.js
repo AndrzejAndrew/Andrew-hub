@@ -459,3 +459,36 @@ setInterval(updateClock, 1000);
 updateClock();
 
 initHub();
+// =========================================================
+// 9. GLOBALNY ZAPIS WYNIKÓW GIER DO SUPABASE (TYLKO ZALOGOWANI)
+// =========================================================
+window.saveGameScore = async function(gameId, mode, result, score, meta = {}) {
+  try {
+    const { data: { session } } = await window.dbClient.auth.getSession();
+    if (!session || !session.user) {
+      return { ok: false, reason: 'not_logged_in' };
+    }
+    const email = session.user.email || 'gracz@hub';
+    const base = email.split('@')[0];
+    const nick = base.charAt(0).toUpperCase() + base.slice(1);
+
+    const { error } = await window.dbClient.from('game_results').insert([{
+      user_id: session.user.id,
+      nick,
+      game_id: gameId,
+      mode,
+      result,
+      score: Math.max(0, Math.round(Number(score) || 0)),
+      meta
+    }]);
+
+    if (error) {
+      console.warn('Błąd zapisu wyniku:', error.message);
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.warn('Wyjątek zapisu wyniku:', err);
+    return { ok: false };
+  }
+};
