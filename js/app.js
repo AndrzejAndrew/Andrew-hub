@@ -167,6 +167,7 @@ async function loadGames() {
     const res = await fetch('./data/games.json?t=' + Date.now());
     if (!res.ok) return;
     const rawGames = await res.json();
+    if (!Array.isArray(rawGames) || !rawGames.length) return;
 
     document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
 
@@ -183,8 +184,8 @@ async function loadGames() {
 
     games.forEach((game, index) => {
       const article = document.createElement('article');
-      article.className = `bento-item ${game.span} ${game.featured ? 'card-featured' : ''}`;
-      article.dataset.category = game.category;
+      article.className = `bento-item ${game.span || 'span-1x1'} ${game.featured ? 'card-featured' : ''}`;
+      article.dataset.category = game.category || 'arcade';
       article.dataset.type = 'game';
 
       const isExternalNewTab = Boolean(game.newTab || game.mode === 'newtab' || /^https?:\/\//i.test(game.url));
@@ -196,12 +197,12 @@ async function loadGames() {
       article.innerHTML = `
         <div class="card-glow"></div>
         <div class="card-top">
-          <span class="tag tag-${game.tagColor}">${game.tag}</span>
+          <span class="tag tag-${game.tagColor || 'cyan'}">${game.tag || 'Gra'}</span>
           <span class="tag tag-outline">${modeLabel}</span>
         </div>
         <div class="card-body">
           <h3>${game.title}</h3>
-          <p>${game.description}</p>
+          <p>${game.description || ''}</p>
         </div>
         <div class="card-actions">${btnHtml}</div>
       `;
@@ -233,57 +234,30 @@ async function loadNews() {
   try {
     const res = await fetch('./data/news.json?t=' + Date.now());
     if (!res.ok) return;
-    newsDataCache = await res.json();
+    const parsed = await res.json();
+    if (!parsed || typeof parsed !== 'object') return;
+    newsDataCache = parsed;
 
     const secFeed = document.getElementById('security-feed');
     const secItems = uniqueNewsItems(newsDataCache.security);
     if (secFeed && secItems.length) {
       secFeed.innerHTML = secItems.map(item => `
         <li>
-          <span class="source-badge ${item.badge}">${item.source}</span>
-          <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-          <time>${item.date}</time>
+          <span class="source-badge ${item.badge || 'sec'}">${item.source || 'Info'}</span>
+          <a href="${item.link || '#'}" target="_blank" rel="noopener">${item.title || 'Bez tytułu'}</a>
+          <time>${item.date || ''}</time>
         </li>
       `).join('');
     }
-    renderLeclercFeed();
-  } catch (err) {
-    console.warn('Brak pliku data/news.json:', err);
-  }
-}
 
-function renderLeclercFeed() {
-  const leclercContent = document.getElementById('leclerc-feed-content');
-  if (!isLoggedIn) {
-    leclercContent.innerHTML = `<p class="locked-placeholder">Zaloguj się na swoje konto, aby odblokować automatyczny raport wzmianek z polskich mediów oraz tablice wyników zespołu.</p>`;
-    return;
-  }
-
-  const leclercItems = uniqueNewsItems(newsDataCache?.leclerc);
-  if (leclercItems.length) {
-    leclercContent.innerHTML = `
-      <ul class="news-list">
-        ${leclercItems.map(item => `
-          <li>
-            <span class="source-badge ${item.badge}">${item.source}</span>
-            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-            <time>${item.date}</time>
-          </li>
-        `).join('')}
-      </ul>
-    `;
-  } else {
-    leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json.</p>`;
-  }
-}
-const itGamesFeed = document.getElementById('it-games-feed');
+    const itGamesFeed = document.getElementById('it-games-feed');
     const itGamesItems = uniqueNewsItems(newsDataCache.it_games);
     if (itGamesFeed && itGamesItems.length) {
       itGamesFeed.innerHTML = itGamesItems.map(item => `
         <li>
-          <span class="source-badge ${item.badge}">${item.source}</span>
-          <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-          <time>${item.date}</time>
+          <span class="source-badge ${item.badge || 'sec'}">${item.source || 'Info'}</span>
+          <a href="${item.link || '#'}" target="_blank" rel="noopener">${item.title || 'Bez tytułu'}</a>
+          <time>${item.date || ''}</time>
         </li>
       `).join('');
     } else if (itGamesFeed) {
@@ -295,6 +269,40 @@ const itGamesFeed = document.getElementById('it-games-feed');
         </li>
       `;
     }
+
+    renderLeclercFeed();
+  } catch (err) {
+    console.warn('Brak pliku data/news.json:', err);
+  }
+}
+
+function renderLeclercFeed() {
+  const leclercContent = document.getElementById('leclerc-feed-content');
+  if (!leclercContent) return;
+
+  if (!isLoggedIn) {
+    leclercContent.innerHTML = `<p class="locked-placeholder">Zaloguj się na swoje konto, aby odblokować automatyczny raport wzmianek z polskich mediów oraz tablice wyników zespołu.</p>`;
+    return;
+  }
+
+  const leclercItems = uniqueNewsItems(newsDataCache?.leclerc);
+  if (leclercItems.length) {
+    leclercContent.innerHTML = `
+      <ul class="news-list">
+        ${leclercItems.map(item => `
+          <li>
+            <span class="source-badge ${item.badge || 'sec'}">${item.source || 'Info'}</span>
+            <a href="${item.link || '#'}" target="_blank" rel="noopener">${item.title || 'Bez tytułu'}</a>
+            <time>${item.date || ''}</time>
+          </li>
+        `).join('')}
+      </ul>
+    `;
+  } else {
+    leclercContent.innerHTML = `<p class="locked-placeholder">Brak nowych artykułów w pliku data/news.json.</p>`;
+  }
+}
+
 // 4. Uruchamianie gier (zewnętrzne zawsze w nowej karcie, lokalne w ramce)
 function launchGame(title, url, mode = 'sidebar', newTab = false) {
   const isExternal = Boolean(newTab || mode === 'newtab' || /^https?:\/\//i.test(url));
@@ -392,12 +400,12 @@ switchMode.addEventListener('click', (e) => {
 btnSubmitAuth.addEventListener('click', async () => {
   const email = authEmail.value;
   const password = authPassword.value;
-  
+
   if (!email || !password) {
     showAuthMsg('Wypełnij oba pola.', false);
     return;
   }
-  
+
   btnSubmitAuth.textContent = "Przetwarzanie...";
 
   if (isRegisterMode) {
@@ -430,11 +438,11 @@ function showAuthMsg(msg, isSuccess) {
 
 window.dbClient.auth.onAuthStateChange((event, session) => {
   isLoggedIn = !!session;
-  
+
   if (isLoggedIn) {
     const email = session.user.email;
     const name = email.split('@')[0];
-    
+
     document.getElementById('user-name').textContent = name.charAt(0).toUpperCase() + name.slice(1);
     document.getElementById('user-role').textContent = 'Zweryfikowany członek IT';
     document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
@@ -447,7 +455,7 @@ window.dbClient.auth.onAuthStateChange((event, session) => {
     btnAuth.textContent = 'Zaloguj się';
     document.getElementById('lock-indicator').textContent = '🔒 Wymagane logowanie';
   }
-  
+
   renderLeclercFeed();
 });
 
@@ -477,6 +485,7 @@ setInterval(updateClock, 1000);
 updateClock();
 
 initHub();
+
 // =========================================================
 // 9. GLOBALNY ZAPIS WYNIKÓW GIER DO SUPABASE (TYLKO ZALOGOWANI)
 // =========================================================
