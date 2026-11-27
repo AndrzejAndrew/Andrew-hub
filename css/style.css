@@ -580,6 +580,21 @@ html, body {
 /* =========================================================
    PRZEŁĄCZNIK SKÓREK I KONSOLA CLI
    ========================================================= */
+.topbar-theme-select {
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+}
+.topbar-theme-select option {
+  background: #0d121f;
+  color: #f8fafc;
+}
 .theme-switcher-box {
   margin-bottom: 12px;
   padding: 10px;
