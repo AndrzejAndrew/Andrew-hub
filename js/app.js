@@ -5,12 +5,160 @@ const gameIframe = document.getElementById('game-iframe');
 const activeGameTitle = document.getElementById('active-game-title');
 
 let newsDataCache = null;
+let loadedGamesCache = [];
 let isLoggedIn = false;
 
-// 1. Inicjalizacja portalu (wczytanie gier i newsów z JSON)
+// 1. Inicjalizacja portalu (wczytanie motywu, gier i newsów z JSON)
 async function initHub() {
+  initTheme();
+  initCli();
   await Promise.all([loadGames(), loadNews()]);
   attachSpotlightEffect();
+}
+
+// =========================================================
+// SKÓRKI (MOTYWY) I LINIA KOMEND (CLI)
+// =========================================================
+function setTheme(themeName) {
+  const allowed = ['default', 'dark', 'light', 'terminal'];
+  const chosen = allowed.includes(themeName) ? themeName : 'default';
+  document.body.setAttribute('data-theme', chosen);
+  localStorage.setItem('andrew_hub_theme', chosen);
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.themeVal === chosen);
+  });
+
+  // W trybie terminalowym automatycznie pokazujemy konsolę CLI
+  const cliBar = document.getElementById('cli-bar');
+  if (cliBar) {
+    if (chosen === 'terminal') {
+      cliBar.classList.remove('hidden');
+      const cliInput = document.getElementById('cli-input');
+      if (cliInput) cliInput.focus();
+    }
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('andrew_hub_theme') || 'default';
+  setTheme(saved);
+}
+
+function toggleCliBar() {
+  const cliBar = document.getElementById('cli-bar');
+  if (!cliBar) return;
+  cliBar.classList.toggle('hidden');
+  if (!cliBar.classList.contains('hidden')) {
+    document.getElementById('cli-input')?.focus();
+  }
+}
+
+function cliPrint(text) {
+  const out = document.getElementById('cli-output');
+  if (!out) return;
+  out.textContent += (out.textContent ? '\n' : '') + text;
+  out.scrollTop = out.scrollHeight;
+}
+
+function executeCliCommand(rawCmd) {
+  const trimmed = rawCmd.trim();
+  if (!trimmed) return;
+  cliPrint(`andrzej@hub:~$ ${trimmed}`);
+
+  const parts = trimmed.split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const arg = parts.slice(1).join(' ').toLowerCase();
+
+  if (cmd === 'help') {
+    cliPrint('Dostępne komendy:\n  ls                          - lista wszystkich modułów i gier\n  play <nazwa/id>             - uruchom grę (np. play evolve, play statki)\n  theme <default|dark|light|terminal> - zmień skórkę\n  filter <all|strategy|arcade|news>   - filtruj kafelki\n  close                       - zamknij aktywną grę\n  clear                       - wyczyść konsolę');
+    return;
+  }
+
+  if (cmd === 'clear') {
+    const out = document.getElementById('cli-output');
+    if (out) out.textContent = '';
+    return;
+  }
+
+  if (cmd === 'ls') {
+    if (!loadedGamesCache.length) {
+      cliPrint('Brak załadowanych gier.');
+      return;
+    }
+    const list = loadedGamesCache.map(g => `  [${g.id}] ${g.title} (${g.newTab ? 'nowa karta' : g.mode})`).join('\n');
+    cliPrint('Zainstalowane moduły:\n' + list);
+    return;
+  }
+
+  if (cmd === 'theme') {
+    if (!['default', 'dark', 'light', 'terminal'].includes(arg)) {
+      cliPrint('Użycie: theme default | dark | light | terminal');
+      return;
+    }
+    setTheme(arg);
+    cliPrint(`Ustawiono motyw: ${arg}`);
+    return;
+  }
+
+  if (cmd === 'filter') {
+    const btn = document.querySelector(`.nav-btn[data-filter="${arg}"]`);
+    if (btn) {
+      btn.click();
+      cliPrint(`Filtr: ${arg}`);
+    } else {
+      cliPrint('Użycie: filter all | strategy | arcade | news');
+    }
+    return;
+  }
+
+  if (cmd === 'close') {
+    closeGame();
+    cliPrint('Powrót do dashboardu.');
+    return;
+  }
+
+  if (cmd === 'play' || cmd === 'run' || cmd === 'open') {
+    if (!arg) {
+      cliPrint('Podaj nazwę lub ID gry, np. "play evolve". Wpisz "ls" aby zobaczyć listę.');
+      return;
+    }
+    const found = loadedGamesCache.find(g =>
+      g.id.toLowerCase() === arg ||
+      g.title.toLowerCase().includes(arg) ||
+      g.id.toLowerCase().includes(arg)
+    );
+    if (!found) {
+      cliPrint(`Nie znaleziono gry: "${arg}". Wpisz "ls" aby zobaczyć listę.`);
+      return;
+    }
+    cliPrint(`Uruchamianie: ${found.title}...`);
+    launchGame(found.title, found.url, found.mode, Boolean(found.newTab));
+    return;
+  }
+
+  cliPrint(`Nieznana komenda: "${cmd}". Wpisz "help".`);
+}
+
+function initCli() {
+  const cliInput = document.getElementById('cli-input');
+  if (cliInput) {
+    cliInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = cliInput.value;
+        cliInput.value = '';
+        executeCliCommand(val);
+      }
+    });
+  }
+
+  // Skrót klawiszowy Ctrl+K lub tylda ` otwiera/zamyka konsolę
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey && e.key.toLowerCase() === 'k') || (e.key === '`' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+      e.preventDefault();
+      toggleCliBar();
+    }
+  });
 }
 
 // 2. Dynamiczne renderowanie kafelków gier z data/games.json
@@ -20,10 +168,8 @@ async function loadGames() {
     if (!res.ok) return;
     const rawGames = await res.json();
 
-    // Usuwamy stare kafelki gier przed ponownym wyrenderowaniem
     document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
 
-    // Deduplikacja gier po id lub url
     const seen = new Set();
     const games = rawGames.filter(g => {
       const key = g.id || g.url || g.title;
@@ -31,6 +177,7 @@ async function loadGames() {
       seen.add(key);
       return true;
     });
+    loadedGamesCache = games;
 
     const securityCard = document.querySelector('.card-feed');
 
@@ -40,10 +187,11 @@ async function loadGames() {
       article.dataset.category = game.category;
       article.dataset.type = 'game';
 
-      const modeLabel = game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu';
+      const isNewTab = Boolean(game.newTab || game.mode === 'newtab');
+      const modeLabel = isNewTab ? 'Nowa Karta ↗' : (game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu');
       const btnHtml = game.featured
-        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}')">Uruchom ${game.title} →</button>`
-        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}')">Graj</button>`;
+        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isNewTab})">Uruchom ${game.title} →</button>`
+        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isNewTab})">${isNewTab ? 'Otwórz ↗' : 'Graj'}</button>`;
 
       article.innerHTML = `
         <div class="card-glow"></div>
@@ -58,7 +206,6 @@ async function loadGames() {
         <div class="card-actions">${btnHtml}</div>
       `;
 
-      // Pierwszy kafelek (Fabryka) wstawiamy przed prasówką, resztę po niej
       if (index === 0 && securityCard) {
         dashboard.insertBefore(article, securityCard);
       } else {
@@ -70,7 +217,6 @@ async function loadGames() {
   }
 }
 
-// Pomocnik do usuwania duplikatów artykułów
 function uniqueNewsItems(items) {
   if (!Array.isArray(items)) return [];
   const seen = new Set();
@@ -132,7 +278,12 @@ function renderLeclercFeed() {
 }
 
 // 4. Uruchamianie i zamykanie gier
-function launchGame(title, url, mode = 'sidebar') {
+function launchGame(title, url, mode = 'sidebar', newTab = false) {
+  if (newTab || mode === 'newtab') {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
   dashboard.classList.add('hidden');
   gameRunner.classList.remove('hidden');
   activeGameTitle.textContent = title;
@@ -157,9 +308,9 @@ function toggleFullscreenMode() {
 }
 
 // 5. Filtrowanie kafelków
-document.querySelectorAll('.nav-btn').forEach(btn => {
+document.querySelectorAll('.nav-btn[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn[data-filter]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
     const filter = btn.dataset.filter;
@@ -176,9 +327,8 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 
 // =========================================================
-// 6. AUTORYZACJA SUPABASE (Prawdziwe Logowanie i Rejestracja)
+// 6. AUTORYZACJA SUPABASE
 // =========================================================
-
 const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
 
@@ -283,7 +433,7 @@ window.dbClient.auth.onAuthStateChange((event, session) => {
 });
 
 // =========================================================
-// 7. Reflektor myszy na kafelkach (delegacja zdarzeń dla dynamicznych kart)
+// 7. Reflektor myszy na kafelkach
 // =========================================================
 function attachSpotlightEffect() {
   dashboard.addEventListener('mousemove', e => {
