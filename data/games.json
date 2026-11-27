@@ -134,5 +134,17 @@
     "mode": "sidebar",
     "url": "./games/snake/index.html",
     "featured": false
+  },
+  {
+    "id": "memory",
+    "title": "Sekwencja Pamięci",
+    "description": "Zapamiętuj coraz dłuższe sekwencje pól i dźwięków w trybie klasycznym lub od tyłu.",
+    "category": "arcade",
+    "tag": "Pamięć / Solo",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/memory/index.html",
+    "featured": false
   }
 ]
