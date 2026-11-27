@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kółko i Krzyżyk - Nexus Hub</title>
+  <title>Kółko i Krzyżyk - Andrew Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* STYLIZACJA ZGODNA Z NEXUS HUB (Luminous Bento) */
     body {
       background-color: #05060a; color: #f8fafc; font-family: 'Inter', sans-serif;
       margin: 0; padding: 30px 20px; display: flex; justify-content: center;
@@ -69,7 +68,7 @@
     .score-box { display: flex; flex-direction: column; align-items: center; }
     .score-label { font-size: 0.8rem; color: #8b95a5; text-transform: uppercase; letter-spacing: 1px;}
     .score-value { font-size: 1.8rem; font-weight: bold; color: #fff; margin-top: 4px;}
-    .score-you { color: #34d399; } /* Wyróżnienie wyniku własnego */
+    .score-you { color: #34d399; }
 
     #restart-btn-container { margin-top: 20px; display: none; height: 50px;}
   </style>
@@ -79,7 +78,7 @@
 <div class="ttt-wrapper">
   <div class="ttt-head">
     <h1>Kółko i Krzyżyk</h1>
-    <p class="ttt-meta" id="player-greeting">Łączenie z bazą bazy danych...</p>
+    <p class="ttt-meta" id="player-greeting">Łączenie z bazą danych...</p>
   </div>
 
   <!-- MENU GŁÓWNE -->
@@ -93,7 +92,7 @@
     <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 16px;">
       <h2 style="margin-top:0; font-size: 1.3rem;">Dołącz do istniejącej gry</h2>
       <div style="display: flex; justify-content: center; gap: 10px; align-items: center;">
-        <input type="text" id="join-code" class="input-code" maxlength="5" placeholder="KOD">
+        <input type="text" id="join-code" class="input-code" maxlength="5" placeholder="KOD" style="text-transform: uppercase;">
         <button class="btn" onclick="joinOnlineRoom()" style="margin:0;">Dołącz</button>
       </div>
     </div>
@@ -137,16 +136,10 @@
 </div>
 
 <script>
-  // INICJALIZACJA BAZY
   const SUPABASE_URL = 'https://wtgibsqcxwkylhsfidgy.supabase.co';
-  const SUPABASE_KEY = 'WSTAW_TUTAJ_SWÓJ_SKOPIOWANY_KLUCZ_PUBLICZNY'; // KLUCZ ANON PUBLIC
+  const SUPABASE_KEY = 'sb_publishable_Xa3OHOsKSa0_ZTJiHRY45A_fpUfBgpp';
   
-  let dbClient;
-  if (window.parent.dbClient) {
-      dbClient = window.parent.dbClient; 
-  } else {
-      dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
+  const dbClient = window.parent.dbClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUser = null;
   let currentRoomId = null;
@@ -159,6 +152,7 @@
   let localStatus = 'playing'; 
   let scoreX = 0;
   let scoreO = 0;
+  let tttScoreSaved = false;
 
   async function checkAuth() {
     const { data: { session } } = await dbClient.auth.getSession();
@@ -170,6 +164,30 @@
     }
   }
   checkAuth();
+
+  async function recordTicTacToeResult(winnerSymbol) {
+    if (tttScoreSaved || localStatus !== 'finished') return;
+    tttScoreSaved = true;
+
+    if (!window.parent || typeof window.parent.saveGameScore !== 'function') return;
+
+    const mode = gameMode === 'online' ? 'online' : 'solo';
+    let result = 'draw';
+    let score = 30;
+
+    if (winnerSymbol && winnerSymbol !== 'draw') {
+      const refSymbol = gameMode === 'online' ? mySymbol : 'X';
+      if (winnerSymbol === refSymbol) {
+        result = 'win';
+        score = gameMode === 'online' ? 120 : 100;
+      } else {
+        result = 'loss';
+        score = 10;
+      }
+    }
+
+    await window.parent.saveGameScore('tictactoe', mode, result, score, {});
+  }
 
   const boardEl = document.getElementById('board');
   const statusEl = document.getElementById('game-status');
@@ -184,6 +202,7 @@
     localTurn = 'X';
     localStatus = 'playing';
     scoreX = 0; scoreO = 0;
+    tttScoreSaved = false;
     
     document.getElementById('online-info').style.display = 'none';
     document.getElementById('label-player1').textContent = 'Gracz 1 (X)';
@@ -211,7 +230,7 @@
   // DOŁĄCZANIE DO GRY ONLINE
   async function joinOnlineRoom() {
     if (!currentUser) return alert('Musisz być zalogowany!');
-    const code = document.getElementById('join-code').value.toUpperCase();
+    const code = document.getElementById('join-code').value.trim().toUpperCase();
     if (!code) return;
 
     const { data: room, error } = await dbClient.from('tic_tac_toe').select('*').eq('room_code', code).single();
@@ -220,13 +239,13 @@
     
     let symbol = 'O';
     if (room.player_x === currentUser.id) {
-        symbol = 'X';
+      symbol = 'X';
     } else if (!room.player_o) {
       await dbClient.from('tic_tac_toe').update({ player_o: currentUser.id, status: 'playing' }).eq('id', room.id);
     } else if (room.player_o === currentUser.id) {
-        symbol = 'O'; 
+      symbol = 'O'; 
     } else if (room.status !== 'waiting') {
-        return alert('Gra w tym pokoju jest już pełna!');
+      return alert('Gra w tym pokoju jest już pełna!');
     }
 
     setupOnlineGame(room.id, code, symbol);
@@ -236,12 +255,12 @@
     gameMode = 'online';
     currentRoomId = roomId;
     mySymbol = symbol;
+    tttScoreSaved = false;
     
     document.getElementById('online-info').style.display = 'block';
     document.getElementById('room-code-display').textContent = code;
     
-    // Dynamiczne etykiety wyników z perspektywy gracza
-    if(symbol === 'X') {
+    if (symbol === 'X') {
       document.getElementById('label-player1').innerHTML = 'Ty (X) <span style="color:#34d399;">●</span>';
       document.getElementById('label-player2').textContent = 'Przeciwnik (O)';
     } else {
@@ -256,15 +275,20 @@
 
   function subscribeToGame() {
     if (subscription) dbClient.removeChannel(subscription);
-    subscription = dbClient.channel('game-updates')
+    subscription = dbClient.channel('ttt-' + currentRoomId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tic_tac_toe', filter: `id=eq.${currentRoomId}` }, 
         payload => { updateOnlineState(payload.new); }
       ).subscribe();
 
-    dbClient.from('tic_tac_toe').select('*').eq('id', currentRoomId).single().then(({data}) => updateOnlineState(data));
+    dbClient.from('tic_tac_toe').select('*').eq('id', currentRoomId).single().then(({data}) => {
+      if (data) updateOnlineState(data);
+    });
   }
 
   function updateOnlineState(dbState) {
+    if (dbState.board === '_________' && localBoard !== '_________') {
+      tttScoreSaved = false;
+    }
     localBoard = dbState.board;
     localTurn = dbState.turn;
     localStatus = dbState.status;
@@ -285,21 +309,23 @@
 
     if (localStatus === 'finished') {
       let winMsg = 'Koniec gry! Remis.';
+      let winnerSymbol = 'draw';
       if (winCells) {
-         let winnerSymbol = localTurn === 'X' ? 'O' : 'X';
-         if (gameMode === 'online') {
-            winMsg = (winnerSymbol === mySymbol) ? 'Gratulacje! Wygrałeś!' : 'Przegrałeś!';
-         } else {
-            winMsg = `Koniec gry! Wygrywa: ${winnerSymbol}`;
-         }
+        winnerSymbol = localTurn === 'X' ? 'O' : 'X';
+        if (gameMode === 'online') {
+          winMsg = (winnerSymbol === mySymbol) ? 'Gratulacje! Wygrałeś!' : 'Przegrałeś!';
+        } else {
+          winMsg = `Koniec gry! Wygrywa: ${winnerSymbol}`;
+        }
       }
       statusEl.textContent = winMsg;
       statusEl.style.color = (winMsg.includes('Wygra') || winMsg.includes('X') || winMsg.includes('O')) ? '#34d399' : '#9ca3af';
+      recordTicTacToeResult(winnerSymbol);
     } else if (gameMode === 'online' && localStatus === 'waiting') {
       statusEl.textContent = 'Oczekiwanie na drugiego gracza...';
       statusEl.style.color = '#7dd3fc';
     } else {
-      if(gameMode === 'online') {
+      if (gameMode === 'online') {
         statusEl.textContent = (localTurn === mySymbol) ? 'Twój ruch!' : 'Ruch przeciwnika...';
         statusEl.style.color = (localTurn === mySymbol) ? '#fff' : '#8b95a5';
       } else {
@@ -322,7 +348,7 @@
       if (!canClick) cell.classList.add('disabled');
       if (winCells && winCells.includes(idx)) cell.classList.add('ttt-cell-win');
 
-      cell.addEventListener('click', () => { if(canClick) makeMove(idx); });
+      cell.addEventListener('click', () => { if (canClick) makeMove(idx); });
       boardEl.appendChild(cell);
     });
   }
@@ -341,7 +367,7 @@
     if (winCells) {
       newStatus = 'finished';
       winner = localTurn;
-      if(winner === 'X') sX++; else sO++;
+      if (winner === 'X') sX++; else sO++;
     } else if (!newBoard.includes('_')) {
       newStatus = 'finished';
       winner = 'draw';
@@ -356,10 +382,10 @@
     }
   }
 
-  // RESTART GRY (BEZ WYCHODZENIA Z POKOJU)
+  // RESTART GRY
   async function restartGame() {
+    tttScoreSaved = false;
     const newBoard = '_________';
-    // Przegrany (lub 'X' przy remisie) zaczyna nową rundę
     const newTurn = (localStatus === 'finished' && !checkWin(localBoard)) ? 'X' : localTurn; 
     
     if (gameMode === 'hotseat') {
@@ -378,7 +404,7 @@
   }
 
   function returnToMenu() {
-    if(subscription) dbClient.removeChannel(subscription);
+    if (subscription) dbClient.removeChannel(subscription);
     gameSection.classList.remove('active-section');
     menuSection.classList.add('active-section');
   }
