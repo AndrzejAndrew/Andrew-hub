@@ -229,6 +229,7 @@
           <button class="pill-btn" data-game="tictactoe" onclick="setGameFilter('tictactoe')">Kółko i Krzyżyk</button>
           <button class="pill-btn" data-game="snake" onclick="setGameFilter('snake')">Wąż</button>
           <button class="pill-btn" data-game="memory" onclick="setGameFilter('memory')">Pamięć</button>
+          <button class="pill-btn" data-game="space_impact" onclick="setGameFilter('space_impact')">Space Impact</button>
         </div>
       </div>
 
@@ -347,7 +348,8 @@
     statki: 'Statki',
     tictactoe: 'Kółko i Krzyżyk',
     snake: 'Wąż (Snake)',
-    memory: 'Sekwencja Pamięci'
+    memory: 'Sekwencja Pamięci',
+    space_impact: 'Space Impact'
   };
 
   let currentUser = null;
@@ -614,7 +616,7 @@
       </div>
     `;
 
-    const gameIds = ['quiz', 'papersoccer', 'hangman', 'statki', 'tictactoe','snake','memory'];
+    const gameIds = ['quiz', 'papersoccer', 'hangman', 'statki', 'tictactoe', 'snake', 'memory', 'space_impact'];
     document.getElementById('profile-games-tbody').innerHTML = gameIds.map(gid => {
       const st = aggregateStats(playerRows.filter(r => r.game_id === gid));
       return `
