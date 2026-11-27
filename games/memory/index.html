@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sekwencja Pamięci - Andrew Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .mem-wrapper {
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+    .mem-head h1 {
+      margin: 0 0 4px 0;
+      font-size: 2rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .mem-meta {
+      color: #8b95a5;
+      margin: 0 0 18px 0;
+      font-size: 0.9rem;
+    }
+    .hud-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: rgba(12, 16, 26, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 76px;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #8b95a5;
+    }
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #34d399;
+      margin-top: 2px;
+    }
+    .stat-value.cyan { color: #7dd3fc; }
+    .stat-value.pink { color: #f472b6; }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    select, .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #f8fafc;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .btn:hover, select:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+    }
+    .btn-start {
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.24), rgba(52, 211, 153, 0.08));
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #34d399;
+      font-weight: 600;
+    }
+    .btn-start:hover {
+      background: rgba(52, 211, 153, 0.3);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+    }
+
+    .status-banner {
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(12, 16, 26, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+
+    .pad-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 185px));
+      gap: 14px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .pad-btn {
+      height: 135px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.88);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      user-select: none;
+    }
+    .pad-btn span.key-hint {
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+    .pad-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+
+    .pad-0 {
+      background: linear-gradient(160deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.08));
+      border-color: rgba(52, 211, 153, 0.35);
+    }
+    .pad-1 {
+      background: linear-gradient(160deg, rgba(56, 189, 248, 0.22), rgba(2, 132, 199, 0.08));
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .pad-2 {
+      background: linear-gradient(160deg, rgba(167, 139, 250, 0.22), rgba(124, 58, 237, 0.08));
+      border-color: rgba(167, 139, 250, 0.35);
+    }
+    .pad-3 {
+      background: linear-gradient(160deg, rgba(244, 114, 182, 0.22), rgba(219, 39, 119, 0.08));
+      border-color: rgba(244, 114, 182, 0.35);
+    }
+
+    .pad-btn.lit.pad-0 {
+      background: #34d399;
+      color: #052e16;
+      box-shadow: 0 0 28px rgba(52, 211, 153, 0.75);
+      transform: scale(1.03);
+    }
+    .pad-btn.lit.pad-1 {
+      background: #38bdf8;
+      color: #082f49;
+      box-shadow: 0 0 28px rgba(56, 189, 248, 0.75);
+      transform: scale(1.03);
+    }
+    .pad-btn.lit.pad-2 {
+      background: #a78bfa;
+      color: #1e1b4b;
+      box-shadow: 0 0 28px rgba(167, 139, 250, 0.75);
+      transform: scale(1.03);
+    }
+    .pad-btn.lit.pad-3 {
+      background: #f472b6;
+      color: #500724;
+      box-shadow: 0 0 28px rgba(244, 114, 182, 0.75);
+      transform: scale(1.03);
+    }
+
+    .hint {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="mem-wrapper">
+    <div class="mem-head">
+      <h1>Sekwencja Pamięci</h1>
+      <p class="mem-meta" id="player-status">Zapamiętaj kolejność podświetleń i powtórz ją bez błędu.</p>
+    </div>
+
+    <div class="hud-panel">
+      <div class="stat-box">
+        <span class="stat-label">Etap</span>
+        <span class="stat-value cyan" id="level-val">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Punkty</span>
+        <span class="stat-value" id="score-val">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Rekord</span>
+        <span class="stat-value pink" id="best-val">0</span>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <select id="mode-select" title="Tryb rozgrywki">
+        <option value="normal" selected>Tryb: Klasyczny (wprost)</option>
+        <option value="reverse">Tryb: Lustro (od tyłu!)</option>
+      </select>
+      <select id="tempo-select" title="Tempo sekwencji">
+        <option value="520">Tempo: Spokojne</option>
+        <option value="390" selected>Tempo: Standard</option>
+        <option value="270">Tempo: Szybkie</option>
+      </select>
+      <button class="btn btn-start" id="btn-start" onclick="startGame()">▶ Nowa gra</button>
+      <button class="btn" id="btn-sound" onclick="toggleSound()">🔊 Dźwięk: ON</button>
+    </div>
+
+    <div class="status-banner" id="status-banner">
+      Kliknij „Nowa gra”, aby rozpocząć rundę.
+    </div>
+
+    <div class="pad-grid" id="pad-grid">
+      <button type="button" class="pad-btn pad-0" data-pad="0" onclick="handlePadClick(0)" disabled>
+        MIĘTA
+        <span class="key-hint">Klawisz 1 / Q</span>
+      </button>
+      <button type="button" class="pad-btn pad-1" data-pad="1" onclick="handlePadClick(1)" disabled>
+        CYJAN
+        <span class="key-hint">Klawisz 2 / W</span>
+      </button>
+      <button type="button" class="pad-btn pad-2" data-pad="2" onclick="handlePadClick(2)" disabled>
+        FIOLET
+        <span class="key-hint">Klawisz 3 / A</span>
+      </button>
+      <button type="button" class="pad-btn pad-3" data-pad="3" onclick="handlePadClick(3)" disabled>
+        RÓŻ
+        <span class="key-hint">Klawisz 4 / S</span>
+      </button>
+    </div>
+
+    <div class="hint">Sterowanie: kliknięcie / dotyk lub klawisze 1–4 / Q, W, A, S</div>
+  </div>
+
+  <script>
+    const PAD_FREQS = [329.63, 392.00, 493.88, 587.33]; // E4, G4, B4, D5
+    const padButtons = Array.from(document.querySelectorAll('.pad-btn'));
+
+    let sequence = [];
+    let expectedIndex = 0;
+    let score = 0;
+    let bestScore = Number(localStorage.getItem('andrew_hub_memory_best') || 0);
+    let isShowingSeq = false;
+    let isAcceptingInput = false;
+    let soundEnabled = true;
+    let audioCtx = null;
+    let runActive = false;
+
+    document.getElementById('best-val').textContent = bestScore;
+
+    async function initUserBanner() {
+      try {
+        const db = window.parent?.dbClient;
+        if (!db) return;
+        const { data: { session } } = await db.auth.getSession();
+        if (session?.user?.email) {
+          const nick = session.user.email.split('@')[0];
+          document.getElementById('player-status').textContent =
+            `Gracz: ${nick.charAt(0).toUpperCase() + nick.slice(1)} — wyniki trafiają do rankingu!`;
+        }
+      } catch (_) {}
+    }
+    initUserBanner();
+
+    function playTone(padIdx, durationMs = 240, customFreq = null) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = customFreq || PAD_FREQS[padIdx] || 440;
+
+        const now = audioCtx.currentTime;
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + durationMs / 1000);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + durationMs / 1000 + 0.02);
+      } catch (_) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('btn-sound').textContent = soundEnabled ? '🔊 Dźwięk: ON' : '🔇 Dźwięk: OFF';
+    }
+
+    function setPadsDisabled(disabled) {
+      padButtons.forEach(btn => {
+        btn.disabled = disabled;
+      });
+    }
+
+    function flashPad(padIdx, durationMs = 260) {
+      return new Promise(resolve => {
+        const btn = padButtons[padIdx];
+        if (!btn) return resolve();
+        btn.classList.add('lit');
+        playTone(padIdx, durationMs);
+        setTimeout(() => {
+          btn.classList.remove('lit');
+          setTimeout(resolve, 90);
+        }, durationMs);
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function startGame() {
+      sequence = [];
+      expectedIndex = 0;
+      score = 0;
+      runActive = true;
+
+      document.getElementById('level-val').textContent = '0';
+      document.getElementById('score-val').textContent = '0';
+      nextRound();
+    }
+
+    async function nextRound() {
+      if (!runActive) return;
+      isShowingSeq = true;
+      isAcceptingInput = false;
+      setPadsDisabled(true);
+      expectedIndex = 0;
+
+      sequence.push(Math.floor(Math.random() * 4));
+      document.getElementById('level-val').textContent = String(sequence.length);
+
+      const mode = document.getElementById('mode-select').value;
+      document.getElementById('status-banner').textContent =
+        mode === 'reverse'
+          ? `Etap ${sequence.length}: patrz uważnie — potem powtórz OD TYŁU!`
+          : `Etap ${sequence.length}: obserwuj sekwencję...`;
+
+      const tempo = Number(document.getElementById('tempo-select').value) || 390;
+      await sleep(420);
+
+      for (const padIdx of sequence) {
+        if (!runActive) return;
+        await flashPad(padIdx, Math.max(180, tempo - 90));
+        await sleep(Math.max(90, Math.round(tempo * 0.35)));
+      }
+
+      if (!runActive) return;
+      isShowingSeq = false;
+      isAcceptingInput = true;
+      setPadsDisabled(false);
+
+      document.getElementById('status-banner').textContent =
+        mode === 'reverse'
+          ? `Twoja kolej! Odtwórz ${sequence.length} kroków OD KOŃCA.`
+          : `Twoja kolej! Powtórz ${sequence.length} kroków w tej samej kolejności.`;
+    }
+
+    function getTargetSequence() {
+      const mode = document.getElementById('mode-select').value;
+      return mode === 'reverse' ? [...sequence].reverse() : sequence;
+    }
+
+    async function handlePadClick(padIdx) {
+      if (!runActive || isShowingSeq || !isAcceptingInput) return;
+
+      await flashPad(padIdx, 180);
+      const target = getTargetSequence();
+
+      if (padIdx === target[expectedIndex]) {
+        expectedIndex++;
+        const mode = document.getElementById('mode-select').value;
+        const tempo = Number(document.getElementById('tempo-select').value) || 390;
+        const modeBonus = mode === 'reverse' ? 1.5 : 1.0;
+        const tempoBonus = tempo <= 270 ? 1.3 : (tempo <= 390 ? 1.1 : 1.0);
+        const stepPoints = Math.round(15 * modeBonus * tempoBonus);
+
+        score += stepPoints;
+        document.getElementById('score-val').textContent = String(score);
+        if (score > bestScore) {
+          bestScore = score;
+          localStorage.setItem('andrew_hub_memory_best', String(bestScore));
+          document.getElementById('best-val').textContent = String(bestScore);
+        }
+
+        if (expectedIndex === target.length) {
+          isAcceptingInput = false;
+          setPadsDisabled(true);
+          document.getElementById('status-banner').textContent = 'Świetnie! Przechodzisz do kolejnego etapu...';
+          await sleep(450);
+          nextRound();
+        }
+      } else {
+        await handleMistake(target[expectedIndex]);
+      }
+    }
+
+    async function handleMistake(expectedPad) {
+      runActive = false;
+      isAcceptingInput = false;
+      setPadsDisabled(true);
+
+      playTone(0, 380, 145);
+      document.getElementById('status-banner').textContent =
+        `Pomyłka na etapie ${sequence.length}! Koniec rundy — wynik: ${score} pkt.`;
+
+      if (typeof expectedPad === 'number') {
+        await sleep(250);
+        await flashPad(expectedPad, 340);
+      }
+
+      if (score > 0 && window.parent && typeof window.parent.saveGameScore === 'function') {
+        const mode = document.getElementById('mode-select').value;
+        const tempo = document.getElementById('tempo-select').value;
+        const resultLabel = sequence.length >= 6 ? 'win' : 'draw';
+        await window.parent.saveGameScore('memory', 'solo', resultLabel, score, {
+          level_reached: sequence.length,
+          mode,
+          tempo
+        });
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (key === '1' || key === 'q') handlePadClick(0);
+      else if (key === '2' || key === 'w') handlePadClick(1);
+      else if (key === '3' || key === 'a') handlePadClick(2);
+      else if (key === '4' || key === 's') handlePadClick(3);
+      else if (e.key === 'Enter' && !runActive) startGame();
+    });
+  </script>
+</body>
+</html>
