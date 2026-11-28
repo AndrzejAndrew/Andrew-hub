@@ -172,5 +172,17 @@
     "mode": "sidebar",
     "url": "./games/kalambury/index.html",
     "featured": false
+  },
+  {
+    "id": "feedback",
+    "title": "Zgłoś błąd / Pomysł",
+    "description": "Prywatna skrzynka uwag i pomysłów na rozwój portalu z odpowiedzią administratora.",
+    "category": "arcade",
+    "tag": "Feedback / Prywatne",
+    "tagColor": "purple",
+    "span": "span-1x1",
+    "mode": "sidebar",
+    "url": "./games/feedback/index.html",
+    "featured": false
   }
 ]
