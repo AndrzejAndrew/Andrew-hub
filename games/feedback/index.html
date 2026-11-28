@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zgłoszenia i Pomysły - Andrew Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #05060a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 22px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .fb-wrap {
+      max-width: 760px;
+      width: 100%;
+    }
+    .fb-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .fb-head h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      color: #fff;
+    }
+    .fb-sub {
+      color: #8b95a5;
+      font-size: 0.88rem;
+      margin: 4px 0 0 0;
+    }
+    .role-pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc;
+    }
+    .role-pill.admin {
+      background: rgba(244, 114, 182, 0.16);
+      border-color: rgba(244, 114, 182, 0.45);
+      color: #f472b6;
+    }
+    .card {
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    select, textarea, input[type="text"] {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    textarea {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+    }
+    .hp-field {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .btn {
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.24), rgba(52, 211, 153, 0.08));
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #34d399;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn:hover:not(:disabled) {
+      background: rgba(52, 211, 153, 0.32);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.82rem;
+    }
+    .msg-status {
+      font-size: 0.85rem;
+      margin-top: 8px;
+      color: #7dd3fc;
+    }
+    .msg-status.err {
+      color: #fda4af;
+    }
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ticket-item {
+      background: rgba(16, 21, 34, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .ticket-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+    }
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.74rem;
+    }
+    .badge-bug { background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.35); }
+    .badge-idea { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
+    .badge-other { background: rgba(167, 139, 250, 0.16); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.35); }
+    .status-tag {
+      color: #34d399;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+    }
+    .ticket-body {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .admin-reply-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(52, 211, 153, 0.09);
+      border-left: 3px solid #34d399;
+      font-size: 0.88rem;
+      color: #d1fae5;
+    }
+    .admin-controls {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .guest-box {
+      text-align: center;
+      padding: 26px 16px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="fb-wrap">
+    <div class="fb-head">
+      <div>
+        <h1>Zgłoszenia i Pomysły</h1>
+        <p class="fb-sub">Prywatny kanał feedbacku: Twoje wpisy widzisz tylko Ty oraz Administrator portalu.</p>
+      </div>
+      <span class="role-pill" id="role-pill">Sprawdzanie sesji...</span>
+    </div>
+
+    <div id="guest-panel" class="card guest-box" style="display:none;">
+      <strong>Wymagane logowanie</strong>
+      <p>Zaloguj się w bocznym menu Andrew Hub, aby wysłać zgłoszenie błędu lub pomysł na nową funkcję oraz śledzić odpowiedzi.</p>
+    </div>
+
+    <div id="auth-panel" style="display:none;">
+      <div class="card">
+        <form id="ticket-form" onsubmit="submitTicket(event)">
+          <div class="form-row">
+            <select id="ticket-type" aria-label="Typ zgłoszenia">
+              <option value="bug">🐞 Zgłoszenie błędu</option>
+              <option value="idea" selected>💡 Pomysł na nową funkcję / grę</option>
+              <option value="other">💬 Inna uwaga</option>
+            </select>
+            <!-- Honeypot przeciw prostym botom -->
+            <input type="text" id="website-hp" class="hp-field" tabindex="-1" autocomplete="off" />
+          </div>
+          <textarea id="ticket-msg" maxlength="1500" placeholder="Opisz krótko, co poprawić albo jaki moduł warto dodać do huba..." required></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;">
+            <span style="font-size:0.78rem;color:#64748b;" id="char-counter">0 / 1500</span>
+            <button type="submit" class="btn" id="btn-submit">Wyślij zgłoszenie</button>
+          </div>
+          <div class="msg-status" id="form-status"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong id="list-heading">Twoje zgłoszenia</strong>
+          <button type="button" class="btn btn-sm" onclick="loadTickets()">↻ Odśwież</button>
+        </div>
+        <div class="ticket-list" id="ticket-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Wpisz tutaj dokładnie ten sam e-mail, który ustawiłeś w politykach RLS w Supabase
+    const ADMIN_EMAIL = 'andrzejandrewendrju@gmail.com'.toLowerCase();
+
+    let currentSession = null;
+    let isAdmin = false;
+
+    function getDb() {
+      return window.parent?.dbClient || window.dbClient;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    document.getElementById('ticket-msg').addEventListener('input', (e) => {
+      document.getElementById('char-counter').textContent = `${e.target.value.length} / 1500`;
+    });
+
+    async function init() {
+      const db = getDb();
+      if (!db) {
+        document.getElementById('role-pill').textContent = 'Brak połączenia z Supabase';
+        return;
+      }
+
+      const { data: { session } } = await db.auth.getSession();
+      currentSession = session;
+
+      const rolePill = document.getElementById('role-pill');
+      if (!session || !session.user) {
+        rolePill.textContent = 'Tryb gościa';
+        document.getElementById('guest-panel').style.display = 'block';
+        return;
+      }
+
+      const email = (session.user.email || '').toLowerCase();
+      isAdmin = email === ADMIN_EMAIL;
+
+      rolePill.textContent = isAdmin ? 'Super Admin (wszystkie zgłoszenia)' : `Zalogowany: ${email.split('@')[0]}`;
+      if (isAdmin) rolePill.classList.add('admin');
+
+      document.getElementById('list-heading').textContent = isAdmin
+        ? 'Wszystkie zgłoszenia użytkowników'
+        : 'Twoje zgłoszenia i odpowiedzi';
+
+      document.getElementById('auth-panel').style.display = 'block';
+      await loadTickets();
+    }
+
+    async function submitTicket(e) {
+      e.preventDefault();
+      if (!currentSession?.user) return;
+
+      // Honeypot: jeśli ukryte pole jest wypełnione, ignorujemy bota
+      if (document.getElementById('website-hp').value.trim() !== '') return;
+
+      const db = getDb();
+      const type = document.getElementById('ticket-type').value;
+      const message = document.getElementById('ticket-msg').value.trim();
+      const statusEl = document.getElementById('form-status');
+      const btn = document.getElementById('btn-submit');
+
+      if (message.length < 5) {
+        statusEl.className = 'msg-status err';
+        statusEl.textContent = 'Wpisz minimum 5 znaków.';
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.className = 'msg-status';
+      statusEl.textContent = 'Wysyłanie...';
+
+      const email = currentSession.user.email || 'gracz@hub';
+      const base = email.split('@')[0];
+      const nick = base.charAt(0).toUpperCase() + base.slice(1);
+
+      const { error } = await db.from('feedback_tickets').insert([{
+        user_id: currentSession.user.id,
+        author_nick: nick,
+        ticket_type: type,
+        message
+      }]);
+
+      btn.disabled = false;
+
+      if (error) {
+        statusEl.className = 'msg-status err';
+        statusEl.textContent = `Nie udało się zapisać: ${error.message}`;
+        return;
+      }
+
+      document.getElementById('ticket-msg').value = '';
+      document.getElementById('char-counter').textContent = '0 / 1500';
+      statusEl.className = 'msg-status';
+      statusEl.textContent = 'Zgłoszenie zapisane! Dziękuję za sygnał.';
+      await loadTickets();
+    }
+
+    async function loadTickets() {
+      const db = getDb();
+      const listEl = document.getElementById('ticket-list');
+      listEl.innerHTML = '<div style="color:#8b95a5;font-size:0.88rem;">Ładowanie zgłoszeń...</div>';
+
+      const { data, error } = await db
+        .from('feedback_tickets')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        listEl.innerHTML = `<div style="color:#fda4af;font-size:0.88rem;">Błąd odczytu: ${escapeHtml(error.message)}</div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        listEl.innerHTML = '<div style="color:#8b95a5;font-size:0.88rem;">Brak zgłoszeń do wyświetlenia.</div>';
+        return;
+      }
+
+      const typeMap = {
+        bug: { label: 'Błąd', cls: 'badge-bug' },
+        idea: { label: 'Pomysł', cls: 'badge-idea' },
+        other: { label: 'Uwaga', cls: 'badge-other' }
+      };
+
+      const statusLabels = {
+        nowe: 'Nowe',
+        w_trakcie: 'W trakcie',
+        zrobione: 'Wdrożone / Zrobione',
+        odrzucone: 'Zamknięte'
+      };
+
+      listEl.innerHTML = data.map(t => {
+        const meta = typeMap[t.ticket_type] || typeMap.other;
+        const dateStr = new Date(t.created_at).toLocaleString('pl-PL', {
+          day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const replyBlock = t.admin_reply
+          ? `<div class="admin-reply-box"><strong>Odpowiedź Admina:</strong><br/>${escapeHtml(t.admin_reply)}</div>`
+          : '';
+
+        const adminForm = isAdmin ? `
+          <div class="admin-controls">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <select id="st-${t.id}">
+                <option value="nowe" ${t.status === 'nowe' ? 'selected' : ''}>Nowe</option>
+                <option value="w_trakcie" ${t.status === 'w_trakcie' ? 'selected' : ''}>W trakcie</option>
+                <option value="zrobione" ${t.status === 'zrobione' ? 'selected' : ''}>Wdrożone / Zrobione</option>
+                <option value="odrzucone" ${t.status === 'odrzucone' ? 'selected' : ''}>Zamknięte</option>
+              </select>
+              <input type="text" id="rep-${t.id}" value="${escapeHtml(t.admin_reply || '')}" placeholder="Wpisz odpowiedź dla autora..." style="flex:1;min-width:200px;" />
+              <button type="button" class="btn btn-sm" onclick="saveAdminReply('${t.id}')">Zapisz</button>
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="ticket-item">
+            <div class="ticket-top">
+              <div>
+                <span class="badge ${meta.cls}">${meta.label}</span>
+                <strong style="margin-left:8px;color:#cbd5e1;">${escapeHtml(t.author_nick)}</strong>
+                <span style="color:#64748b;margin-left:8px;">${dateStr}</span>
+              </div>
+              <span class="status-tag">${statusLabels[t.status] || t.status}</span>
+            </div>
+            <p class="ticket-body">${escapeHtml(t.message)}</p>
+            ${replyBlock}
+            ${adminForm}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function saveAdminReply(ticketId) {
+      if (!isAdmin) return;
+      const db = getDb();
+      const newStatus = document.getElementById(`st-${ticketId}`).value;
+      const replyText = document.getElementById(`rep-${ticketId}`).value.trim();
+
+      const { error } = await db
+        .from('feedback_tickets')
+        .update({
+          status: newStatus,
+          admin_reply: replyText || null,
+          replied_at: replyText ? new Date().toISOString() : null
+        })
+        .eq('id', ticketId);
+
+      if (error) {
+        alert('Błąd aktualizacji: ' + error.message);
+        return;
+      }
+      await loadTickets();
+    }
+
+    init();
+  </script>
+</body>
+</html>
