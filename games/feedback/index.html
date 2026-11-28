@@ -16,174 +16,71 @@
       display: flex;
       justify-content: center;
     }
-    .fb-wrap {
-      max-width: 760px;
-      width: 100%;
-    }
+    .fb-wrap { max-width: 760px; width: 100%; }
     .fb-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
     }
-    .fb-head h1 {
-      margin: 0;
-      font-size: 1.75rem;
-      color: #fff;
-    }
-    .fb-sub {
-      color: #8b95a5;
-      font-size: 0.88rem;
-      margin: 4px 0 0 0;
-    }
+    .fb-head h1 { margin: 0; font-size: 1.75rem; color: #fff; }
+    .fb-sub { color: #8b95a5; font-size: 0.88rem; margin: 4px 0 0 0; }
     .role-pill {
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      background: rgba(56, 189, 248, 0.14);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #7dd3fc;
+      padding: 5px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35); color: #7dd3fc;
     }
     .role-pill.admin {
-      background: rgba(244, 114, 182, 0.16);
-      border-color: rgba(244, 114, 182, 0.45);
-      color: #f472b6;
+      background: rgba(244, 114, 182, 0.16); border-color: rgba(244, 114, 182, 0.45); color: #f472b6;
     }
     .card {
-      background: rgba(12, 16, 26, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 16px;
+      background: rgba(12, 16, 26, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px; padding: 18px; margin-bottom: 16px;
     }
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+    .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
     select, textarea, input[type="text"] {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: #f8fafc;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      outline: none;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc; border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 0.9rem; outline: none;
     }
-    select option {
-      background: #0f172a;
-      color: #f8fafc;
-    }
-    textarea {
-      width: 100%;
-      min-height: 92px;
-      resize: vertical;
-    }
-    .hp-field {
-      position: absolute;
-      left: -9999px;
-      opacity: 0;
-      pointer-events: none;
-    }
+    select option { background: #0f172a; color: #f8fafc; }
+    textarea { width: 100%; min-height: 88px; resize: vertical; }
+    .hp-field { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
     .btn {
       background: linear-gradient(180deg, rgba(52, 211, 153, 0.24), rgba(52, 211, 153, 0.08));
-      border: 1px solid rgba(52, 211, 153, 0.45);
-      color: #34d399;
-      padding: 9px 16px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      border: 1px solid rgba(52, 211, 153, 0.45); color: #34d399;
+      padding: 9px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
     }
-    .btn:hover:not(:disabled) {
-      background: rgba(52, 211, 153, 0.32);
-    }
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 0.82rem;
-    }
-    .msg-status {
-      font-size: 0.85rem;
-      margin-top: 8px;
-      color: #7dd3fc;
-    }
-    .msg-status.err {
-      color: #fda4af;
-    }
-    .ticket-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .btn:hover:not(:disabled) { background: rgba(52, 211, 153, 0.32); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { padding: 7px 12px; font-size: 0.82rem; }
+    .msg-status { font-size: 0.85rem; margin-top: 8px; color: #7dd3fc; }
+    .msg-status.err { color: #fda4af; }
+    .ticket-list { display: flex; flex-direction: column; gap: 12px; }
     .ticket-item {
-      background: rgba(16, 21, 34, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 14px 16px;
+      background: rgba(16, 21, 34, 0.85); border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px; padding: 14px 16px;
     }
     .ticket-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 0.8rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-size: 0.8rem;
     }
-    .badge {
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.74rem;
-    }
+    .badge { padding: 3px 9px; border-radius: 999px; font-weight: 600; font-size: 0.74rem; }
     .badge-bug { background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.35); }
     .badge-idea { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
     .badge-other { background: rgba(167, 139, 250, 0.16); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.35); }
-    .status-tag {
-      color: #34d399;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.72rem;
+    .status-tag { color: #34d399; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; }
+    .status-tag.closed { color: #94a3b8; }
+    .ticket-body { margin: 0; color: #e2e8f0; font-size: 0.92rem; line-height: 1.45; white-space: pre-wrap; }
+    .thread-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .thread-msg {
+      padding: 9px 12px; border-radius: 10px; font-size: 0.87rem; line-height: 1.4;
+      background: rgba(255, 255, 255, 0.04); border-left: 3px solid #38bdf8; color: #e2e8f0;
     }
-    .ticket-body {
-      margin: 0;
-      color: #e2e8f0;
-      font-size: 0.92rem;
-      line-height: 1.45;
-      white-space: pre-wrap;
+    .thread-msg.is-admin {
+      background: rgba(52, 211, 153, 0.09); border-left-color: #34d399; color: #d1fae5;
     }
-    .admin-reply-box {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: rgba(52, 211, 153, 0.09);
-      border-left: 3px solid #34d399;
-      font-size: 0.88rem;
-      color: #d1fae5;
+    .reply-bar {
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex; gap: 8px; flex-wrap: wrap;
     }
-    .admin-controls {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .guest-box {
-      text-align: center;
-      padding: 26px 16px;
-      color: #94a3b8;
-    }
+    .guest-box { text-align: center; padding: 26px 16px; color: #94a3b8; }
   </style>
 </head>
 <body>
@@ -198,7 +95,7 @@
 
     <div id="guest-panel" class="card guest-box" style="display:none;">
       <strong>Wymagane logowanie</strong>
-      <p>Zaloguj się w bocznym menu Andrew Hub, aby wysłać zgłoszenie błędu lub pomysł na nową funkcję oraz śledzić odpowiedzi.</p>
+      <p>Zaloguj się w bocznym menu Andrew Hub, aby wysłać zgłoszenie błędu lub pomysł oraz prowadzić rozmowę ze mną.</p>
     </div>
 
     <div id="auth-panel" style="display:none;">
@@ -210,7 +107,6 @@
               <option value="idea" selected>💡 Pomysł na nową funkcję / grę</option>
               <option value="other">💬 Inna uwaga</option>
             </select>
-            <!-- Honeypot przeciw prostym botom -->
             <input type="text" id="website-hp" class="hp-field" tabindex="-1" autocomplete="off" />
           </div>
           <textarea id="ticket-msg" maxlength="1500" placeholder="Opisz krótko, co poprawić albo jaki moduł warto dodać do huba..." required></textarea>
@@ -233,11 +129,11 @@
   </div>
 
   <script>
-    // Wpisz tutaj dokładnie ten sam e-mail, który ustawiłeś w politykach RLS w Supabase
     const ADMIN_EMAIL = 'andrzejandrewendrju@gmail.com'.toLowerCase();
 
     let currentSession = null;
     let isAdmin = false;
+    let ticketsCache = [];
 
     function getDb() {
       return window.parent?.dbClient || window.dbClient;
@@ -247,6 +143,12 @@
       return String(str || '').replace(/[&<>"']/g, m => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       }[m]));
+    }
+
+    function getMyNick() {
+      const email = currentSession?.user?.email || 'gracz@hub';
+      const base = email.split('@')[0];
+      return base.charAt(0).toUpperCase() + base.slice(1);
     }
 
     document.getElementById('ticket-msg').addEventListener('input', (e) => {
@@ -273,7 +175,7 @@
       const email = (session.user.email || '').toLowerCase();
       isAdmin = email === ADMIN_EMAIL;
 
-      rolePill.textContent = isAdmin ? 'Super Admin (wszystkie zgłoszenia)' : `Zalogowany: ${email.split('@')[0]}`;
+      rolePill.textContent = isAdmin ? 'Super Admin (wszystkie zgłoszenia)' : `Zalogowany: ${getMyNick()}`;
       if (isAdmin) rolePill.classList.add('admin');
 
       document.getElementById('list-heading').textContent = isAdmin
@@ -287,8 +189,6 @@
     async function submitTicket(e) {
       e.preventDefault();
       if (!currentSession?.user) return;
-
-      // Honeypot: jeśli ukryte pole jest wypełnione, ignorujemy bota
       if (document.getElementById('website-hp').value.trim() !== '') return;
 
       const db = getDb();
@@ -307,15 +207,12 @@
       statusEl.className = 'msg-status';
       statusEl.textContent = 'Wysyłanie...';
 
-      const email = currentSession.user.email || 'gracz@hub';
-      const base = email.split('@')[0];
-      const nick = base.charAt(0).toUpperCase() + base.slice(1);
-
       const { error } = await db.from('feedback_tickets').insert([{
         user_id: currentSession.user.id,
-        author_nick: nick,
+        author_nick: getMyNick(),
         ticket_type: type,
-        message
+        message,
+        thread: []
       }]);
 
       btn.disabled = false;
@@ -329,7 +226,7 @@
       document.getElementById('ticket-msg').value = '';
       document.getElementById('char-counter').textContent = '0 / 1500';
       statusEl.className = 'msg-status';
-      statusEl.textContent = 'Zgłoszenie zapisane! Dziękuję za sygnał.';
+      statusEl.textContent = 'Zgłoszenie wysłane! Powiadomienie trafiło na Discorda.';
       await loadTickets();
     }
 
@@ -349,7 +246,8 @@
         return;
       }
 
-      if (!data || data.length === 0) {
+      ticketsCache = data || [];
+      if (ticketsCache.length === 0) {
         listEl.innerHTML = '<div style="color:#8b95a5;font-size:0.88rem;">Brak zgłoszeń do wyświetlenia.</div>';
         return;
       }
@@ -367,30 +265,51 @@
         odrzucone: 'Zamknięte'
       };
 
-      listEl.innerHTML = data.map(t => {
+      listEl.innerHTML = ticketsCache.map(t => {
         const meta = typeMap[t.ticket_type] || typeMap.other;
         const dateStr = new Date(t.created_at).toLocaleString('pl-PL', {
           day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
-        const replyBlock = t.admin_reply
-          ? `<div class="admin-reply-box"><strong>Odpowiedź Admina:</strong><br/>${escapeHtml(t.admin_reply)}</div>`
-          : '';
+        // Zgodność wsteczna ze starszym polem admin_reply + nowa tablica thread
+        const messages = Array.isArray(t.thread) ? [...t.thread] : [];
+        if (messages.length === 0 && t.admin_reply) {
+          messages.push({ author: 'Admin', isAdmin: true, text: t.admin_reply, at: t.replied_at || t.created_at });
+        }
 
-        const adminForm = isAdmin ? `
-          <div class="admin-controls">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        const threadHtml = messages.length ? `
+          <div class="thread-box">
+            ${messages.map(m => {
+              const time = m.at ? new Date(m.at).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+              return `
+                <div class="thread-msg ${m.isAdmin ? 'is-admin' : ''}">
+                  <div style="font-size:0.75rem;opacity:0.8;margin-bottom:3px;">
+                    <strong>${escapeHtml(m.author || (m.isAdmin ? 'Admin' : t.author_nick))}</strong> • ${time}
+                  </div>
+                  <div style="white-space:pre-wrap;">${escapeHtml(m.text)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : '';
+
+        const isClosed = t.status === 'odrzucone';
+        const canReply = isAdmin || !isClosed;
+
+        const replyBar = canReply ? `
+          <div class="reply-bar">
+            ${isAdmin ? `
               <select id="st-${t.id}">
                 <option value="nowe" ${t.status === 'nowe' ? 'selected' : ''}>Nowe</option>
                 <option value="w_trakcie" ${t.status === 'w_trakcie' ? 'selected' : ''}>W trakcie</option>
                 <option value="zrobione" ${t.status === 'zrobione' ? 'selected' : ''}>Wdrożone / Zrobione</option>
                 <option value="odrzucone" ${t.status === 'odrzucone' ? 'selected' : ''}>Zamknięte</option>
               </select>
-              <input type="text" id="rep-${t.id}" value="${escapeHtml(t.admin_reply || '')}" placeholder="Wpisz odpowiedź dla autora..." style="flex:1;min-width:200px;" />
-              <button type="button" class="btn btn-sm" onclick="saveAdminReply('${t.id}')">Zapisz</button>
-            </div>
+            ` : ''}
+            <input type="text" id="rep-${t.id}" placeholder="${isAdmin ? 'Odpowiedz lub zmień status...' : 'Dopiszesz odpowiedź do wątku...'}" style="flex:1;min-width:200px;" />
+            <button type="button" class="btn btn-sm" onclick="postReply('${t.id}')">Wyślij</button>
           </div>
-        ` : '';
+        ` : `<div style="margin-top:8px;font-size:0.78rem;color:#64748b;">Wątek został zamknięty przez administratora.</div>`;
 
         return `
           <div class="ticket-item">
@@ -400,35 +319,64 @@
                 <strong style="margin-left:8px;color:#cbd5e1;">${escapeHtml(t.author_nick)}</strong>
                 <span style="color:#64748b;margin-left:8px;">${dateStr}</span>
               </div>
-              <span class="status-tag">${statusLabels[t.status] || t.status}</span>
+              <span class="status-tag ${isClosed ? 'closed' : ''}">${statusLabels[t.status] || t.status}</span>
             </div>
             <p class="ticket-body">${escapeHtml(t.message)}</p>
-            ${replyBlock}
-            ${adminForm}
+            ${threadHtml}
+            ${replyBar}
           </div>
         `;
       }).join('');
     }
 
-    async function saveAdminReply(ticketId) {
-      if (!isAdmin) return;
+    async function postReply(ticketId) {
       const db = getDb();
-      const newStatus = document.getElementById(`st-${ticketId}`).value;
-      const replyText = document.getElementById(`rep-${ticketId}`).value.trim();
+      const ticket = ticketsCache.find(item => item.id === ticketId);
+      if (!ticket) return;
+
+      const inputEl = document.getElementById(`rep-${ticketId}`);
+      const text = inputEl ? inputEl.value.trim() : '';
+      const nextStatus = isAdmin
+        ? document.getElementById(`st-${ticketId}`).value
+        : ticket.status;
+
+      if (!text && (!isAdmin || nextStatus === ticket.status)) {
+        return;
+      }
+
+      const currentThread = Array.isArray(ticket.thread) ? [...ticket.thread] : [];
+      if (currentThread.length === 0 && ticket.admin_reply) {
+        currentThread.push({ author: 'Admin', isAdmin: true, text: ticket.admin_reply, at: ticket.replied_at || ticket.created_at });
+      }
+
+      if (text) {
+        currentThread.push({
+          author: isAdmin ? 'Admin' : getMyNick(),
+          isAdmin,
+          text,
+          at: new Date().toISOString()
+        });
+      }
+
+      const updatePayload = { thread: currentThread };
+      if (isAdmin) {
+        updatePayload.status = nextStatus;
+        if (text) {
+          updatePayload.admin_reply = text;
+          updatePayload.replied_at = new Date().toISOString();
+        }
+      }
 
       const { error } = await db
         .from('feedback_tickets')
-        .update({
-          status: newStatus,
-          admin_reply: replyText || null,
-          replied_at: replyText ? new Date().toISOString() : null
-        })
+        .update(updatePayload)
         .eq('id', ticketId);
 
       if (error) {
-        alert('Błąd aktualizacji: ' + error.message);
+        alert('Nie udało się zapisać odpowiedzi: ' + error.message);
         return;
       }
+
       await loadTickets();
     }
 
