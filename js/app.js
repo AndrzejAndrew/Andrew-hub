@@ -7,13 +7,100 @@ const activeGameTitle = document.getElementById('active-game-title');
 let newsDataCache = null;
 let loadedGamesCache = [];
 let isLoggedIn = false;
+let currentUserId = null;
+
+let activeFilter = 'all';
+let favoriteIds = [];
+let customOrderIds = [];
+let isLayoutEditMode = false;
+
+const LOCAL_FAVS_KEY = 'andrew_hub_guest_favs';
+const LOCAL_ORDER_KEY = 'andrew_hub_guest_order';
 
 // 1. Inicjalizacja portalu
 async function initHub() {
   initTheme();
   initCli();
+  ensureLayoutButtonInTopbar();
+  loadGuestPrefs();
   await Promise.all([loadGames(), loadNews()]);
   attachSpotlightEffect();
+}
+
+function ensureLayoutButtonInTopbar() {
+  const topbarWidgets = document.querySelector('.topbar-widgets');
+  if (!topbarWidgets || document.getElementById('btn-toggle-layout')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'btn-toggle-layout';
+  btn.type = 'button';
+  btn.className = 'btn-layout-toggle';
+  btn.textContent = '✏️ Układ kafelków';
+  btn.addEventListener('click', () => setLayoutEditMode(!isLayoutEditMode));
+  topbarWidgets.appendChild(btn);
+}
+
+function loadGuestPrefs() {
+  try {
+    favoriteIds = JSON.parse(localStorage.getItem(LOCAL_FAVS_KEY) || '[]');
+    customOrderIds = JSON.parse(localStorage.getItem(LOCAL_ORDER_KEY) || '[]');
+    if (!Array.isArray(favoriteIds)) favoriteIds = [];
+    if (!Array.isArray(customOrderIds)) customOrderIds = [];
+  } catch (_) {
+    favoriteIds = [];
+    customOrderIds = [];
+  }
+}
+
+async function syncUserPrefsFromSupabase(userId) {
+  if (!userId || !window.dbClient) return;
+  try {
+    const { data, error } = await window.dbClient
+      .from('user_preferences')
+      .select('favorite_ids, custom_order')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('Błąd odczytu preferencji:', error.message);
+      return;
+    }
+
+    if (data) {
+      favoriteIds = Array.isArray(data.favorite_ids) ? data.favorite_ids : [];
+      customOrderIds = Array.isArray(data.custom_order) ? data.custom_order : [];
+    } else {
+      favoriteIds = [];
+      customOrderIds = [];
+    }
+    await renderGamesGrid();
+  } catch (err) {
+    console.warn('Wyjątek odczytu preferencji:', err);
+  }
+}
+
+async function persistPrefs() {
+  if (isLoggedIn && currentUserId && window.dbClient) {
+    try {
+      const { error } = await window.dbClient
+        .from('user_preferences')
+        .upsert([{
+          user_id: currentUserId,
+          favorite_ids: favoriteIds,
+          custom_order: customOrderIds,
+          updated_at: new Date().toISOString()
+        }], { onConflict: 'user_id' });
+
+      if (error) {
+        console.warn('Błąd zapisu preferencji w Supabase:', error.message);
+      }
+    } catch (err) {
+      console.warn('Wyjątek zapisu preferencji:', err);
+    }
+  } else {
+    localStorage.setItem(LOCAL_FAVS_KEY, JSON.stringify(favoriteIds));
+    localStorage.setItem(LOCAL_ORDER_KEY, JSON.stringify(customOrderIds));
+  }
 }
 
 // =========================================================
@@ -71,7 +158,7 @@ function executeCliCommand(rawCmd) {
   const arg = parts.slice(1).join(' ').toLowerCase();
 
   if (cmd === 'help') {
-    cliPrint('Komendy:\n  ls                                  - lista gier i projektów\n  play <nazwa/id>                     - uruchom grę\n  theme <default|dark|light|terminal> - zmień skórkę\n  filter <all|strategy|arcade|news>   - filtruj kafelki\n  close                               - zamknij grę\n  clear                               - wyczyść konsolę');
+    cliPrint('Komendy:\n  ls                                       - lista gier i projektów\n  play <nazwa/id>                          - uruchom grę\n  theme <default|dark|light|terminal>      - zmień skórkę\n  filter <all|favorites|strategy|arcade>   - filtruj kafelki\n  close                                    - zamknij grę\n  clear                                    - wyczyść konsolę');
     return;
   }
 
@@ -86,7 +173,10 @@ function executeCliCommand(rawCmd) {
       cliPrint('Brak załadowanych gier.');
       return;
     }
-    const list = loadedGamesCache.map(g => `  [${g.id}] ${g.title} (${g.newTab ? 'nowa karta' : g.mode})`).join('\n');
+    const list = loadedGamesCache.map(g => {
+      const star = favoriteIds.includes(g.id) ? ' ★' : '';
+      return `  [${g.id}] ${g.title}${star} (${g.newTab ? 'nowa karta' : g.mode})`;
+    }).join('\n');
     cliPrint('Moduły:\n' + list);
     return;
   }
@@ -107,7 +197,7 @@ function executeCliCommand(rawCmd) {
       btn.click();
       cliPrint(`Filtr: ${arg}`);
     } else {
-      cliPrint('Użycie: filter all | strategy | arcade | news');
+      cliPrint('Użycie: filter all | favorites | strategy | arcade | news');
     }
     return;
   }
@@ -169,54 +259,182 @@ async function loadGames() {
     const rawGames = await res.json();
     if (!Array.isArray(rawGames) || !rawGames.length) return;
 
-    document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
-
     const seen = new Set();
-    const games = rawGames.filter(g => {
-      const key = g.id || g.url || g.title;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    const games = rawGames
+      .filter(g => {
+        const key = g.id || g.url || g.title;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((g, idx) => ({
+        ...g,
+        id: g.id || `game_${idx}`
+      }));
+
     loadedGamesCache = games;
-
-    const securityCard = document.querySelector('.card-feed');
-
-    games.forEach((game, index) => {
-      const article = document.createElement('article');
-      const spotlightClass = game.spotlight ? `is-spotlight spotlight-${game.spotlight}` : '';
-      article.className = `bento-item ${game.span || 'span-1x1'} ${game.featured ? 'card-featured' : ''} ${spotlightClass}`.trim();
-      article.dataset.category = game.category || 'arcade';
-      article.dataset.type = 'game';
-
-      const isExternalNewTab = Boolean(game.newTab || game.mode === 'newtab' || /^https?:\/\//i.test(game.url));
-      const modeLabel = isExternalNewTab ? 'Nowa Karta ↗' : (game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu');
-      const btnHtml = game.featured
-        ? `<button class="btn-launch" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isExternalNewTab})">Uruchom ${game.title} ${isExternalNewTab ? '↗' : '→'}</button>`
-        : `<button class="btn-launch-sm" onclick="launchGame('${game.title}', '${game.url}', '${game.mode}', ${isExternalNewTab})">${isExternalNewTab ? 'Otwórz ↗' : 'Graj'}</button>`;
-
-      article.innerHTML = `
-        <div class="card-glow"></div>
-        <div class="card-top">
-          <span class="tag tag-${game.tagColor || 'cyan'}">${game.tag || 'Gra'}</span>
-          <span class="tag tag-outline">${modeLabel}</span>
-        </div>
-        <div class="card-body">
-          <h3>${game.title}</h3>
-          <p>${game.description || ''}</p>
-        </div>
-        <div class="card-actions">${btnHtml}</div>
-      `;
-
-      if (index === 0 && securityCard) {
-        dashboard.insertBefore(article, securityCard);
-      } else {
-        dashboard.appendChild(article);
-      }
-    });
+    await renderGamesGrid();
   } catch (err) {
     console.warn('Używam domyślnych kafelków z HTML:', err);
   }
+}
+
+function getOrderedGames() {
+  if (!Array.isArray(customOrderIds) || !customOrderIds.length) {
+    return [...loadedGamesCache];
+  }
+  const indexMap = new Map(customOrderIds.map((id, idx) => [id, idx]));
+  return [...loadedGamesCache].sort((a, b) => {
+    const ia = indexMap.has(a.id) ? indexMap.get(a.id) : 9999;
+    const ib = indexMap.has(b.id) ? indexMap.get(b.id) : 9999;
+    return ia - ib;
+  });
+}
+
+function ensureLayoutToolbar() {
+  let bar = document.getElementById('layout-toolbar');
+  if (!isLayoutEditMode) {
+    bar?.remove();
+    return;
+  }
+  if (!bar && dashboard && dashboard.parentNode) {
+    bar = document.createElement('div');
+    bar.id = 'layout-toolbar';
+    bar.className = 'layout-toolbar';
+    bar.innerHTML = `
+      <span>
+        <strong>Tryb układania kafelków</strong> — przesuwaj kafelki strzałkami ◀ / ▶.
+        ${isLoggedIn ? 'Zmiany zapisują się na Twoim koncie w Supabase.' : 'Tryb gościa: zapis lokalny w przeglądarce.'}
+      </span>
+      <div class="layout-toolbar-actions">
+        <button type="button" class="btn-move-card" onclick="saveCurrentLayout()">💾 Zapisz układ</button>
+        <button type="button" class="btn-ghost" onclick="resetDefaultLayout()">↺ Domyślny układ</button>
+        <button type="button" class="btn-ghost" onclick="setLayoutEditMode(false)">Gotowe</button>
+      </div>
+    `;
+    dashboard.parentNode.insertBefore(bar, dashboard);
+  }
+}
+
+function setLayoutEditMode(enabled) {
+  isLayoutEditMode = Boolean(enabled);
+  document.body.classList.toggle('layout-edit-mode', isLayoutEditMode);
+  const toggleBtn = document.getElementById('btn-toggle-layout');
+  if (toggleBtn) {
+    toggleBtn.classList.toggle('active', isLayoutEditMode);
+    toggleBtn.textContent = isLayoutEditMode ? '✅ Edycja układu' : '✏️ Układ kafelków';
+  }
+  ensureLayoutToolbar();
+}
+
+window.moveGameCard = function(gameId, delta) {
+  const ordered = getOrderedGames();
+  const idx = ordered.findIndex(g => g.id === gameId);
+  if (idx === -1) return;
+  const targetIdx = idx + delta;
+  if (targetIdx < 0 || targetIdx >= ordered.length) return;
+
+  const [moved] = ordered.splice(idx, 1);
+  ordered.splice(targetIdx, 0, moved);
+  customOrderIds = ordered.map(g => g.id);
+  renderGamesGrid();
+};
+
+window.saveCurrentLayout = async function() {
+  if (!customOrderIds.length) {
+    customOrderIds = loadedGamesCache.map(g => g.id);
+  }
+  await persistPrefs();
+  setLayoutEditMode(false);
+};
+
+window.resetDefaultLayout = async function() {
+  customOrderIds = [];
+  await persistPrefs();
+  await renderGamesGrid();
+};
+
+window.toggleFavoriteGame = async function(event, gameId) {
+  event.stopPropagation();
+  const exists = favoriteIds.includes(gameId);
+  if (exists) {
+    favoriteIds = favoriteIds.filter(id => id !== gameId);
+  } else {
+    favoriteIds = [...favoriteIds, gameId];
+  }
+  await persistPrefs();
+  await renderGamesGrid();
+};
+
+async function renderGamesGrid() {
+  if (!dashboard || !loadedGamesCache.length) return;
+
+  document.querySelectorAll('.bento-item[data-type="game"]').forEach(el => el.remove());
+
+  const orderedGames = getOrderedGames();
+  const securityCard = document.querySelector('.card-feed');
+
+  orderedGames.forEach((game, index) => {
+    const isFav = favoriteIds.includes(game.id);
+    const article = document.createElement('article');
+    const spotlightClass = game.spotlight ? `is-spotlight spotlight-${game.spotlight}` : '';
+    article.className = `bento-item ${game.span || 'span-1x1'} ${game.featured ? 'card-featured' : ''} ${spotlightClass}`.trim();
+    article.dataset.category = game.category || 'arcade';
+    article.dataset.type = 'game';
+    article.dataset.gameId = game.id;
+    article.dataset.fav = isFav ? '1' : '0';
+
+    const isExternalNewTab = Boolean(game.newTab || game.mode === 'newtab' || /^https?:\/\//i.test(game.url));
+    const modeLabel = isExternalNewTab ? 'Nowa Karta ↗' : (game.mode === 'fullscreen' ? 'Pełny Ekran' : 'Widok z Menu');
+    const safeTitle = String(game.title || '').replace(/'/g, "\\'");
+    const safeUrl = String(game.url || '').replace(/'/g, "\\'");
+    const btnHtml = game.featured
+      ? `<button class="btn-launch" onclick="launchGame('${safeTitle}', '${safeUrl}', '${game.mode}', ${isExternalNewTab})">Uruchom ${game.title} ${isExternalNewTab ? '↗' : '→'}</button>`
+      : `<button class="btn-launch-sm" onclick="launchGame('${safeTitle}', '${safeUrl}', '${game.mode}', ${isExternalNewTab})">${isExternalNewTab ? 'Otwórz ↗' : 'Graj'}</button>`;
+
+    article.innerHTML = `
+      <div class="card-glow"></div>
+      <div class="card-top">
+        <span class="tag tag-${game.tagColor || 'cyan'}">${game.tag || 'Gra'}</span>
+        <div class="card-top-right">
+          <span class="tag tag-outline">${modeLabel}</span>
+          <button type="button" class="btn-fav ${isFav ? 'is-fav' : ''}" title="${isFav ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}" onclick="toggleFavoriteGame(event, '${game.id}')">${isFav ? '★' : '☆'}</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>${game.title}</h3>
+        <p>${game.description || ''}</p>
+      </div>
+      <div class="card-actions">
+        ${btnHtml}
+        <div class="reorder-controls">
+          <button type="button" class="btn-move-card" title="Przesuń wcześniej" onclick="moveGameCard('${game.id}', -1)">◀</button>
+          <button type="button" class="btn-move-card" title="Przesuń dalej" onclick="moveGameCard('${game.id}', 1)">▶</button>
+        </div>
+      </div>
+    `;
+
+    if (!customOrderIds.length && index === 0 && securityCard) {
+      dashboard.insertBefore(article, securityCard);
+    } else {
+      dashboard.appendChild(article);
+    }
+  });
+
+  applyCurrentFilter();
+}
+
+function applyCurrentFilter() {
+  document.querySelectorAll('.bento-item').forEach(item => {
+    if (activeFilter === 'all') {
+      item.style.display = 'flex';
+    } else if (activeFilter === 'favorites') {
+      const show = item.dataset.type === 'game' && item.dataset.fav === '1';
+      item.style.display = show ? 'flex' : 'none';
+    } else {
+      item.style.display = item.dataset.category === activeFilter ? 'flex' : 'none';
+    }
+  });
 }
 
 function uniqueNewsItems(items) {
@@ -341,16 +559,9 @@ document.querySelectorAll('.nav-btn[data-filter]').forEach(btn => {
     document.querySelectorAll('.nav-btn[data-filter]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const filter = btn.dataset.filter;
+    activeFilter = btn.dataset.filter;
     closeGame();
-
-    document.querySelectorAll('.bento-item').forEach(item => {
-      if (filter === 'all' || item.dataset.category === filter) {
-        item.style.display = 'flex';
-      } else {
-        item.style.display = 'none';
-      }
-    });
+    applyCurrentFilter();
   });
 });
 
@@ -437,8 +648,9 @@ function showAuthMsg(msg, isSuccess) {
   authError.classList.remove('hidden');
 }
 
-window.dbClient.auth.onAuthStateChange((event, session) => {
+window.dbClient.auth.onAuthStateChange(async (event, session) => {
   isLoggedIn = !!session;
+  currentUserId = session?.user?.id || null;
 
   if (isLoggedIn) {
     const email = session.user.email;
@@ -449,12 +661,15 @@ window.dbClient.auth.onAuthStateChange((event, session) => {
     document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
     btnAuth.textContent = 'Wyloguj';
     document.getElementById('lock-indicator').textContent = '🔓 Odblokowano';
+    await syncUserPrefsFromSupabase(currentUserId);
   } else {
     document.getElementById('user-name').textContent = 'Tryb Gościa';
     document.getElementById('user-role').textContent = 'Tylko publiczne moduły';
     document.getElementById('user-avatar').textContent = '?';
     btnAuth.textContent = 'Zaloguj się';
     document.getElementById('lock-indicator').textContent = '🔒 Wymagane logowanie';
+    loadGuestPrefs();
+    await renderGamesGrid();
   }
 
   renderLeclercFeed();
