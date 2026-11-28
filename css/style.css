@@ -958,3 +958,98 @@ body.layout-edit-mode .reorder-controls {
 .btn-move-card:hover {
   background: rgba(56, 189, 248, 0.26);
 }
+/* =========================================================
+   EASTER EGG: BAŁWANEK, ŚNIEG NA RAMKACH I TRYB ŚWIĄTECZNY
+   ========================================================= */
+.snowman-egg {
+  align-self: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.72;
+  transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+.snowman-egg:hover {
+  opacity: 1;
+  transform: scale(1.12) rotate(-6deg);
+  box-shadow: 0 0 14px rgba(125, 211, 252, 0.35);
+}
+
+#snow-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 40;
+  display: none;
+}
+
+body.festive-winter #snow-canvas {
+  display: block;
+}
+
+body.festive-winter .snowman-egg {
+  opacity: 1;
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.5);
+}
+
+/* Świąteczna paleta i "śnieg na ramkach" */
+body.festive-winter .bento-item,
+body.festive-winter .topbar,
+body.festive-winter .sidebar {
+  border-color: rgba(125, 211, 252, 0.42);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.85),
+    0 0 18px rgba(56, 189, 248, 0.14);
+}
+
+body.festive-winter .bento-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 6px;
+  border-radius: 0 0 999px 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(224, 242, 254, 0.95) 45%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+  box-shadow: 0 2px 8px rgba(186, 230, 253, 0.55);
+  pointer-events: none;
+}
+
+body.festive-winter .nav-btn.active {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(248, 113, 113, 0.55);
+  color: #fecaca;
+}
+
+body.festive-winter .btn-launch,
+body.festive-winter .btn-launch-sm,
+body.festive-winter .btn-fav.is-fav {
+  border-color: rgba(52, 211, 153, 0.7);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+
+body.festive-winter .tag-cyan {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+body.festive-winter .tag-mint {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border-color: rgba(74, 222, 128, 0.45);
+}
