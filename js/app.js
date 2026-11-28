@@ -735,3 +735,76 @@ window.saveGameScore = async function(gameId, mode, result, score, meta = {}) {
     return { ok: false };
   }
 };
+// =========================================================
+// EASTER EGG: TRYB ŚWIĄTECZNY / ZIMOWY (BAŁWANEK + CLI)
+// =========================================================
+let festiveWinterActive = false;
+let snowCanvasEl = null;
+let snowCtx = null;
+let snowFlakes = [];
+let snowAnimId = null;
+
+function ensureSnowCanvas() {
+  if (snowCanvasEl) return;
+  snowCanvasEl = document.createElement('canvas');
+  snowCanvasEl.id = 'snow-canvas';
+  document.body.appendChild(snowCanvasEl);
+  snowCtx = snowCanvasEl.getContext('2d');
+
+  const resize = () => {
+    if (!snowCanvasEl) return;
+    snowCanvasEl.width = window.innerWidth;
+    snowCanvasEl.height = window.innerHeight;
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  snowFlakes = Array.from({ length: 75 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 2.6 + 1.2,
+    vy: Math.random() * 1.1 + 0.6,
+    drift: Math.random() * 1.4 - 0.7,
+    phase: Math.random() * Math.PI * 2
+  }));
+}
+
+function renderSnowLoop() {
+  if (!festiveWinterActive || !snowCtx || !snowCanvasEl) return;
+  snowCtx.clearRect(0, 0, snowCanvasEl.width, snowCanvasEl.height);
+  snowCtx.fillStyle = 'rgba(248, 250, 252, 0.85)';
+
+  for (const f of snowFlakes) {
+    f.phase += 0.02;
+    f.y += f.vy;
+    f.x += f.drift + Math.sin(f.phase) * 0.45;
+
+    if (f.y > snowCanvasEl.height + 10) {
+      f.y = -10;
+      f.x = Math.random() * snowCanvasEl.width;
+    }
+    if (f.x < -10) f.x = snowCanvasEl.width + 10;
+    if (f.x > snowCanvasEl.width + 10) f.x = -10;
+
+    snowCtx.beginPath();
+    snowCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    snowCtx.fill();
+  }
+
+  snowAnimId = requestAnimationFrame(renderSnowLoop);
+}
+
+window.toggleFestiveWinter = function(forceState = null) {
+  festiveWinterActive = typeof forceState === 'boolean' ? forceState : !festiveWinterActive;
+  document.body.classList.toggle('festive-winter', festiveWinterActive);
+
+  if (festiveWinterActive) {
+    ensureSnowCanvas();
+    if (snowAnimId) cancelAnimationFrame(snowAnimId);
+    renderSnowLoop();
+  } else if (snowAnimId) {
+    cancelAnimationFrame(snowAnimId);
+    snowAnimId = null;
+  }
+  return festiveWinterActive;
+};
