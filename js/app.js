@@ -229,6 +229,12 @@ function executeCliCommand(rawCmd) {
   }
 
   cliPrint(`Nieznana komenda: "${cmd}". Wpisz "help".`);
+  
+  if (cmd === 'winter' || cmd === 'santa') {
+    const active = window.toggleFestiveWinter();
+    cliPrint(active ? 'Tryb zimowy/świąteczny: WŁĄCZONY ⛄❄️' : 'Tryb zimowy/świąteczny: WYŁĄCZONY.');
+    return;
+  }
 }
 
 function initCli() {
