@@ -863,3 +863,98 @@ body[data-theme="terminal"] .cli-input,
 body[data-theme="terminal"] .cli-output {
   color: #00ff66 !important;
 }
+/* =========================================================
+   ULUBIONE (★) I WŁASNY UKŁAD KAFELKÓW
+   ========================================================= */
+.card-top-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-fav {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #94a3b8;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.btn-fav:hover {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.45);
+}
+
+.btn-fav.is-fav {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.14);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.btn-layout-toggle {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.btn-layout-toggle:hover,
+.btn-layout-toggle.active {
+  border-color: var(--accent-mint);
+  background: rgba(52, 211, 153, 0.16);
+  color: var(--accent-mint);
+}
+
+.layout-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  font-size: 0.86rem;
+}
+
+.layout-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reorder-controls {
+  display: none;
+  gap: 6px;
+  align-items: center;
+}
+
+body.layout-edit-mode .reorder-controls {
+  display: inline-flex;
+}
+
+.btn-move-card {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.14);
+  color: #7dd3fc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-move-card:hover {
+  background: rgba(56, 189, 248, 0.26);
+}
